@@ -6,6 +6,9 @@ description: A simple Spigot plugin for reporting issues and feedback.
 authors:
     - Framedev
 
+libraries:
+  - org.xerial:sqlite-jdbc:3.50.3.0
+
 commands:
   report:
     description: A command to report issues or feedback.
