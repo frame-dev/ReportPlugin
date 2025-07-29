@@ -1,6 +1,6 @@
 name: ReportPlugin
 version: '1.0-SNAPSHOT'
-main: ch.framedev.reportPlugin.ReportPlugin
+main: ch.framedev.reportPlugin.main.ReportPlugin
 api-version: '1.21'
 description: A simple Spigot plugin for reporting issues and feedback.
 authors:

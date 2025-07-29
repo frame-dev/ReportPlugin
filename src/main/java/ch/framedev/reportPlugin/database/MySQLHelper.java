@@ -1,4 +1,4 @@
-package ch.framedev.reportPlugin;
+package ch.framedev.reportPlugin.database;
 
 
 
@@ -8,43 +8,54 @@ package ch.framedev.reportPlugin;
  * This File was Created by FrameDev
  * Please do not change anything without my consent!
  * =============================================
- * This Class was created at 29.07.2025 21:30
+ * This Class was created at 29.07.2025 21:29
  */
 
+import ch.framedev.reportPlugin.utils.Report;
+import ch.framedev.reportPlugin.main.ReportPlugin;
 import com.google.gson.Gson;
 
 import java.sql.Connection;
 import java.util.List;
 
-public class SQLiteHelper implements DatabaseHelper {
+public class MySQLHelper implements DatabaseHelper {
 
-    private final SQLite sqLite;
+    private final MySQL mySQL;
 
-    public SQLiteHelper(ReportPlugin plugin) {
-        String path = plugin.getConfig().getString("sqlite.path", plugin.getDataFolder() + "database");
-        String databaseName = plugin.getConfig().getString("sqlite.database", "reports.db");
-        if (path == null || databaseName == null) {
-            throw new IllegalArgumentException("SQLite configuration is incomplete. Please check your config file.");
+    public MySQLHelper(ReportPlugin plugin) {
+        String host = plugin.getConfig().getString("mysql.host", "localhost");
+        String database = plugin.getConfig().getString("mysql.database", "database");
+        String username = plugin.getConfig().getString("mysql.username", "root");
+        String password = plugin.getConfig().getString("mysql.password", "password");
+        int port = plugin.getConfig().getInt("mysql.port", 3306);
+        if (host == null || database == null || username == null || password == null) {
+            throw new IllegalArgumentException("MySQL configuration is incomplete. Please check your config file.");
         }
-        this.sqLite = new SQLite(path, databaseName);
-        plugin.getLogger().info("Connecting to SQLite database at " + sqLite.getPath() + " with database " + sqLite.getDatabaseName());
+        this.mySQL = new MySQL(host, database, username, password, port);
+        plugin.getLogger().info("Connecting to MySQL database at " + host + ":" + port + " with database " + database);
+        plugin.getLogger().info("Using username: " + username);
+        plugin.getLogger().info("Using password: " + (password.isEmpty() ? "not set" : "********") + " (hidden for security reasons)");
+        plugin.getLogger().info("MySQL connection established successfully.");
+        plugin.getLogger().info("Creating reports table...");
         createTable();
-        plugin.getLogger().info("SQLite database initialized successfully.");
+        plugin.getLogger().info("Database initialized successfully.");
     }
 
     public void createTable() {
-        try (Connection connection = sqLite.connect()) {
-            if (connection != null) {
-                String sql = "CREATE TABLE IF NOT EXISTS reports (" +
-                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                             "report_id TEXT NOT NULL UNIQUE, " +
-                             "reported_player TEXT NOT NULL, " +
-                             "reporter TEXT NOT NULL, " +
-                             "data TEXT NOT NULL" +
-                             ")";
-                connection.createStatement().executeUpdate(sql);
-            } else {
-                System.err.println("Failed to connect to the database.");
+        try {
+            try(Connection connection = mySQL.connect()) {
+                if (connection != null) {
+                    String sql = "CREATE TABLE IF NOT EXISTS reports (" +
+                                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                                 "report_id VARCHAR(255) NOT NULL UNIQUE, " +
+                                 "reported_player VARCHAR(255) NOT NULL, " +
+                                 "reporter VARCHAR(255) NOT NULL, " +
+                                 "data TEXT NOT NULL" +
+                                 ")";
+                    connection.createStatement().executeUpdate(sql);
+                } else {
+                    System.err.println("Failed to connect to the database.");
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -52,7 +63,7 @@ public class SQLiteHelper implements DatabaseHelper {
     }
 
     public void insertReport(Report report) {
-        try (Connection connection = sqLite.connect()) {
+        try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "INSERT INTO reports (report_id, reported_player, reporter, data) VALUES (?, ?, ?, ?)";
                 var preparedStatement = connection.prepareStatement(sql);
@@ -70,7 +81,7 @@ public class SQLiteHelper implements DatabaseHelper {
     }
 
     public boolean reportExists(String reportId) {
-        try (Connection connection = sqLite.connect()) {
+        try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "SELECT COUNT(*) FROM reports WHERE report_id = ?";
                 var preparedStatement = connection.prepareStatement(sql);
@@ -89,7 +100,7 @@ public class SQLiteHelper implements DatabaseHelper {
     }
 
     public boolean playerHasReport(String reportedPlayer) {
-        try (Connection connection = sqLite.connect()) {
+        try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "SELECT COUNT(*) FROM reports WHERE reported_player = ?";
                 var preparedStatement = connection.prepareStatement(sql);
@@ -108,7 +119,7 @@ public class SQLiteHelper implements DatabaseHelper {
     }
 
     public List<Report> getAllReports() {
-        try (Connection connection = sqLite.connect()) {
+        try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "SELECT * FROM reports";
                 var preparedStatement = connection.prepareStatement(sql);
@@ -129,7 +140,7 @@ public class SQLiteHelper implements DatabaseHelper {
     }
 
     public Report getReportByPlayer(String reportedPlayer) {
-        try (Connection connection = sqLite.connect()) {
+        try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "SELECT * FROM reports WHERE reported_player = ?";
                 var preparedStatement = connection.prepareStatement(sql);
@@ -149,7 +160,7 @@ public class SQLiteHelper implements DatabaseHelper {
     }
 
     public Report getReportByReporter(String reporter) {
-        try (Connection connection = sqLite.connect()) {
+        try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "SELECT * FROM reports WHERE reporter = ?";
                 var preparedStatement = connection.prepareStatement(sql);
@@ -169,7 +180,7 @@ public class SQLiteHelper implements DatabaseHelper {
     }
 
     public Report getReportById(String reportId) {
-        try (Connection connection = sqLite.connect()) {
+        try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "SELECT * FROM reports WHERE report_id = ?";
                 var preparedStatement = connection.prepareStatement(sql);
@@ -194,7 +205,7 @@ public class SQLiteHelper implements DatabaseHelper {
     }
 
     public void updateReport(Report report) {
-        try (Connection connection = sqLite.connect()) {
+        try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "UPDATE reports SET reported_player = ?, reporter = ?, data = ? WHERE report_id = ?";
                 var preparedStatement = connection.prepareStatement(sql);
@@ -212,7 +223,7 @@ public class SQLiteHelper implements DatabaseHelper {
     }
 
     public void deleteReport(String reportId) {
-        try (Connection connection = sqLite.connect()) {
+        try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "DELETE FROM reports WHERE report_id = ?";
                 var preparedStatement = connection.prepareStatement(sql);

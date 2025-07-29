@@ -1,4 +1,4 @@
-package ch.framedev.reportPlugin;
+package ch.framedev.reportPlugin.utils;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;

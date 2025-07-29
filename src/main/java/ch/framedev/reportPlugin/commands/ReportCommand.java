@@ -1,4 +1,4 @@
-package ch.framedev.reportPlugin;
+package ch.framedev.reportPlugin.commands;
 
 
 
@@ -11,6 +11,10 @@ package ch.framedev.reportPlugin;
  * This Class was created at 29.07.2025 18:09
  */
 
+import ch.framedev.reportPlugin.database.Database;
+import ch.framedev.reportPlugin.utils.DiscordWebhook;
+import ch.framedev.reportPlugin.utils.Report;
+import ch.framedev.reportPlugin.main.ReportPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

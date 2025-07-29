@@ -1,4 +1,4 @@
-package ch.framedev.reportPlugin;
+package ch.framedev.reportPlugin.utils;
 
 
 
@@ -11,6 +11,7 @@ package ch.framedev.reportPlugin;
  * This Class was created at 29.07.2025 18:04
  */
 
+import ch.framedev.reportPlugin.main.ReportPlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 

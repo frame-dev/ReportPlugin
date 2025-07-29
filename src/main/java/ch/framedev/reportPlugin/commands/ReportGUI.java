@@ -1,6 +1,8 @@
 // src/main/java/ch/framedev/spigotTest/ReportGUI.java
-package ch.framedev.reportPlugin;
+package ch.framedev.reportPlugin.commands;
 
+import ch.framedev.reportPlugin.database.Database;
+import ch.framedev.reportPlugin.utils.Report;
 import org.bukkit.*;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
