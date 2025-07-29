@@ -1,0 +1,183 @@
+package ch.framedev.reportPlugin;
+
+
+
+/*
+ * ch.framedev.spigotTest
+ * =============================================
+ * This File was Created by FrameDev
+ * Please do not change anything without my consent!
+ * =============================================
+ * This Class was created at 29.07.2025 18:10
+ */
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+
+public class Report {
+
+    private String reportedPlayer;
+    private String reason;
+    private String reporter;
+    private long timestamp;
+    private boolean resolved;
+    private String resolutionComment;
+    private String reportId;
+    private String serverName;
+    private String serverIp;
+    private String serverVersion;
+    private String worldName;
+    private String location; // Format: "world,x,y,z"
+    private String additionalInfo;
+
+    public Report(String reportedPlayer, String reason, String reporter, String reportId, String serverName, String serverIp, String serverVersion, String worldName, String location) {
+        this.reportedPlayer = reportedPlayer;
+        this.reason = reason;
+        this.reporter = reporter;
+        this.timestamp = System.currentTimeMillis();
+        this.resolved = false;
+        this.resolutionComment = "";
+        this.reportId = reportId;
+        this.serverName = serverName;
+        this.serverIp = serverIp;
+        this.serverVersion = serverVersion;
+        this.worldName = worldName;
+        this.location = location;
+        this.additionalInfo = "";
+    }
+
+    public String getReportedPlayer() {
+        return reportedPlayer;
+    }
+
+    public void setReportedPlayer(String reportedPlayer) {
+        this.reportedPlayer = reportedPlayer;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public String getReporter() {
+        return reporter;
+    }
+
+    public void setReporter(String reporter) {
+        this.reporter = reporter;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public boolean isResolved() {
+        return resolved;
+    }
+
+    public void setResolved(boolean resolved) {
+        this.resolved = resolved;
+    }
+
+    public String getResolutionComment() {
+        return resolutionComment;
+    }
+
+    public void setResolutionComment(String resolutionComment) {
+        this.resolutionComment = resolutionComment;
+    }
+
+    public String getReportId() {
+        return reportId;
+    }
+
+    public void setReportId(String reportId) {
+        this.reportId = reportId;
+    }
+
+    public String getServerName() {
+        return serverName;
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+
+    public String getServerIp() {
+        return serverIp;
+    }
+
+    public void setServerIp(String serverIp) {
+        this.serverIp = serverIp;
+    }
+
+    public String getServerVersion() {
+        return serverVersion;
+    }
+
+    public void setServerVersion(String serverVersion) {
+        this.serverVersion = serverVersion;
+    }
+
+    public String getWorldName() {
+        return worldName;
+    }
+
+    public void setWorldName(String worldName) {
+        this.worldName = worldName;
+    }
+
+    public static String getLocationAsString(Location location) {
+        return location.getWorld().getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public static Location getLocationAsBukkitLocation(String location) {
+        String[] parts = location.split(",");
+        if (parts.length != 4) {
+            throw new IllegalArgumentException("Invalid location format: " + location);
+        }
+        return new Location(Bukkit.getWorld(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3]));
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
+    @Override
+    public String toString() {
+        return "Report{" +
+               "reportedPlayer='" + reportedPlayer + '\'' +
+               ", reason='" + reason + '\'' +
+               ", reporter='" + reporter + '\'' +
+               ", timestamp=" + timestamp +
+               ", resolved=" + resolved +
+               ", resolutionComment='" + resolutionComment + '\'' +
+               ", reportId='" + reportId + '\'' +
+               ", serverName='" + serverName + '\'' +
+               ", serverIp='" + serverIp + '\'' +
+               ", serverVersion='" + serverVersion + '\'' +
+               ", worldName='" + worldName + '\'' +
+               ", location='" + location + '\'' +
+               ", additionalInfo='" + additionalInfo + '\'' +
+               '}';
+    }
+}
