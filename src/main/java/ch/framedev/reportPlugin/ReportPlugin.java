@@ -15,8 +15,8 @@ public final class ReportPlugin extends JavaPlugin {
         configUtils.initializeConfig(this);
 
         getCommand("report").setExecutor(new ReportCommand(this));
-        getCommand("reportlist").setExecutor(new ReportListCommand(new Database()));
-        ReportGUI reportGUI = new ReportGUI(new Database());
+        getCommand("reportlist").setExecutor(new ReportListCommand(new Database(this)));
+        ReportGUI reportGUI = new ReportGUI(new Database(this));
         getCommand("reportgui").setExecutor(reportGUI);
         getServer().getPluginManager().registerEvents(reportGUI, this);
         getLogger().info("ReportPlugin has been enabled!");

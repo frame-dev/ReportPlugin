@@ -58,7 +58,7 @@ public class ReportCommand implements CommandExecutor {
                 Report.getLocationAsString(player.getLocation())
         );
         sender.sendMessage(report.toString());
-        Database database = new Database();
+        Database database = new Database(plugin);
         database.insertReport(report);
         Bukkit.getLogger().info("Report created by " + player.getName() + ": " + report.getReportedPlayer() + " for reason: " + report.getReason());
         // Optionally, you can notify staff members
