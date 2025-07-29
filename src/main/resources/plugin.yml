@@ -12,16 +12,16 @@ libraries:
 commands:
   report:
     description: A command to report issues or feedback.
-    usage: /report <message>
-    permission: spigotTest.report
+    usage: /report <player> <message>
+    permission: reportplugin.report
     permission-message: You do not have permission to report issues.
   reportlist:
     description: A command to list all reported issues.
     usage: /reportlist
-    permission: spigotTest.reportlist
+    permission: reportplugin.reportlist
     permission-message: You do not have permission to view reported issues.
   reportgui:
     description: A command to open the report GUI.
     usage: /reportgui
-    permission: spigotTest.reportgui
+    permission: reportplugin.reportgui
     permission-message: You do not have permission to open the report GUI.
