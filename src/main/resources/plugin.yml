@@ -25,3 +25,8 @@ commands:
     usage: /reportgui
     permission: reportplugin.reportgui
     permission-message: You do not have permission to open the report GUI.
+  reportdata:
+    description: A command to view report data.
+    usage: /reportdata
+    permission: reportplugin.reportdata
+    permission-message: You do not have permission to view report data.
