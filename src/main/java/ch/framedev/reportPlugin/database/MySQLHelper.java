@@ -28,9 +28,6 @@ public class MySQLHelper implements DatabaseHelper {
         String username = plugin.getConfig().getString("mysql.username", "root");
         String password = plugin.getConfig().getString("mysql.password", "password");
         int port = plugin.getConfig().getInt("mysql.port", 3306);
-        if (host == null || database == null || username == null || password == null) {
-            throw new IllegalArgumentException("MySQL configuration is incomplete. Please check your config file.");
-        }
         this.mySQL = new MySQL(host, database, username, password, port);
         plugin.getLogger().info("Connecting to MySQL database at " + host + ":" + port + " with database " + database);
         plugin.getLogger().info("Using username: " + username);
@@ -38,7 +35,7 @@ public class MySQLHelper implements DatabaseHelper {
         plugin.getLogger().info("MySQL connection established successfully.");
         plugin.getLogger().info("Creating reports table...");
         createTable();
-        plugin.getLogger().info("Database initialized successfully.");
+        plugin.getLogger().info("MySQL database initialized successfully.");
     }
 
     public void createTable() {

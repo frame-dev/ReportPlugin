@@ -25,11 +25,9 @@ public class SQLiteHelper implements DatabaseHelper {
     public SQLiteHelper(ReportPlugin plugin) {
         String path = plugin.getConfig().getString("sqlite.path", plugin.getDataFolder() + "database");
         String databaseName = plugin.getConfig().getString("sqlite.database", "reports.db");
-        if (path == null || databaseName == null) {
-            throw new IllegalArgumentException("SQLite configuration is incomplete. Please check your config file.");
-        }
         this.sqLite = new SQLite(path, databaseName);
         plugin.getLogger().info("Connecting to SQLite database at " + sqLite.getPath() + " with database " + sqLite.getDatabaseName());
+        plugin.getLogger().info("Creating reports table...");
         createTable();
         plugin.getLogger().info("SQLite database initialized successfully.");
     }

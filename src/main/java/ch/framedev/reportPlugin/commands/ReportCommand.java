@@ -1,16 +1,5 @@
 package ch.framedev.reportPlugin.commands;
 
-
-
-/*
- * ch.framedev.spigotTest
- * =============================================
- * This File was Created by FrameDev
- * Please do not change anything without my consent!
- * =============================================
- * This Class was created at 29.07.2025 18:09
- */
-
 import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.utils.DiscordWebhook;
 import ch.framedev.reportPlugin.utils.Report;
@@ -56,22 +45,32 @@ public class ReportCommand implements CommandExecutor {
                 reportedPlayer,
                 reason,
                 player.getName(),
-                UUID.randomUUID().toString(), // Generate a random report ID
-                "SpigotTest Server", // Example server name
+                UUID.randomUUID().toString(),
+                "SpigotTest Server",
                 "localhost",
                 Bukkit.getVersion(),
-                "world", // Example world name
+                "world",
                 Report.getLocationAsString(player.getLocation())
         );
         sender.sendMessage(report.toString());
         database.insertReport(report);
         Bukkit.getLogger().info("Report created by " + player.getName() + ": " + report.getReportedPlayer() + " for reason: " + report.getReason());
-        // Optionally, you can notify staff members
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             if (onlinePlayer.hasPermission("reportplugin.report.notify")) {
                 onlinePlayer.sendMessage("§cNew report: §e" + player.getName() + " §areported §e" + reportedPlayer + " §afor: §f" + reason);
             }
         }
+        if (plugin.getConfig().getBoolean("useDiscordWebhook", false)) {
+            if (!sendReportToDiscord(player, reportedPlayer, reason, report)) {
+                Bukkit.getLogger().severe("Failed to send report to Discord.");
+            } else {
+                Bukkit.getLogger().info("Report sent to Discord successfully.");
+            }
+        }
+        return true;
+    }
+
+    public boolean sendReportToDiscord(Player player, String reportedPlayer, String reason, Report report) {
         DiscordWebhook discordWebhook = new DiscordWebhook(plugin.getConfig().getString("discord.webhook-url"));
         discordWebhook.setContent("New report received!");
         discordWebhook.setUsername("ReportBot");
@@ -90,10 +89,11 @@ public class ReportCommand implements CommandExecutor {
         discordWebhook.addEmbed(embedObject);
         try {
             discordWebhook.execute();
+            return true;
         } catch (Exception e) {
             Bukkit.getLogger().severe("Failed to send report to Discord: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
-        return true;
     }
 }

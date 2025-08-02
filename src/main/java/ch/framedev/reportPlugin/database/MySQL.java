@@ -72,18 +72,20 @@ public class MySQL {
 
     public String getConnectionUrl() {
         return "jdbc:mysql://" + host + ":" + port + "/" + database +
-               "?useSSL=false&allowPublicKeyRetrieval=true" +
-               "&user=" + username +
-               "&password=" + password;
+               "?useSSL=false&allowPublicKeyRetrieval=true";
     }
 
     public Connection connect() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            return java.sql.DriverManager.getConnection(getConnectionUrl());
-        } catch (Exception e) {
+            return java.sql.DriverManager.getConnection(getConnectionUrl(), username, password);
+        } catch (ClassNotFoundException e) {
+            System.err.println("MySQL JDBC Driver not found.");
             e.printStackTrace();
-            return null;
+        } catch (java.sql.SQLException e) {
+            System.err.println("Failed to connect to MySQL database.");
+            e.printStackTrace();
         }
+        return null;
     }
 }
