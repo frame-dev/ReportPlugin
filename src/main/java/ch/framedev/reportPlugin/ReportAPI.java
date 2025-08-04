@@ -44,10 +44,14 @@ public class ReportAPI {
                 serverName,
                 serverAddress,
                 "Bukkit Version",
-                reportedPlayer.getLocation().getWorld().getName(),
-                Report.getLocationAsString(reportedPlayer.getLocation()) // Replace with actual location
+                reportedPlayer.getWorld().getName(),
+                Report.getLocationAsString(reportedPlayer.getLocation())
         );
         database.insertReport(report);
+    }
+
+    public void updateReport(Report report) {
+        database.updateReport(report);
     }
 
     public boolean resolveReport(String reportedPlayer, String resolutionComment, boolean resolved) {

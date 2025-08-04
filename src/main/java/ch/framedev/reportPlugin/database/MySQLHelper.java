@@ -38,6 +38,10 @@ public class MySQLHelper implements DatabaseHelper {
         plugin.getLogger().info("MySQL database initialized successfully.");
     }
 
+    /**
+     * Creates the reports table if it does not exist.
+     */
+    @Override
     public void createTable() {
         try {
             try(Connection connection = mySQL.connect()) {
@@ -59,6 +63,12 @@ public class MySQLHelper implements DatabaseHelper {
         }
     }
 
+    /**
+     * Inserts a report into the database.
+     *
+     * @param report The report to insert.
+     */
+    @Override
     public void insertReport(Report report) {
         try (Connection connection = mySQL.connect()) {
             if (connection != null) {

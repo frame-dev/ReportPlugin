@@ -26,6 +26,8 @@ public class Database {
             this.databaseHelper = new MySQLHelper(plugin);
         } else if ("sqlite".equals(databaseType)) {
             this.databaseHelper = new SQLiteHelper(plugin);
+        } else if( "mongodb".equals(databaseType)) {
+            this.databaseHelper = new MongoDBHelper(plugin);
         } else {
             throw new IllegalArgumentException("Unsupported database type: " + databaseType);
         }

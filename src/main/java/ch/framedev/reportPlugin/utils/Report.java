@@ -11,6 +11,7 @@ package ch.framedev.reportPlugin.utils;
  * This Class was created at 29.07.2025 18:10
  */
 
+import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -44,6 +45,22 @@ public class Report {
         this.worldName = worldName;
         this.location = location;
         this.additionalInfo = "";
+    }
+
+    public Report(Document document) {
+        this.reportedPlayer = document.getString("reportedPlayer");
+        this.reason = document.getString("reason");
+        this.reporter = document.getString("reporter");
+        this.timestamp = document.getLong("timestamp");
+        this.resolved = document.getBoolean("resolved", false);
+        this.resolutionComment = document.getString("resolutionComment");
+        this.reportId = document.getString("reportId");
+        this.serverName = document.getString("serverName");
+        this.serverIp = document.getString("serverIp");
+        this.serverVersion = document.getString("serverVersion");
+        this.worldName = document.getString("worldName");
+        this.location = document.getString("location");
+        this.additionalInfo = document.getString("additionalInfo");
     }
 
     public String getReportedPlayer() {
@@ -179,5 +196,23 @@ public class Report {
                ", location='" + location + '\'' +
                ", additionalInfo='" + additionalInfo + '\'' +
                '}';
+    }
+
+    public Document toDocument() {
+        Document document = new Document();
+        document.put("reportedPlayer", reportedPlayer);
+        document.put("reason", reason);
+        document.put("reporter", reporter);
+        document.put("timestamp", timestamp);
+        document.put("resolved", resolved);
+        document.put("resolutionComment", resolutionComment);
+        document.put("reportId", reportId);
+        document.put("serverName", serverName);
+        document.put("serverIp", serverIp);
+        document.put("serverVersion", serverVersion);
+        document.put("worldName", worldName);
+        document.put("location", location);
+        document.put("additionalInfo", additionalInfo);
+        return document;
     }
 }

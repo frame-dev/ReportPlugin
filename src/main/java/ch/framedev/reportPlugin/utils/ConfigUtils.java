@@ -45,5 +45,32 @@ public class ConfigUtils {
             section.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
             config.set("discord", section);
         }
+
+        if(!config.contains("mysql")) {
+            ConfigurationSection section = config.createSection("mysql");
+            section.set("host", "localhost");
+            section.set("port", 3306);
+            section.set("database", "reports");
+            section.set("username", "yourUsername");
+            section.set("password", "yourPassword");
+            config.set("mysql", section);
+        }
+
+        if(!config.contains("sqlite")) {
+            ConfigurationSection section = config.createSection("sqlite");
+            section.set("file", "reports.db");
+            section.set("path", "database");
+            config.set("sqlite", section);
+        }
+
+        if(!config.contains("mongodb")) {
+            ConfigurationSection section = config.createSection("mongodb");
+            section.set("host", "localhost");
+            section.set("port", 27017);
+            section.set("database", "spigotTestDB");
+            section.set("username", "yourUsername");
+            section.set("password", "yourPassword");
+            config.set("mongodb", section);
+        }
     }
 }
