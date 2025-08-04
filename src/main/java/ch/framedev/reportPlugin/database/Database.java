@@ -5,7 +5,7 @@ package ch.framedev.reportPlugin.database;
 /*
  * ch.framedev.spigotTest
  * =============================================
- * This File was Created by FrameDev
+ * This File was Created by FrameDev.
  * Please do not change anything without my consent!
  * =============================================
  * This Class was created at 29.07.2025 18:20
@@ -22,14 +22,11 @@ public class Database {
 
     public Database(ReportPlugin plugin) {
         String databaseType = plugin.getConfig().getString("database", "mysql").toLowerCase();
-        if ("mysql".equals(databaseType)) {
-            this.databaseHelper = new MySQLHelper(plugin);
-        } else if ("sqlite".equals(databaseType)) {
-            this.databaseHelper = new SQLiteHelper(plugin);
-        } else if( "mongodb".equals(databaseType)) {
-            this.databaseHelper = new MongoDBHelper(plugin);
-        } else {
-            throw new IllegalArgumentException("Unsupported database type: " + databaseType);
+        switch (databaseType) {
+            case "mysql" -> this.databaseHelper = new MySQLHelper(plugin);
+            case "sqlite" -> this.databaseHelper = new SQLiteHelper(plugin);
+            case "mongodb" -> this.databaseHelper = new MongoDBHelper(plugin);
+            default -> throw new IllegalArgumentException("Unsupported database type: " + databaseType);
         }
         plugin.getLogger().info("Database initialized successfully using " + databaseType.toUpperCase() + ".");
     }

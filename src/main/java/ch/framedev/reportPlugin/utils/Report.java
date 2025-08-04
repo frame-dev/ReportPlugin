@@ -47,6 +47,20 @@ public class Report {
         this.additionalInfo = "";
     }
 
+    public Report(String reportedPlayer, String reason, String reporter, String reportId, String serverName, String serverIp, String serverVersion, String worldName, Location location) {
+        this(reportedPlayer, reason, reporter, reportId, serverName, serverIp, serverVersion, worldName, getLocationAsString(location));
+    }
+
+    public Report(String reportedPlayer, String reason, String reporter, String reportId, String serverName, String serverIp, String serverVersion, String worldName, Location location, String additionalInfo) {
+        this(reportedPlayer, reason, reporter, reportId, serverName, serverIp, serverVersion, worldName, getLocationAsString(location));
+        this.additionalInfo = additionalInfo;
+    }
+
+    /**
+     * Constructs a Report object from a MongoDB Document.
+     *
+     * @param document the Document containing report data.
+     */
     public Report(Document document) {
         this.reportedPlayer = document.getString("reportedPlayer");
         this.reason = document.getString("reason");
@@ -152,6 +166,9 @@ public class Report {
     }
 
     public static String getLocationAsString(Location location) {
+        if (location == null || location.getWorld() == null) {
+            throw new IllegalArgumentException("Location or world cannot be null");
+        }
         return location.getWorld().getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
     }
 
@@ -198,6 +215,11 @@ public class Report {
                '}';
     }
 
+    /**
+     * Converts this Report object to a MongoDB Document.
+     *
+     * @return a Document representation of this Report.
+     */
     public Document toDocument() {
         Document document = new Document();
         document.put("reportedPlayer", reportedPlayer);

@@ -30,6 +30,8 @@ public class MongoDBHelper implements DatabaseHelper {
         String password = plugin.getConfig().getString("mongodb.password", "password");
         int port = plugin.getConfig().getInt("mongodb.port", 27017);
         this.mongoDb = new MongoDB(host, database, username, password, port);
+        plugin.getLogger().info("Connecting to MongoDB at " + host + ":" + port + " with database " + database);
+        this.mongoDb.connect();
         plugin.getLogger().info("MongoDB initialized successfully.");
     }
 

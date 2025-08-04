@@ -15,11 +15,14 @@ public final class ReportPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
+
         ConfigUtils configUtils = new ConfigUtils(getConfig());
         configUtils.initializeConfig(this);
 
+        // Initialize the database connection
         Database database = new Database(this);
 
         getCommand("report").setExecutor(new ReportCommand(this, database));
@@ -27,9 +30,10 @@ public final class ReportPlugin extends JavaPlugin {
         ReportGUI reportGUI = new ReportGUI(database);
         getCommand("reportgui").setExecutor(reportGUI);
         getServer().getPluginManager().registerEvents(reportGUI, this);
+        getCommand("reportdata").setExecutor(new ReportDataCommand(database));
+
         getLogger().info("ReportPlugin has been enabled!");
         getLogger().info("ReportPlugin is running on Server version: " + getServer().getVersion());
-        getCommand("reportdata").setExecutor(new ReportDataCommand(database));
     }
 
     @Override
