@@ -19,7 +19,7 @@ public class ConfigUtils {
 
     private final FileConfiguration config;
 
-    public ConfigUtils(ReportPlugin plugin, FileConfiguration config) {
+    public ConfigUtils(FileConfiguration config) {
         this.config = config;
     }
 

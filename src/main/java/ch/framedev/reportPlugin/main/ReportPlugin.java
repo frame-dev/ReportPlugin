@@ -17,7 +17,7 @@ public final class ReportPlugin extends JavaPlugin {
         instance = this;
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
-        ConfigUtils configUtils = new ConfigUtils(this, getConfig());
+        ConfigUtils configUtils = new ConfigUtils(getConfig());
         configUtils.initializeConfig(this);
 
         Database database = new Database(this);
