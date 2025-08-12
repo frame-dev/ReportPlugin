@@ -32,9 +32,9 @@ public class ConfigUtils {
         if(!config.contains("discord")) {
             ConfigurationSection section = config.createSection("discord");
             section.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
-            section.set("username", "SpigotTest Bot");
+            section.set("username", "ReportPlugin Bot");
             section.set("avatar-url", "https://example.com/avatar.png");
-            section.set("content", "This is a test message from SpigotTest!");
+            section.set("content", "This is a test message from ReportPlugin!");
             section.set("embed.title", "Test Embed");
             section.set("embed.description", "This is a description of the test embed.");
             section.set("embed.color", 16777215); // White color

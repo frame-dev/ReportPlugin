@@ -35,6 +35,7 @@ public class Database {
         plugin.getLogger().info("Database initialized successfully using " + databaseType.toUpperCase() + ".");
     }
 
+    @SuppressWarnings("unused")
     public void createTable() {
         databaseHelper.createTable();
     }

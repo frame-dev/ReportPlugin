@@ -110,12 +110,16 @@ public class ReportGUI implements CommandExecutor, Listener {
         if (clicked == null || !clicked.hasItemMeta()) return;
 
         ItemMeta meta = clicked.getItemMeta();
-        if (meta == null || meta.getDisplayName() == null) return;
+        if (meta == null) {
+            return;
+        } else {
+            meta.getDisplayName();
+        }
 
         String displayName = ChatColor.stripColor(meta.getDisplayName());
         UUID uuid = player.getUniqueId();
 
-        if (displayName != null && displayName.startsWith("Report: ")) {
+        if (displayName.startsWith("Report: ")) {
             String reportId = displayName.substring("Report: ".length());
             playerSelectedReport.put(uuid, reportId);
             Report report = database.getReportById(reportId);
@@ -139,7 +143,7 @@ public class ReportGUI implements CommandExecutor, Listener {
                 }
                 player.sendMessage(ChatColor.AQUA + "To update this report, click the 'Update Report' book in the GUI.");
             }
-        } else if (displayName != null && displayName.equals(ChatColor.stripColor(UPDATE_TITLE))) {
+        } else if (displayName.equals(ChatColor.stripColor(UPDATE_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
                 player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
                 return;
@@ -149,7 +153,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             updateSessions.put(uuid, session);
             player.closeInventory();
             player.sendMessage(ChatColor.GOLD + "Enter the new reason for the report:");
-        } else if (displayName != null && displayName.equals(ChatColor.stripColor(TELEPORT_TITLE))) {
+        } else if (displayName.equals(ChatColor.stripColor(TELEPORT_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
                 player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
                 return;

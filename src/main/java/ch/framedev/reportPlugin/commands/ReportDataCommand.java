@@ -100,7 +100,11 @@ public class ReportDataCommand implements CommandExecutor, Listener {
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || !clicked.hasItemMeta()) return;
         ItemMeta meta = clicked.getItemMeta();
-        if (meta == null || meta.getDisplayName() == null) return;
+        if (meta == null) {
+            return;
+        } else {
+            meta.getDisplayName();
+        }
 
         // Page navigation
         int page = getPageFromTitle(title);

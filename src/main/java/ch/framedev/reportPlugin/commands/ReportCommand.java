@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class ReportCommand implements CommandExecutor {
 
@@ -92,7 +93,7 @@ public class ReportCommand implements CommandExecutor {
             return true;
         } catch (Exception e) {
             Bukkit.getLogger().severe("Failed to send report to Discord: " + e.getMessage());
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Failed to send report to Discord: " + e.getMessage(), e);
             return false;
         }
     }

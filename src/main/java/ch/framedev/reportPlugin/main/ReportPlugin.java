@@ -11,19 +11,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class ReportPlugin extends JavaPlugin {
 
     private static ReportPlugin instance;
+    private Database database;
 
     @Override
     public void onEnable() {
         instance = this;
 
+        // Load the configuration file
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
 
+        // Initialize configuration utilities
         ConfigUtils configUtils = new ConfigUtils(getConfig());
         configUtils.initializeConfig(this);
 
         // Initialize the database connection
-        Database database = new Database(this);
+        database = new Database(this);
 
         getCommand("report").setExecutor(new ReportCommand(this, database));
         getCommand("reportlist").setExecutor(new ReportListCommand(database));
@@ -39,6 +42,8 @@ public final class ReportPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("ReportPlugin has been disabled!");
+        instance = null;
+        database = null;
     }
 
     public static ReportPlugin getInstance() {

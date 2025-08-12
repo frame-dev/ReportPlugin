@@ -32,6 +32,10 @@ public class ReportListCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.YELLOW + "There are no reports.");
             return true;
         }
+        if (reports.size() > 10) {
+            sender.sendMessage(ChatColor.YELLOW + "Use /reportgui to view reports in a GUI.");
+            return true;
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sender.sendMessage(ChatColor.GREEN + "---- Report List ----");
         for (Report report : reports) {
@@ -43,6 +47,8 @@ public class ReportListCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.YELLOW + "Resolved: " + (report.isResolved() ? "Yes" : "No"));
             sender.sendMessage(ChatColor.YELLOW + "Resolution Comment: " + report.getResolutionComment());
         }
+        sender.sendMessage(ChatColor.GREEN + "----------------------");
+        sender.sendMessage(ChatColor.GREEN + "Total reports: " + reports.size());
         return true;
     }
 }

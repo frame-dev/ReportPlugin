@@ -40,7 +40,9 @@ A simple Spigot plugin for reporting issues and feedback, with Discord webhook i
 
 ## Configuration
 
-Edit the `discord` section in `config.yml` to set your webhook URL and customize messages.
+Edit the `discord` section in `config.yml` to set your webhook URL.
+
+Messages will be changed to make it configurable in the future.
 
 ## License
 
