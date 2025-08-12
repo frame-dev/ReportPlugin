@@ -88,6 +88,9 @@ public class MongoDB {
         return client;
     }
 
+    /**
+     * Connects to the MongoDB database using the provided credentials and settings.
+     */
     public void connect() {
         MongoCredential credential = MongoCredential.createCredential(username, databaseString, password.toCharArray());
         this.client = MongoClients.create(

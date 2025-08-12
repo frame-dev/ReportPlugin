@@ -11,7 +11,10 @@ package ch.framedev.reportPlugin.database;
  * This Class was created at 29.07.2025 18:21
  */
 
+import ch.framedev.reportPlugin.main.ReportPlugin;
+
 import java.sql.Connection;
+import java.util.logging.Level;
 
 public class MySQL {
 
@@ -81,10 +84,10 @@ public class MySQL {
             return java.sql.DriverManager.getConnection(getConnectionUrl(), username, password);
         } catch (ClassNotFoundException e) {
             System.err.println("MySQL JDBC Driver not found.");
-            e.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "MySQL JDBC Driver not found. Please ensure the MySQL JDBC library is included in your project dependencies.", e);
         } catch (java.sql.SQLException e) {
             System.err.println("Failed to connect to MySQL database.");
-            e.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to connect to MySQL database at " + getConnectionUrl(), e);
         }
         return null;
     }

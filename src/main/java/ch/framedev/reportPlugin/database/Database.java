@@ -21,7 +21,11 @@ public class Database {
     private final DatabaseHelper databaseHelper;
 
     public Database(ReportPlugin plugin) {
+        // Load the database type from the plugin configuration
         String databaseType = plugin.getConfig().getString("database", "mysql").toLowerCase();
+
+        plugin.getLogger().info("Initializing database with type: " + databaseType);
+        // Initialize the database helper based on the configured database type
         switch (databaseType) {
             case "mysql" -> this.databaseHelper = new MySQLHelper(plugin);
             case "sqlite" -> this.databaseHelper = new SQLiteHelper(plugin);

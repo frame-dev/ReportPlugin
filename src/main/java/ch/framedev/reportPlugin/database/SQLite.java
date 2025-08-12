@@ -11,7 +11,10 @@ package ch.framedev.reportPlugin.database;
  * This Class was created at 29.07.2025 21:26
  */
 
+import ch.framedev.reportPlugin.main.ReportPlugin;
+
 import java.sql.Connection;
+import java.util.logging.Level;
 
 public class SQLite {
 
@@ -49,10 +52,10 @@ public class SQLite {
             return java.sql.DriverManager.getConnection(getDatabaseUrl());
         } catch (ClassNotFoundException e) {
             System.err.println("SQLite JDBC driver not found.");
-            e.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "SQLite JDBC driver not found. Please ensure the SQLite JDBC library is included in your project dependencies.", e);
         } catch (java.sql.SQLException e) {
             System.err.println("Failed to connect to SQLite database.");
-            e.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Failed to connect to SQLite database at " + getDatabaseUrl(), e);
         }
         return null;
     }
