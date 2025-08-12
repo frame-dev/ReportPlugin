@@ -15,12 +15,16 @@ import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Report {
 
     private String reportedPlayer;
     private String reason;
     private String reporter;
     private long timestamp;
+    private String timeAsString;
     private boolean resolved;
     private String resolutionComment;
     private String reportId;
@@ -36,6 +40,8 @@ public class Report {
         this.reason = reason;
         this.reporter = reporter;
         this.timestamp = System.currentTimeMillis();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm-dd.MM.yyyy");
+        this.timeAsString = simpleDateFormat.format(new Date());
         this.resolved = false;
         this.resolutionComment = "";
         this.reportId = reportId;
@@ -66,6 +72,11 @@ public class Report {
         this.reason = document.getString("reason");
         this.reporter = document.getString("reporter");
         this.timestamp = document.getLong("timestamp");
+        this.timeAsString = document.getString("timeAsString");
+        if (this.timeAsString == null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm-dd.MM.yyyy");
+            this.timeAsString = simpleDateFormat.format(new Date(this.timestamp));
+        }
         this.resolved = document.getBoolean("resolved", false);
         this.resolutionComment = document.getString("resolutionComment");
         this.reportId = document.getString("reportId");
@@ -226,6 +237,7 @@ public class Report {
         document.put("reason", reason);
         document.put("reporter", reporter);
         document.put("timestamp", timestamp);
+        document.put("timeAsString", new SimpleDateFormat("HH:mm-dd.MM.yyyy").format(new Date(timestamp)));
         document.put("resolved", resolved);
         document.put("resolutionComment", resolutionComment);
         document.put("reportId", reportId);
