@@ -30,6 +30,7 @@ public class Database {
             case "mysql" -> this.databaseHelper = new MySQLHelper(plugin);
             case "sqlite" -> this.databaseHelper = new SQLiteHelper(plugin);
             case "mongodb" -> this.databaseHelper = new MongoDBHelper(plugin);
+            case "filesystem" -> this.databaseHelper = new FileSystemHelper(plugin);
             default -> throw new IllegalArgumentException("Unsupported database type: " + databaseType);
         }
         plugin.getLogger().info("Database initialized successfully using " + databaseType.toUpperCase() + ".");
