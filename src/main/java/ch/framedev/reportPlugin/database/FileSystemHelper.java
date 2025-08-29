@@ -8,22 +8,33 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class FileSystemHelper implements DatabaseHelper {
 
     public FileSystemHelper(ReportPlugin plugin) {
+        // Ensure the reports directory exists
+        File file = new File(plugin.getDataFolder(), "reports");
+        if (!file.exists()) {
+            if(!file.mkdirs()) {
+                plugin.getLogger().log(Level.SEVERE, "Could not create reports directory!");
+            }
+        }
     }
 
     @Override
     public void insertReport(Report report) {
         File file = new File(ReportPlugin.getInstance().getDataFolder(), "reports");
         if (!file.exists()) {
-            file.mkdirs();
+            if(!file.mkdirs()) {
+                ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not create reports directory!");
+                return;
+            }
         }
         try (FileWriter writer = new FileWriter(new File(file, "report_" + report.getReportedPlayer() + ".json"))) {
             writer.write(new Gson().toJson(this));
         } catch (Exception e) {
-            e.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not save report for player " + report.getReportedPlayer(), e);
         }
     }
 
@@ -71,7 +82,7 @@ public class FileSystemHelper implements DatabaseHelper {
                     Report report = new Gson().fromJson(new String(java.nio.file.Files.readAllBytes(f.toPath())), Report.class);
                     reports.add(report);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not read report file: " + f.getName(), e);
                 }
             }
         }
@@ -89,7 +100,9 @@ public class FileSystemHelper implements DatabaseHelper {
         if (report != null) {
             File file = new File(ReportPlugin.getInstance().getDataFolder(), "reports/report_" + report.getReportedPlayer() + ".json");
             if (file.exists()) {
-                file.delete();
+                if(!file.delete()) {
+                    ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not delete report file for player " + report.getReportedPlayer());
+                }
             }
         }
     }
