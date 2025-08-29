@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.Set;
 /**
  * Class used to execute Discord Webhooks with low effort
  */
+@SuppressWarnings("unused")
 public class DiscordWebhook {
 
     private final String url;
@@ -141,9 +143,8 @@ public class DiscordWebhook {
             json.put("embeds", embedObjects.toArray(new JSONObject[0]));
         }
 
-        System.out.println(json.toString());
 
-        URL url = new URL(this.url);
+        URL url = URI.create(this.url).toURL();
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.addRequestProperty("Content-Type", "application/json");
         connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
@@ -159,7 +160,7 @@ public class DiscordWebhook {
         connection.disconnect();
     }
 
-    @SuppressWarnings("ClassEscapesDefinedScope")
+    @SuppressWarnings({"ClassEscapesDefinedScope", "UnusedReturnValue"})
     public static class EmbedObject {
         private String title;
         private String description;
@@ -284,18 +285,18 @@ public class DiscordWebhook {
                 } else if (val instanceof Integer || val instanceof Boolean) {
                     builder.append(val);
                 } else if (val instanceof JSONObject) {
-                    builder.append(val.toString());
+                    builder.append(val);
                 } else if (val.getClass().isArray()) {
                     builder.append("[");
                     int len = Array.getLength(val);
                     for (int j = 0; j < len; j++) {
                         Object arrVal = Array.get(val, j);
                         if (arrVal instanceof JSONObject) {
-                            builder.append(arrVal.toString());
+                            builder.append(arrVal);
                         } else if (arrVal instanceof String) {
                             builder.append(quote(arrVal.toString()));
                         } else {
-                            builder.append(String.valueOf(arrVal));
+                            builder.append(arrVal);
                         }
                         if (j != len - 1) builder.append(",");
                     }

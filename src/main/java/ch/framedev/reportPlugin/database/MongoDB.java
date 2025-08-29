@@ -20,6 +20,7 @@ import com.mongodb.client.MongoDatabase;
 
 import java.util.Collections;
 
+@SuppressWarnings("unused")
 public class MongoDB {
 
     private String host;

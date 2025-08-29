@@ -15,13 +15,7 @@ import ch.framedev.reportPlugin.main.ReportPlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-public class ConfigUtils {
-
-    private final FileConfiguration config;
-
-    public ConfigUtils(FileConfiguration config) {
-        this.config = config;
-    }
+public record ConfigUtils(FileConfiguration config) {
 
     public void initializeConfig(ReportPlugin plugin) {
         setupConfig(plugin);
@@ -29,7 +23,7 @@ public class ConfigUtils {
     }
 
     private void setupConfig(ReportPlugin plugin) {
-        if(!config.contains("discord")) {
+        if (!config.contains("discord")) {
             ConfigurationSection section = config.createSection("discord");
             section.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
             section.set("username", "ReportPlugin Bot");
@@ -46,7 +40,7 @@ public class ConfigUtils {
             config.set("discord", section);
         }
 
-        if(!config.contains("mysql")) {
+        if (!config.contains("mysql")) {
             ConfigurationSection section = config.createSection("mysql");
             section.set("host", "localhost");
             section.set("port", 3306);
@@ -56,14 +50,14 @@ public class ConfigUtils {
             config.set("mysql", section);
         }
 
-        if(!config.contains("sqlite")) {
+        if (!config.contains("sqlite")) {
             ConfigurationSection section = config.createSection("sqlite");
             section.set("file", "reports.db");
             section.set("path", "database");
             config.set("sqlite", section);
         }
 
-        if(!config.contains("mongodb")) {
+        if (!config.contains("mongodb")) {
             ConfigurationSection section = config.createSection("mongodb");
             section.set("host", "localhost");
             section.set("port", 27017);

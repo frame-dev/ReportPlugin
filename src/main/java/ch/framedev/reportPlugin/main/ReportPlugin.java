@@ -13,6 +13,7 @@ public final class ReportPlugin extends JavaPlugin {
     private static ReportPlugin instance;
     private Database database;
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     public void onEnable() {
         instance = this;

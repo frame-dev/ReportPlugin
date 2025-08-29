@@ -16,6 +16,7 @@ import ch.framedev.reportPlugin.main.ReportPlugin;
 import ch.framedev.reportPlugin.utils.Report;
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("unused")
 public class ReportAPI {
 
     private static ReportAPI instance;

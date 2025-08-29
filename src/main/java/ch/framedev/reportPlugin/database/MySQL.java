@@ -16,6 +16,7 @@ import ch.framedev.reportPlugin.main.ReportPlugin;
 import java.sql.Connection;
 import java.util.logging.Level;
 
+@SuppressWarnings("unused")
 public class MySQL {
 
     private String host;

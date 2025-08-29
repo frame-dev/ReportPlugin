@@ -18,6 +18,7 @@ import org.bukkit.Location;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@SuppressWarnings("unused")
 public class Report {
 
     private String reportedPlayer;
