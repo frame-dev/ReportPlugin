@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -39,8 +40,13 @@ public class ReportCommand implements CommandExecutor {
             sender.sendMessage("§cThis command can only be used by players.");
             return true;
         }
+        report(args, sender, player);
+        return true;
+    }
+
+    private void report(String[] args, CommandSender sender, Player player) {
         String reportedPlayer = args[0];
-        String reason = args.length > 1 ? String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length)) : "No reason provided";
+        String reason = args.length > 1 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "No reason provided";
         sender.sendMessage("§aYou reported §e" + reportedPlayer + "§a for: §f" + reason);
         Report report = new Report(
                 reportedPlayer,
@@ -68,10 +74,9 @@ public class ReportCommand implements CommandExecutor {
                 Bukkit.getLogger().info("Report sent to Discord successfully.");
             }
         }
-        return true;
     }
 
-    public boolean sendReportToDiscord(Player player, String reportedPlayer, String reason, Report report) {
+    private boolean sendReportToDiscord(Player player, String reportedPlayer, String reason, Report report) {
         DiscordWebhook discordWebhook = new DiscordWebhook(plugin.getConfig().getString("discord.webhook-url"));
         discordWebhook.setContent("New report received!");
         discordWebhook.setUsername("ReportBot");

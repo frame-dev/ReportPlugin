@@ -42,9 +42,9 @@ public final class ReportPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info("ReportPlugin has been disabled!");
         instance = null;
         database = null;
+        getLogger().info("ReportPlugin has been disabled!");
     }
 
     public static ReportPlugin getInstance() {
