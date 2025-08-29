@@ -1,2 +1,3 @@
 useDiscordWebhook: false
-database: mysql
+# mysql, sqlite, mongodb or filesystem
+database: filesystem

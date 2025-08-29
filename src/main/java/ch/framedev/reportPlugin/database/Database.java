@@ -22,7 +22,7 @@ public class Database {
 
     public Database(ReportPlugin plugin) {
         // Load the database type from the plugin configuration
-        String databaseType = plugin.getConfig().getString("database", "mysql").toLowerCase();
+        String databaseType = plugin.getConfig().getString("database", "filesystem").toLowerCase();
 
         plugin.getLogger().info("Initializing database with type: " + databaseType);
         // Initialize the database helper based on the configured database type
