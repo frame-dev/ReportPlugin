@@ -3,67 +3,105 @@ package ch.framedev.reportPlugin.database;
 import ch.framedev.reportPlugin.main.ReportPlugin;
 import ch.framedev.reportPlugin.utils.Report;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.*;
 import java.util.logging.Level;
 
 public class FileSystemHelper implements DatabaseHelper {
 
+    private final ReportPlugin plugin;
+    private final File reportsDir;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
     public FileSystemHelper(ReportPlugin plugin) {
-        // Ensure the reports directory exists
-        File file = new File(plugin.getDataFolder(), "reports");
-        if (!file.exists()) {
-            if(!file.mkdirs()) {
-                plugin.getLogger().log(Level.SEVERE, "Could not create reports directory!");
-            }
+        this.plugin = plugin;
+        this.reportsDir = new File(plugin.getDataFolder(), "reports");
+        if (!reportsDir.exists() && !reportsDir.mkdirs()) {
+            plugin.getLogger().log(Level.SEVERE, "Could not create reports directory: " + reportsDir.getAbsolutePath());
         }
     }
 
+    // ---- Helpers ------------------------------------------------------------
+
+    private File fileForReportId(String reportId) {
+        return new File(reportsDir, "report_" + reportId + ".json");
+    }
+
+    private void writeReportFile(File target, Report report) throws IOException {
+        // Write to a temp file then move into place for atomic-ish replace
+        File tmp = File.createTempFile("report_", ".json", reportsDir);
+        try (Writer w = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8)) {
+            gson.toJson(report, w);
+        }
+        try {
+            Files.move(tmp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+            // Fallback if filesystem doesn't support atomic move
+            Files.move(tmp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    private Report readReportFile(File file) throws IOException {
+        try (Reader r = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+            return gson.fromJson(r, Report.class);
+        }
+    }
+
+    // ---- CRUD ---------------------------------------------------------------
+
     @Override
     public void insertReport(Report report) {
-        File file = new File(ReportPlugin.getInstance().getDataFolder(), "reports");
-        if (!file.exists()) {
-            if(!file.mkdirs()) {
-                ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not create reports directory!");
-                return;
-            }
+        if (report == null) {
+            plugin.getLogger().log(Level.SEVERE, "insertReport called with null report");
+            return;
         }
-        try (FileWriter writer = new FileWriter(new File(file, "report_" + report.getReportedPlayer() + ".json"))) {
-            writer.write(new Gson().toJson(this));
+        String reportId = report.getReportId();
+        if (reportId == null || reportId.isEmpty()) {
+            plugin.getLogger().log(Level.SEVERE, "Report has no reportId; cannot save.");
+            return;
+        }
+        if (!reportsDir.exists() && !reportsDir.mkdirs()) {
+            plugin.getLogger().log(Level.SEVERE, "Could not create reports directory!");
+            return;
+        }
+        File out = fileForReportId(reportId);
+        try {
+            writeReportFile(out, report);
         } catch (Exception e) {
-            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not save report for player " + report.getReportedPlayer(), e);
+            plugin.getLogger().log(Level.SEVERE, "Could not save report " + reportId + " (player " + report.getReportedPlayer() + ")", e);
         }
     }
 
     @Override
     public Report getReportById(String reportId) {
-        for(Report report : getAllReports()) {
-            if(report.getReportId().equals(reportId)) {
-                return report;
-            }
+        if (reportId == null || reportId.isEmpty()) return null;
+        File f = fileForReportId(reportId);
+        if (!f.exists()) return null;
+        try {
+            return readReportFile(f);
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not read report: " + f.getName(), e);
+            return null;
         }
-        return null;
     }
 
     @Override
     public Report getReportByReportedPlayer(String reportedPlayer) {
-        for(Report report : getAllReports()) {
-            if(report.getReportedPlayer().equals(reportedPlayer)) {
-                return report;
-            }
+        // Return the first match (or you could choose newest)
+        for (Report r : getAllReports()) {
+            if (Objects.equals(r.getReportedPlayer(), reportedPlayer)) return r;
         }
         return null;
     }
 
     @Override
     public Report getReportByReporter(String reporter) {
-        for(Report report : getAllReports()) {
-            if(report.getReporter().equals(reporter)) {
-                return report;
-            }
+        for (Report r : getAllReports()) {
+            if (Objects.equals(r.getReporter(), reporter)) return r;
         }
         return null;
     }
@@ -71,19 +109,17 @@ public class FileSystemHelper implements DatabaseHelper {
     @Override
     public List<Report> getAllReports() {
         List<Report> reports = new ArrayList<>();
-        File file = new File(ReportPlugin.getInstance().getDataFolder(), "reports");
-        if (!file.exists()) {
-            return reports;
-        }
-        File[] files = file.listFiles((dir, name) -> name.endsWith(".json"));
-        if (files != null) {
-            for (File f : files) {
-                try {
-                    Report report = new Gson().fromJson(new String(java.nio.file.Files.readAllBytes(f.toPath())), Report.class);
-                    reports.add(report);
-                } catch (Exception e) {
-                    ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not read report file: " + f.getName(), e);
-                }
+        if (!reportsDir.exists()) return reports;
+
+        File[] files = reportsDir.listFiles((dir, name) -> name.endsWith(".json"));
+        if (files == null) return reports;
+
+        for (File f : files) {
+            try {
+                Report report = readReportFile(f);
+                if (report != null) reports.add(report);
+            } catch (Exception e) {
+                plugin.getLogger().log(Level.SEVERE, "Could not read report file: " + f.getName(), e);
             }
         }
         return reports;
@@ -91,25 +127,25 @@ public class FileSystemHelper implements DatabaseHelper {
 
     @Override
     public void updateReport(Report report) {
+        // overwrite the same ID file
         insertReport(report);
     }
 
     @Override
     public void deleteReport(String reportId) {
-        Report report = getReportById(reportId);
-        if (report != null) {
-            File file = new File(ReportPlugin.getInstance().getDataFolder(), "reports/report_" + report.getReportedPlayer() + ".json");
-            if (file.exists()) {
-                if(!file.delete()) {
-                    ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Could not delete report file for player " + report.getReportedPlayer());
-                }
-            }
+        if (reportId == null || reportId.isEmpty()) return;
+        File f = fileForReportId(reportId);
+        if (f.exists() && !f.delete()) {
+            plugin.getLogger().log(Level.SEVERE, "Could not delete report file: " + f.getAbsolutePath());
         }
     }
 
     @Override
     public void createTable() {
-
+        // Not needed for filesystem backend; ensure directory exists
+        if (!reportsDir.exists() && !reportsDir.mkdirs()) {
+            plugin.getLogger().log(Level.SEVERE, "Could not create reports directory!");
+        }
     }
 
     @Override
@@ -119,11 +155,12 @@ public class FileSystemHelper implements DatabaseHelper {
 
     @Override
     public boolean reportExists(String reportId) {
-        return getReportById(reportId) != null;
+        return reportId != null && !reportId.isEmpty() && fileForReportId(reportId).exists();
     }
 
     @Override
     public boolean playerHasReport(String reportedPlayer) {
+        // Simple scan — you could add an index if this grows large
         return getReportByReportedPlayer(reportedPlayer) != null;
     }
 }

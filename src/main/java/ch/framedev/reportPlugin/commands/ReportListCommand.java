@@ -27,8 +27,8 @@ public class ReportListCommand implements CommandExecutor {
             return true;
         }
 
-        List<Report> reports = database.getAllReports();
-        if (reports == null || reports.isEmpty()) {
+        List<Report> reports = database.getAllReports().stream().filter(report -> !report.isResolved()).toList();
+        if (reports.isEmpty()) {
             sender.sendMessage(ChatColor.YELLOW + "There are no reports.");
             return true;
         }

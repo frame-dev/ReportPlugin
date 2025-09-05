@@ -22,6 +22,7 @@ public class ReportGUI implements CommandExecutor, Listener {
     private static final String GUI_TITLE = ChatColor.RED + "Report List";
     private static final String UPDATE_TITLE = ChatColor.BLUE + "Update Report";
     private static final String TELEPORT_TITLE = ChatColor.LIGHT_PURPLE + "Teleport to Location";
+    private static final String DELETE_TITLE = ChatColor.DARK_RED + "Delete Report";
     private final Database database;
 
     // Track update state per player
@@ -75,6 +76,16 @@ public class ReportGUI implements CommandExecutor, Listener {
             }
             gui.setItem(i, item);
         }
+
+        // Delete button
+        ItemStack deleteItem = new ItemStack(Material.RED_WOOL);
+        ItemMeta deleteMeta = deleteItem.getItemMeta();
+        if (deleteMeta != null) {
+            deleteMeta.setDisplayName(DELETE_TITLE);
+            deleteMeta.setLore(List.of(ChatColor.GRAY + "Click to delete the selected report"));
+            deleteItem.setItemMeta(deleteMeta);
+        }
+        gui.setItem(size - 3, deleteItem);
 
         // Teleport button
         ItemStack teleportItem = new ItemStack(Material.ENDER_PEARL);
@@ -170,6 +181,20 @@ public class ReportGUI implements CommandExecutor, Listener {
             }
             player.teleport(Report.getLocationAsBukkitLocation(report.getLocation()));
             player.sendMessage(ChatColor.GREEN + "Teleported to report location.");
+        } else if( displayName.equals(ChatColor.stripColor(DELETE_TITLE))) {
+            if (!playerSelectedReport.containsKey(uuid)) {
+                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                return;
+            }
+            String reportId = playerSelectedReport.get(uuid);
+            Report report = database.getReportById(reportId);
+            if (report == null) {
+                player.sendMessage(ChatColor.RED + "Report not found.");
+                return;
+            }
+            database.deleteReport(reportId);
+            player.sendMessage(ChatColor.GREEN + "Report " + reportId + " deleted.");
+            player.closeInventory();
         }
     }
 

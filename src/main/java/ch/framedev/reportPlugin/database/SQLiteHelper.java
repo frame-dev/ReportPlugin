@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.logging.Level;
 
 public class SQLiteHelper implements DatabaseHelper {
 
@@ -47,7 +48,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error creating reports table", ex);
         }
     }
 
@@ -65,7 +66,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error inserting report", ex);
         }
     }
 
@@ -83,7 +84,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error checking if report exists", ex);
         }
         return false;
     }
@@ -102,7 +103,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error checking if player has report", ex);
         }
         return false;
     }
@@ -123,7 +124,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error retrieving all reports", ex);
         }
         return java.util.Collections.emptyList();
     }
@@ -143,7 +144,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error retrieving report by player", ex);
         }
         return null;
     }
@@ -163,7 +164,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error retrieving report by reporter", ex);
         }
         return null;
     }
@@ -183,7 +184,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error retrieving report by ID", ex);
         }
         return null;
     }
@@ -207,7 +208,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error updating report", ex);
         }
     }
 
@@ -222,7 +223,7 @@ public class SQLiteHelper implements DatabaseHelper {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error deleting report", ex);
         }
     }
 }
