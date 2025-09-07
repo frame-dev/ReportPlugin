@@ -25,19 +25,47 @@ public record ConfigUtils(FileConfiguration config) {
     private void setupConfig(ReportPlugin plugin) {
         if (!config.contains("discord")) {
             ConfigurationSection section = config.createSection("discord");
-            section.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
-            section.set("username", "ReportPlugin Bot");
-            section.set("avatar-url", "https://example.com/avatar.png");
-            section.set("content", "This is a test message from ReportPlugin!");
-            section.set("embed.title", "Test Embed");
-            section.set("embed.description", "This is a description of the test embed.");
-            section.set("embed.color", 16777215); // White color
-            section.set("embed.url", "https://example.com");
-            section.set("embed.footer.text", "Footer text");
-            section.set("embed.footer.icon-url", "https://example.com/footer-icon.png");
-            section.set("embed.image.url", "https://example.com/image.png");
-            section.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
             config.set("discord", section);
+            ConfigurationSection createSection = config.createSection("discord.create");
+            createSection.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
+            createSection.set("username", "ReportBot");
+            createSection.set("avatar-url", "https://example.com/avatar.png");
+            createSection.set("content", "New report received!");
+            createSection.set("embed.title", "New Report");
+            createSection.set("embed.description", "**Reported Player:** %ReportedPlayer%\\n" +
+                    "**Reporter:** %Reporter%\\n" +
+                    "**Reason:** %Reason%\\n" +
+                    "**Server:** %ServerName%\\n" +
+                    "**Location:** %Location%\\n" +
+                    "**World:** %WorldName%");
+            createSection.set("embed.url", "https://example.com");
+            createSection.set("embed.footer.text", "Report ID: %ReporterID%");
+            createSection.set("embed.footer.icon-url", "https://example.com/footer-icon.png");
+            createSection.set("embed.image.url", "https://example.com/image.png");
+            createSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
+            config.set("discord.create", createSection);
+
+            ConfigurationSection updatedSection = config.createSection("discord.update");
+            updatedSection.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
+            updatedSection.set("username", "ReportBot");
+            updatedSection.set("avatar-url", "https://example.com/avatar.png");
+            updatedSection.set("content", "Report updated!");
+            updatedSection.set("embed.title", "Report Updated");
+            updatedSection.set("embed.description", "**Reported Player:** %ReportedPlayer%\\n" +
+                    "**Reporter:** %Reporter%\\n" +
+                    "**Reason:** %Reason%\\n" +
+                    "**Status:** %Status%\\n" +
+                    "**Additional Info:** %AdditionalInfo%\\n" +
+                    "**Resolution Comment:** %ResolutionComment%\\n" +
+                    "**Server:** %ServerName%\\n" +
+                    "**Location:** %Location%\\n" +
+                    "**World:** %WorldName%");
+            updatedSection.set("embed.url", "https://example.com");
+            updatedSection.set("embed.footer.text", "Report ID: %ReporterID%");
+            updatedSection.set("embed.footer.icon-url", "https://example.com/footer-icon.png");
+            updatedSection.set("embed.image.url", "https://example.com/image.png");
+            updatedSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
+            config.set("discord.update", updatedSection);
         }
 
         if (!config.contains("mysql")) {

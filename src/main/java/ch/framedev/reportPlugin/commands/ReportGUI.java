@@ -2,9 +2,12 @@
 package ch.framedev.reportPlugin.commands;
 
 import ch.framedev.reportPlugin.database.Database;
+import ch.framedev.reportPlugin.main.ReportPlugin;
+import ch.framedev.reportPlugin.utils.DiscordWebhook;
 import ch.framedev.reportPlugin.utils.Report;
 import org.bukkit.*;
 import org.bukkit.command.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -181,7 +184,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             }
             player.teleport(Report.getLocationAsBukkitLocation(report.getLocation()));
             player.sendMessage(ChatColor.GREEN + "Teleported to report location.");
-        } else if( displayName.equals(ChatColor.stripColor(DELETE_TITLE))) {
+        } else if (displayName.equals(ChatColor.stripColor(DELETE_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
                 player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
                 return;
@@ -292,7 +295,46 @@ public class ReportGUI implements CommandExecutor, Listener {
                 database.updateReport(report);
                 player.sendMessage(ChatColor.GREEN + "Report updated!");
                 updateSessions.remove(uuid);
+                sendDiscordWebhookUpdate(report);
                 break;
+        }
+    }
+
+    private void sendDiscordWebhookUpdate(Report report) {
+        // Implement Discord webhook update logic here
+        FileConfiguration config = ReportPlugin.getInstance().getConfig();
+        if (!config.getBoolean("useDiscordWebhook", false)) return;
+        String webhookUrl = config.getString("discord.update.webhook-url");
+        if (webhookUrl == null || webhookUrl.isEmpty()) return;
+        DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
+        discordWebhook.setUsername(config.getString("discord.update.username", "ReportBot"));
+        discordWebhook.setAvatarUrl(config.getString("discord.update.avatar-url", "https://example.com/avatar.png"));
+        discordWebhook.setContent(config.getString("discord.update.content", "Report updated!"));
+        DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
+        embed.setTitle(config.getString("discord.update.embed.title", "Report Updated"));
+        String description = config.getString("discord.update.embed.description", "");
+        description = description.replace("%ReportedPlayer%", report.getReportedPlayer())
+                .replace("%Reporter%", report.getReporter())
+                .replace("%Reason%", report.getReason())
+                .replace("%AdditionalInfo%", report.getAdditionalInfo() != null ? report.getAdditionalInfo() : "N/A")
+                .replace("%Status%", report.isResolved() ? "Resolved" : "Unresolved")
+                .replace("%ResolutionComment%", report.getResolutionComment() != null ? report.getResolutionComment() : "N/A")
+                .replace("%ServerName%", report.getServerName())
+                .replace("%Location%", report.getLocation())
+                .replace("%WorldName%", report.getWorldName());
+        embed.setDescription(description);
+        embed.setUrl(config.getString("discord.update.embed.url", "https://example.com"));
+        embed.setColor(java.awt.Color.BLUE);
+        embed.setFooter(config.getString("discord.update.embed.footer.text", "Report ID: %ReporterID%").replace("%ReporterID%", report.getReportId()),
+                config.getString("discord.update.embed.footer.icon-url", "https://example.com/footer-icon.png"));
+        embed.setImage(config.getString("discord.update.embed.image.url", "https://example.com/image.png"));
+        embed.setThumbnail(config.getString("discord.update.embed.thumbnail.url", "https://example.com/thumbnail.png"));
+        discordWebhook.addEmbed(embed);
+        try {
+            discordWebhook.execute();
+        } catch (Exception e) {
+            Bukkit.getLogger().severe("Failed to send report update to Discord: " + e.getMessage());
+            ReportPlugin.getInstance().getLogger().severe("Failed to send report update to Discord: " + e.getMessage());
         }
     }
 }
