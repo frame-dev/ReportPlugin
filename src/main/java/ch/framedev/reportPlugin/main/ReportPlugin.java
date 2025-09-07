@@ -40,6 +40,7 @@ public final class ReportPlugin extends JavaPlugin {
 
         getLogger().info("ReportPlugin has been enabled!");
         getLogger().info("ReportPlugin is running on Server version: " + getServer().getVersion());
+        getLogger().info("ReportPlugin is running on Plugin version: " + getDescription().getVersion());
     }
 
     @Override

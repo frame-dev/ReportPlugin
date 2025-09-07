@@ -28,4 +28,5 @@ public interface DatabaseHelper {
     Report getReportByPlayer(String reportedPlayer);
     boolean reportExists(String reportId);
     boolean playerHasReport(String reportedPlayer);
+    int countReportsForPlayer(String reportedPlayer);
 }

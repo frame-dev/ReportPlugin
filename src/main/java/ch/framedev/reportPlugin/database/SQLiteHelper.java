@@ -108,6 +108,26 @@ public class SQLiteHelper implements DatabaseHelper {
         return false;
     }
 
+    @Override
+    public int countReportsForPlayer(String reportedPlayer) {
+        try (Connection connection = sqLite.connect()) {
+            if (connection != null) {
+                String sql = "SELECT COUNT(*) FROM reports WHERE reported_player = ?";
+                var preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, reportedPlayer);
+                var resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            } else {
+                System.err.println("Failed to connect to the database.");
+            }
+        } catch (Exception ex) {
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error counting reports for player", ex);
+        }
+        return 0;
+    }
+
     public List<Report> getAllReports() {
         try (Connection connection = sqLite.connect()) {
             if (connection != null) {

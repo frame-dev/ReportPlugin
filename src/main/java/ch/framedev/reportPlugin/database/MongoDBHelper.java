@@ -105,4 +105,9 @@ public class MongoDBHelper implements DatabaseHelper {
     public boolean playerHasReport(String reportedPlayer) {
         return getReportsCollection().find(new Document("reportedPlayer", reportedPlayer)).first() != null;
     }
+
+    @Override
+    public int countReportsForPlayer(String reportedPlayer) {
+        return (int) getReportsCollection().countDocuments(new Document("reportedPlayer", reportedPlayer));
+    }
 }

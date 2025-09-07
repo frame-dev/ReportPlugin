@@ -76,4 +76,8 @@ public class Database {
     public void deleteReport(String reportId) {
         databaseHelper.deleteReport(reportId);
     }
+
+    public int countReportsForPlayer(String reportedPlayer) {
+        return databaseHelper.countReportsForPlayer(reportedPlayer);
+    }
 }

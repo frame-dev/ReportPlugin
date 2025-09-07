@@ -66,5 +66,8 @@ public record ConfigUtils(FileConfiguration config) {
             section.set("password", "yourPassword");
             config.set("mongodb", section);
         }
+        if(!config.contains("server-name")) {
+            config.set("server-name", "Localhost Server");
+        }
     }
 }

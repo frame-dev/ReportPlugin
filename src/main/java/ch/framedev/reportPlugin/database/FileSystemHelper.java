@@ -23,6 +23,7 @@ public class FileSystemHelper implements DatabaseHelper {
         if (!reportsDir.exists() && !reportsDir.mkdirs()) {
             plugin.getLogger().log(Level.SEVERE, "Could not create reports directory: " + reportsDir.getAbsolutePath());
         }
+        plugin.getLogger().info("FileSystemHelper initialized. Reports directory: " + reportsDir.getAbsolutePath());
     }
 
     // ---- Helpers ------------------------------------------------------------
@@ -162,5 +163,14 @@ public class FileSystemHelper implements DatabaseHelper {
     public boolean playerHasReport(String reportedPlayer) {
         // Simple scan — you could add an index if this grows large
         return getReportByReportedPlayer(reportedPlayer) != null;
+    }
+
+    @Override
+    public int countReportsForPlayer(String reportedPlayer) {
+        int count = 0;
+        for (Report r : getAllReports()) {
+            if (Objects.equals(r.getReportedPlayer(), reportedPlayer)) count++;
+        }
+        return count;
     }
 }

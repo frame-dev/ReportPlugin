@@ -53,13 +53,12 @@ public class ReportCommand implements CommandExecutor {
                 reason,
                 player.getName(),
                 UUID.randomUUID().toString(),
-                "SpigotTest Server",
-                "localhost",
+                plugin.getConfig().getString("server-name", "Localhost"),
+                Bukkit.getServer().getIp(),
                 Bukkit.getVersion(),
                 "world",
                 Report.getLocationAsString(player.getLocation())
         );
-        sender.sendMessage(report.toString());
         database.insertReport(report);
         Bukkit.getLogger().info("Report created by " + player.getName() + ": " + report.getReportedPlayer() + " for reason: " + report.getReason());
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {

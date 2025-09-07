@@ -126,6 +126,26 @@ public class MySQLHelper implements DatabaseHelper {
         return false;
     }
 
+    @Override
+    public int countReportsForPlayer(String reportedPlayer) {
+        try (Connection connection = mySQL.connect()) {
+            if (connection != null) {
+                String sql = "SELECT COUNT(*) FROM reports WHERE reported_player = ?";
+                var preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, reportedPlayer);
+                var resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            } else {
+                System.err.println("Failed to connect to the database.");
+            }
+        } catch (Exception ex) {
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "An error occurred while counting reports for a player.", ex);
+        }
+        return 0;
+    }
+
     public List<Report> getAllReports() {
         try (Connection connection = mySQL.connect()) {
             if (connection != null) {

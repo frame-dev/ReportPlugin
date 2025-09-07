@@ -2,6 +2,7 @@
 package ch.framedev.reportPlugin.commands;
 
 import ch.framedev.reportPlugin.database.Database;
+import ch.framedev.reportPlugin.utils.Report;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,18 +17,14 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
-public class ReportDataCommand implements CommandExecutor, Listener {
+public record ReportDataCommand(Database database) implements CommandExecutor, Listener {
 
     private static final String GUI_TITLE = ChatColor.AQUA + "Report Data";
     private static final int PAGE_SIZE = 45; // 5 rows for heads, 1 row for navigation
-
-    private final Database database;
-
-    public ReportDataCommand(Database database) {
-        this.database = database;
-    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -39,6 +36,12 @@ public class ReportDataCommand implements CommandExecutor, Listener {
         return true;
     }
 
+    /**
+     * Opens a paginated GUI showing player heads with report data.
+     *
+     * @param player The player to open the GUI for.
+     * @param page   The page number to display (0-indexed).
+     */
     private void openPage(Player player, int page) {
         List<? extends Player> online = Bukkit.getOnlinePlayers().stream().toList();
         int totalPages = (online.size() - 1) / PAGE_SIZE + 1;
@@ -57,10 +60,20 @@ public class ReportDataCommand implements CommandExecutor, Listener {
                 meta.setOwningPlayer(p);
                 meta.setDisplayName(ChatColor.YELLOW + p.getName());
                 List<String> lore = new ArrayList<>();
-                lore.add("§7UUID: §6" + p.getUniqueId());
-                lore.add("§7Has been Reported: §6" + (database.playerHasReport(p.getName()) ? "Yes" : "No"));
-                lore.add("§7Reported by: §6" + (database.getReportByPlayer(p.getName()) != null ? database.getReportByPlayer(p.getName()).getReporter() : "No reports found"));
-                lore.add("§7Report Reason: §6" + (database.getReportByPlayer(p.getName()) != null ? database.getReportByPlayer(p.getName()).getReason() : "No reports found"));
+                Report lastReport = database.getAllReports().stream()
+                        .filter(r -> r.getReportedPlayer() != null
+                                && r.getReportedPlayer().equalsIgnoreCase(p.getName()))
+                        .max(Comparator.comparingLong(Report::getTimestamp))
+                        .orElse(null);
+                if (lastReport == null) {
+                    lore.add("§7No reports found for this player.");
+                } else {
+                    lore.add("§7Last Reported Reason: §6" + lastReport.getReason());
+                    lore.add("§7Last Reported By: §6" + lastReport.getReporter());
+                    lore.add("§7Last Reported At: §6" + new Date(lastReport.getTimestamp()).toString());
+                    lore.add("§7Last Report Resolved: §6" + (lastReport.isResolved() ? "Yes" : "No"));
+                    lore.add("§7Total Reports: §6" + database.countReportsForPlayer(p.getName()));
+                }
                 meta.setLore(lore);
                 head.setItemMeta(meta);
             }
@@ -116,6 +129,7 @@ public class ReportDataCommand implements CommandExecutor, Listener {
         // You can add actions for clicking player heads here
     }
 
+    // Helper to extract page number from title
     private int getPageFromTitle(String title) {
         // Extract page number from title
         int idx = title.indexOf("Page ");
