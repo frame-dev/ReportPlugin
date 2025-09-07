@@ -16,6 +16,8 @@ import ch.framedev.reportPlugin.main.ReportPlugin;
 import ch.framedev.reportPlugin.utils.Report;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 @SuppressWarnings("unused")
 public class ReportAPI {
 
@@ -93,5 +95,53 @@ public class ReportAPI {
 
     public Database getDatabase() {
         return database;
+    }
+
+    public List<Report> getAllReports() {
+        return database.getAllReports();
+    }
+
+    public int countReportsForPlayer(String reportedPlayer) {
+        return database.countReportsForPlayer(reportedPlayer);
+    }
+
+    public List<Report> getAllReportsFromReportedPlayer(String reportedPlayer) {
+        return database.getAllReports().stream()
+                .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer))
+                .toList();
+    }
+
+    public List<Report> getAllReportsFromReporter(String reporter) {
+        return database.getAllReports().stream()
+                .filter(report -> report.getReporter().equalsIgnoreCase(reporter))
+                .toList();
+    }
+
+    public List<Report> getAllUnresolvedReports() {
+        return database.getAllReports().stream()
+                .filter(report -> !report.isResolved())
+                .toList();
+    }
+
+    public List<Report> getAllResolvedReports() {
+        return database.getAllReports().stream()
+                .filter(Report::isResolved)
+                .toList();
+    }
+
+    public int countAllReports() {
+        return database.getAllReports().size();
+    }
+
+    public int countAllUnresolvedReports() {
+        return (int) database.getAllReports().stream()
+                .filter(report -> !report.isResolved())
+                .count();
+    }
+
+    public int countAllResolvedReports() {
+        return (int) database.getAllReports().stream()
+                .filter(Report::isResolved)
+                .count();
     }
 }

@@ -69,5 +69,8 @@ public record ConfigUtils(FileConfiguration config) {
         if(!config.contains("server-name")) {
             config.set("server-name", "Localhost Server");
         }
+        if(!config.contains("server-address")) {
+            config.set("server-address", "localhost");
+        }
     }
 }

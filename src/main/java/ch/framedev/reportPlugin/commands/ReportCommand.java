@@ -54,7 +54,7 @@ public class ReportCommand implements CommandExecutor {
                 player.getName(),
                 UUID.randomUUID().toString(),
                 plugin.getConfig().getString("server-name", "Localhost"),
-                Bukkit.getServer().getIp(),
+                plugin.getConfig().getString("server-address", "localhost"),
                 Bukkit.getVersion(),
                 "world",
                 Report.getLocationAsString(player.getLocation())
