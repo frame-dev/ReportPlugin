@@ -39,6 +39,10 @@ public class SQLiteHelper implements DatabaseHelper {
         plugin.getLogger().info("SQLite database initialized successfully.");
     }
 
+    /**
+     * Creates the reports table in the SQLite database if it does not already exist.
+     * The table includes columns for id, report_id, reported_player, reporter, and data.
+     */
     public void createTable() {
         try (Connection connection = sqLite.connect()) {
             if (connection != null) {
@@ -58,6 +62,11 @@ public class SQLiteHelper implements DatabaseHelper {
         }
     }
 
+    /**
+     * Inserts a new report into the reports table.
+     *
+     * @param report The Report object to be inserted into the database.
+     */
     public void insertReport(Report report) {
         try (Connection connection = sqLite.connect()) {
             if (connection != null) {
@@ -76,6 +85,12 @@ public class SQLiteHelper implements DatabaseHelper {
         }
     }
 
+    /**
+     * Checks if a report with the specified report ID exists in the database.
+     *
+     * @param reportId The unique identifier of the report to check.
+     * @return true if the report exists, false otherwise.
+     */
     public boolean reportExists(String reportId) {
         try (Connection connection = sqLite.connect()) {
             if (connection != null) {

@@ -16,6 +16,7 @@ public final class ReportPlugin extends JavaPlugin {
     @SuppressWarnings("DataFlowIssue")
     @Override
     public void onEnable() {
+        // Initialize the singleton instance
         instance = this;
 
         // Load the configuration file
@@ -38,6 +39,7 @@ public final class ReportPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(reportDataCommand, this);
         getCommand("report-data").setExecutor(reportDataCommand);
 
+        // Log plugin enable message
         getLogger().info("ReportPlugin has been enabled!");
         getLogger().info("ReportPlugin is running on Server version: " + getServer().getVersion());
         getLogger().info("ReportPlugin is running on Plugin version: " + getDescription().getVersion());
@@ -50,6 +52,10 @@ public final class ReportPlugin extends JavaPlugin {
         getLogger().info("ReportPlugin has been disabled!");
     }
 
+    /**
+     * Get the singleton instance of the plugin
+     * @return the instance of ReportPlugin
+     */
     public static ReportPlugin getInstance() {
         return instance;
     }
