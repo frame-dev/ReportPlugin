@@ -259,6 +259,9 @@ public class DiscordWebhook {
         }
     }
 
+    /**
+     * Simple JSONObject implementation
+     */
     private static class JSONObject {
 
         private final HashMap<String, Object> map = new HashMap<>();

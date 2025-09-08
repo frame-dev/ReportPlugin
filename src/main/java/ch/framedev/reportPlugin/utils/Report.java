@@ -36,6 +36,19 @@ public class Report {
     private String location; // Format: "world,x,y,z"
     private String additionalInfo;
 
+    /**
+     * Constructs a Report object with the specified parameters.
+     *
+     * @param reportedPlayer   the name of the player being reported.
+     * @param reason           the reason for the report.
+     * @param reporter         the name of the player who made the report.
+     * @param reportId         a unique identifier for the report.
+     * @param serverName       the name of the server where the report was made.
+     * @param serverIp         the IP address of the server.
+     * @param serverVersion    the version of the server software.
+     * @param worldName       the name of the world where the report was made.
+     * @param location         the location of the reported player in "world,x,y,z" format.
+     */
     public Report(String reportedPlayer, String reason, String reporter, String reportId, String serverName, String serverIp, String serverVersion, String worldName, String location) {
         this.reportedPlayer = reportedPlayer;
         this.reason = reason;
@@ -54,10 +67,37 @@ public class Report {
         this.additionalInfo = "";
     }
 
+    /**
+     * Constructs a Report object with the specified parameters, converting the Location object to a string.
+     *
+     * @param reportedPlayer   the name of the player being reported.
+     * @param reason           the reason for the report.
+     * @param reporter         the name of the player who made the report.
+     * @param reportId         a unique identifier for the report.
+     * @param serverName       the name of the server where the report was made.
+     * @param serverIp         the IP address of the server.
+     * @param serverVersion    the version of the server software.
+     * @param worldName       the name of the world where the report was made.
+     * @param location         the Location object of the reported player.
+     */
     public Report(String reportedPlayer, String reason, String reporter, String reportId, String serverName, String serverIp, String serverVersion, String worldName, Location location) {
         this(reportedPlayer, reason, reporter, reportId, serverName, serverIp, serverVersion, worldName, getLocationAsString(location));
     }
 
+    /**
+     * Constructs a Report object with the specified parameters, converting the Location object to a string and including additional info.
+     *
+     * @param reportedPlayer   the name of the player being reported.
+     * @param reason           the reason for the report.
+     * @param reporter         the name of the player who made the report.
+     * @param reportId         a unique identifier for the report.
+     * @param serverName       the name of the server where the report was made.
+     * @param serverIp         the IP address of the server.
+     * @param serverVersion    the version of the server software.
+     * @param worldName       the name of the world where the report was made.
+     * @param location         the Location object of the reported player.
+     * @param additionalInfo   any additional information related to the report.
+     */
     public Report(String reportedPlayer, String reason, String reporter, String reportId, String serverName, String serverIp, String serverVersion, String worldName, Location location, String additionalInfo) {
         this(reportedPlayer, reason, reporter, reportId, serverName, serverIp, serverVersion, worldName, getLocationAsString(location));
         this.additionalInfo = additionalInfo;
@@ -177,6 +217,13 @@ public class Report {
         this.worldName = worldName;
     }
 
+    /**
+     * Converts a Bukkit Location object to a string in the format "world,x,y,z".
+     *
+     * @param location the Location object to convert.
+     * @return a string representation of the location.
+     * @throws IllegalArgumentException if the location or its world is null.
+     */
     public static String getLocationAsString(Location location) {
         if (location == null || location.getWorld() == null) {
             throw new IllegalArgumentException("Location or world cannot be null");
@@ -192,6 +239,13 @@ public class Report {
         this.location = location;
     }
 
+    /**
+     * Converts a location string in the format "world,x,y,z" back to a Bukkit Location object.
+     *
+     * @param location the location string to convert.
+     * @return the corresponding Location object.
+     * @throws IllegalArgumentException if the location string is not in the correct format.
+     */
     public static Location getLocationAsBukkitLocation(String location) {
         String[] parts = location.split(",");
         if (parts.length != 4) {

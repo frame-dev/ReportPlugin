@@ -23,6 +23,12 @@ public class SQLiteHelper implements DatabaseHelper {
 
     private final SQLite sqLite;
 
+    /**
+     * Initializes the SQLiteHelper with the specified ReportPlugin instance.
+     * Connects to the SQLite database using configuration from the plugin.
+     *
+     * @param plugin The ReportPlugin instance for logging and configuration access.
+     */
     public SQLiteHelper(ReportPlugin plugin) {
         String path = plugin.getConfig().getString("sqlite.path", plugin.getDataFolder() + "database");
         String databaseName = plugin.getConfig().getString("sqlite.database", "reports.db");

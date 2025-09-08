@@ -23,6 +23,12 @@ public class MongoDBHelper implements DatabaseHelper {
 
     private final MongoDB mongoDb;
 
+    /**
+     * Initializes the MongoDBHelper with the specified ReportPlugin instance.
+     * Connects to the MongoDB database using configuration from the plugin.
+     *
+     * @param plugin The ReportPlugin instance for logging and configuration access.
+     */
     public MongoDBHelper(ReportPlugin plugin) {
         String host = plugin.getConfig().getString("mongodb.host", "localhost");
         String database = plugin.getConfig().getString("mongodb.database", "reportPlugin");

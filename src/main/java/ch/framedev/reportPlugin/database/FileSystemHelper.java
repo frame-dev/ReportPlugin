@@ -17,6 +17,12 @@ public class FileSystemHelper implements DatabaseHelper {
     private final File reportsDir;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+    /**
+     * Initializes the FileSystemHelper with the specified ReportPlugin instance.
+     * Ensures that the reports directory exists.
+     *
+     * @param plugin The ReportPlugin instance for logging and configuration access.
+     */
     public FileSystemHelper(ReportPlugin plugin) {
         this.plugin = plugin;
         this.reportsDir = new File(plugin.getDataFolder(), "reports");

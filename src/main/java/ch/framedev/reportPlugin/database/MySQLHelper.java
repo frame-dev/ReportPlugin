@@ -23,6 +23,12 @@ public class MySQLHelper implements DatabaseHelper {
 
     private final MySQL mySQL;
 
+    /**
+     * Initializes the MySQLHelper with the specified ReportPlugin instance.
+     * Connects to the MySQL database using configuration from the plugin.
+     *
+     * @param plugin The ReportPlugin instance for logging and configuration access.
+     */
     public MySQLHelper(ReportPlugin plugin) {
         String host = plugin.getConfig().getString("mysql.host", "localhost");
         String database = plugin.getConfig().getString("mysql.database", "database");

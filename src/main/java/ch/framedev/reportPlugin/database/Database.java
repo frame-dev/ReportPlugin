@@ -22,6 +22,11 @@ public class Database {
 
     private final String databaseType;
 
+    /**
+     * Constructs a Database instance based on the configuration provided by the ReportPlugin.
+     *
+     * @param plugin the ReportPlugin instance containing the configuration.
+     */
     public Database(ReportPlugin plugin) {
         // Load the database type from the plugin configuration
         databaseType = plugin.getConfig().getString("database", "filesystem").toLowerCase();
