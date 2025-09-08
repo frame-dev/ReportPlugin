@@ -32,6 +32,10 @@ public record ReportDataCommand(Database database) implements CommandExecutor, L
             sender.sendMessage("Only players can use this command.");
             return true;
         }
+        if (!sender.hasPermission("reportplugin.reportdata")) {
+            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+            return true;
+        }
         openPage(player, 0);
         return true;
     }

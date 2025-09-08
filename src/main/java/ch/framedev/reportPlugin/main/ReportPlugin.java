@@ -30,13 +30,13 @@ public final class ReportPlugin extends JavaPlugin {
         database = new Database(this);
 
         getCommand("report").setExecutor(new ReportCommand(this, database));
-        getCommand("reportlist").setExecutor(new ReportListCommand(database));
+        getCommand("reports-list").setExecutor(new ReportListCommand(database));
         ReportGUI reportGUI = new ReportGUI(database);
-        getCommand("reportgui").setExecutor(reportGUI);
+        getCommand("report-gui").setExecutor(reportGUI);
         getServer().getPluginManager().registerEvents(reportGUI, this);
         ReportDataCommand reportDataCommand = new ReportDataCommand(database);
         getServer().getPluginManager().registerEvents(reportDataCommand, this);
-        getCommand("reportdata").setExecutor(reportDataCommand);
+        getCommand("report-data").setExecutor(reportDataCommand);
 
         getLogger().info("ReportPlugin has been enabled!");
         getLogger().info("ReportPlugin is running on Server version: " + getServer().getVersion());

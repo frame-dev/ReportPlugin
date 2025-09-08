@@ -2,7 +2,7 @@ name: ReportPlugin
 version: '1.0-SNAPSHOT'
 main: ch.framedev.reportPlugin.main.ReportPlugin
 api-version: '1.21'
-description: A simple Spigot plugin for reporting issues and feedback.
+description: A simple Spigot plugin for reporting players. Supports SQLite, MySQL, MongoDB, and File storage.
 authors:
     - Framedev
 
@@ -16,17 +16,17 @@ commands:
     usage: /report <player> <message>
     permission: reportplugin.report
     permission-message: You do not have permission to report issues.
-  reportlist:
+  reports-list:
     description: A command to list all reported issues.
     usage: /reportlist
     permission: reportplugin.reportlist
     permission-message: You do not have permission to view reported issues.
-  reportgui:
+  report-gui:
     description: A command to open the report GUI.
     usage: /reportgui
     permission: reportplugin.reportgui
     permission-message: You do not have permission to open the report GUI.
-  reportdata:
+  report-data:
     description: A command to view report data.
     usage: /reportdata
     permission: reportplugin.reportdata

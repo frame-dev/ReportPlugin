@@ -73,7 +73,14 @@ public class ReportGUI implements CommandExecutor, Listener {
                 meta.setLore(List.of(
                         ChatColor.GRAY + "Player: " + report.getReportedPlayer(),
                         ChatColor.GRAY + "Reporter: " + report.getReporter(),
-                        ChatColor.GRAY + "Reason: " + report.getReason()
+                        ChatColor.GRAY + "Reason: " + report.getReason(),
+                        ChatColor.GRAY + "Time: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(report.getTimestamp())),
+                        ChatColor.GRAY + "Resolved: " + (report.isResolved() ? "Yes" : "No"),
+                        ChatColor.GRAY + (report.isResolved() ? " (" + report.getResolutionComment() + ")" : ""),
+                        ChatColor.GRAY + "Server: " + report.getServerName(),
+                        ChatColor.GRAY + "Location: " + report.getLocation(),
+                        ChatColor.GRAY + "World: " + report.getWorldName(),
+                        ChatColor.GRAY + "Click to select this report"
                 ));
                 item.setItemMeta(meta);
             }
