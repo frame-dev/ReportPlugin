@@ -32,6 +32,7 @@ public class MongoDBHelper implements DatabaseHelper {
         this.mongoDb = new MongoDB(host, database, username, password, port);
         plugin.getLogger().info("Connecting to MongoDB at " + host + ":" + port + " with database " + database);
         this.mongoDb.connect();
+        createTable();
         plugin.getLogger().info("MongoDB initialized successfully.");
     }
 
@@ -89,6 +90,7 @@ public class MongoDBHelper implements DatabaseHelper {
     public void createTable() {
         // MongoDB does not require explicit table creation like SQL databases.
         // The collection will be created automatically when the first document is inserted.
+        ReportPlugin.getInstance().getLogger().info("MongoDB does not require explicit table creation. Collection will be created on first insert.");
     }
 
     @Override

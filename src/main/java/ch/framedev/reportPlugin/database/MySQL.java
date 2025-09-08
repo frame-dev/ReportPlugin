@@ -74,11 +74,21 @@ public class MySQL {
         this.port = port;
     }
 
+    /**
+     * Constructs the JDBC connection URL for MySQL.
+     *
+     * @return The JDBC connection URL as a String.
+     */
     public String getConnectionUrl() {
         return "jdbc:mysql://" + host + ":" + port + "/" + database +
                "?useSSL=false&allowPublicKeyRetrieval=true";
     }
 
+    /**
+     * Establishes a connection to the MySQL database.
+     *
+     * @return A Connection object if successful, null otherwise.
+     */
     public Connection connect() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

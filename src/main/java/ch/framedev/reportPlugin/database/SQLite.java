@@ -47,6 +47,11 @@ public class SQLite {
         return "jdbc:sqlite:" + path + "/" + databaseName;
     }
 
+    /**
+     * Establishes and returns a connection to the SQLite database.
+     *
+     * @return A Connection object if the connection is successful, null otherwise.
+     */
     public Connection connect() {
         try {
             Class.forName("org.sqlite.JDBC");

@@ -15,6 +15,8 @@ import ch.framedev.reportPlugin.main.ReportPlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.Collections;
+
 public record ConfigUtils(FileConfiguration config) {
 
     public void initializeConfig(ReportPlugin plugin) {
@@ -25,6 +27,7 @@ public record ConfigUtils(FileConfiguration config) {
     private void setupConfig(ReportPlugin plugin) {
         if (!config.contains("discord")) {
             ConfigurationSection section = config.createSection("discord");
+            section.setComments("discord", Collections.singletonList("Make sure to set up a Discord Webhook!"));
             config.set("discord", section);
             ConfigurationSection createSection = config.createSection("discord.create");
             createSection.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
@@ -70,6 +73,7 @@ public record ConfigUtils(FileConfiguration config) {
 
         if (!config.contains("mysql")) {
             ConfigurationSection section = config.createSection("mysql");
+            section.setComments("mysql", Collections.singletonList("Make sure to have a running MySQL instance!"));
             section.set("host", "localhost");
             section.set("port", 3306);
             section.set("database", "reports");
@@ -80,6 +84,7 @@ public record ConfigUtils(FileConfiguration config) {
 
         if (!config.contains("sqlite")) {
             ConfigurationSection section = config.createSection("sqlite");
+            section.setComments("sqlite", Collections.singletonList("The database file will be created in the plugin's data folder."));
             section.set("file", "reports.db");
             section.set("path", "database");
             config.set("sqlite", section);
@@ -87,6 +92,7 @@ public record ConfigUtils(FileConfiguration config) {
 
         if (!config.contains("mongodb")) {
             ConfigurationSection section = config.createSection("mongodb");
+            section.setComments("mongodb", Collections.singletonList("Make sure to have a running MongoDB instance!"));
             section.set("host", "localhost");
             section.set("port", 27017);
             section.set("database", "spigotTestDB");
@@ -94,11 +100,19 @@ public record ConfigUtils(FileConfiguration config) {
             section.set("password", "yourPassword");
             config.set("mongodb", section);
         }
-        if(!config.contains("server-name")) {
-            config.set("server-name", "Localhost Server");
+
+        if (!config.contains("database")) {
+            config.set("database", "filesystem");
+            config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, mongodb, filesystem"));
         }
-        if(!config.contains("server-address")) {
+
+        if (!config.contains("server-name")) {
+            config.set("server-name", "Localhost Server");
+            config.setComments("server-name", Collections.singletonList("This name will be displayed in the Discord webhook and saved in the database."));
+        }
+        if (!config.contains("server-address")) {
             config.set("server-address", "localhost");
+            config.setComments("server-address", Collections.singletonList("This address will be displayed in the Discord webhook and saved in the database."));
         }
     }
 }
