@@ -26,6 +26,8 @@ public class ReportGUI implements CommandExecutor, Listener {
     private static final String UPDATE_TITLE = ChatColor.BLUE + "Update Report";
     private static final String TELEPORT_TITLE = ChatColor.LIGHT_PURPLE + "Teleport to Location";
     private static final String DELETE_TITLE = ChatColor.DARK_RED + "Delete Report";
+    private static final String KICK_TITLE = ChatColor.DARK_RED + "Kick Player";
+    private static final String BAN_TITLE = ChatColor.DARK_RED + "Ban Player";
     private final Database database;
 
     // Track update state per player
@@ -40,6 +42,8 @@ public class ReportGUI implements CommandExecutor, Listener {
 
     private final Map<UUID, UpdateSession> updateSessions = new HashMap<>();
     private final Map<UUID, String> playerSelectedReport = new HashMap<>();
+    private final Map<UUID, String> playerKickReason = new HashMap<>();
+    private final Map<UUID, String> playerBanReason = new HashMap<>();
 
     public ReportGUI(Database database) {
         this.database = database;
@@ -64,7 +68,7 @@ public class ReportGUI implements CommandExecutor, Listener {
 
         Inventory gui = Bukkit.createInventory(null, size, GUI_TITLE);
 
-        for (int i = 0; i < Math.min(reports.size(), size - 2); i++) {
+        for (int i = 0; i < Math.min(reports.size(), size - 5); i++) {
             Report report = reports.get(i);
             ItemStack item = new ItemStack(Material.PAPER);
             ItemMeta meta = item.getItemMeta();
@@ -86,6 +90,25 @@ public class ReportGUI implements CommandExecutor, Listener {
             }
             gui.setItem(i, item);
         }
+        // Ban button
+        ItemStack banItem = new ItemStack(Material.DIAMOND_SWORD);
+        ItemMeta banMeta = banItem.getItemMeta();
+        if (banMeta != null) {
+            banMeta.setDisplayName(BAN_TITLE);
+            banMeta.setLore(List.of(ChatColor.GRAY + "Click to ban the reported player"));
+            banItem.setItemMeta(banMeta);
+        }
+        gui.setItem(size - 5, banItem);
+
+        // Kick button
+        ItemStack kickItem = new ItemStack(Material.IRON_BOOTS);
+        ItemMeta kickMeta = kickItem.getItemMeta();
+        if (kickMeta != null) {
+            kickMeta.setDisplayName(KICK_TITLE);
+            kickMeta.setLore(List.of(ChatColor.GRAY + "Click to kick the reported player"));
+            kickItem.setItemMeta(kickMeta);
+        }
+        gui.setItem(size - 4, kickItem);
 
         // Delete button
         ItemStack deleteItem = new ItemStack(Material.RED_WOOL);
@@ -205,14 +228,96 @@ public class ReportGUI implements CommandExecutor, Listener {
             database.deleteReport(reportId);
             player.sendMessage(ChatColor.GREEN + "Report " + reportId + " deleted.");
             player.closeInventory();
+        } else if(displayName.equals(ChatColor.stripColor(KICK_TITLE))) {
+            if (!playerSelectedReport.containsKey(uuid)) {
+                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                return;
+            }
+            String reportId = playerSelectedReport.get(uuid);
+            Report report = database.getReportById(reportId);
+            if (report == null) {
+                player.sendMessage(ChatColor.RED + "Report not found.");
+                return;
+            }
+            Player reportedPlayer = Bukkit.getPlayerExact(report.getReportedPlayer());
+            if (reportedPlayer == null || !reportedPlayer.isOnline()) {
+                player.sendMessage(ChatColor.RED + "Reported player is not online.");
+                return;
+            }
+            player.sendMessage(ChatColor.GREEN + "Please type the kick reason in chat:");
+            playerKickReason.put(uuid, reportId);
+            player.closeInventory();
+        } else if(displayName.equals(ChatColor.stripColor(BAN_TITLE))) {
+            if (!playerSelectedReport.containsKey(uuid)) {
+                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                return;
+            }
+            String reportId = playerSelectedReport.get(uuid);
+            Report report = database.getReportById(reportId);
+            if (report == null) {
+                player.sendMessage(ChatColor.RED + "Report not found.");
+                return;
+            }
+            Player reportedPlayer = Bukkit.getPlayerExact(report.getReportedPlayer());
+            if (reportedPlayer == null || !reportedPlayer.isOnline()) {
+                player.sendMessage(ChatColor.RED + "Reported player is not online.");
+                return;
+            }
+            player.sendMessage(ChatColor.GREEN + "Please type the ban reason in chat:");
+            playerBanReason.put(uuid, reportId);
+            player.closeInventory();
         }
     }
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
+
         UUID uuid = player.getUniqueId();
         if (!updateSessions.containsKey(uuid)) return;
+        if(playerKickReason.containsKey(uuid)) {
+            event.setCancelled(true);
+            String reason = event.getMessage();
+            String reportId = playerKickReason.get(uuid);
+            Report report = database.getReportById(reportId);
+            if (report == null) {
+                player.sendMessage(ChatColor.RED + "Report not found.");
+                playerKickReason.remove(uuid);
+                return;
+            }
+            Player reportedPlayer = Bukkit.getPlayerExact(report.getReportedPlayer());
+            if (reportedPlayer == null || !reportedPlayer.isOnline()) {
+                player.sendMessage(ChatColor.RED + "Reported player is not online.");
+                playerKickReason.remove(uuid);
+                return;
+            }
+            reportedPlayer.kickPlayer(ChatColor.RED + "You have been kicked for: " + reason);
+            player.sendMessage(ChatColor.GREEN + "Player " + reportedPlayer.getName() + " has been kicked for: " + reason);
+            playerKickReason.remove(uuid);
+            return;
+        }
+        if(playerBanReason.containsKey(uuid)) {
+            event.setCancelled(true);
+            String reason = event.getMessage();
+            String reportId = playerBanReason.get(uuid);
+            Report report = database.getReportById(reportId);
+            if (report == null) {
+                player.sendMessage(ChatColor.RED + "Report not found.");
+                playerBanReason.remove(uuid);
+                return;
+            }
+            Player reportedPlayer = Bukkit.getPlayerExact(report.getReportedPlayer());
+            if (reportedPlayer == null || !reportedPlayer.isOnline()) {
+                player.sendMessage(ChatColor.RED + "Reported player is not online.");
+                playerBanReason.remove(uuid);
+                return;
+            }
+            Bukkit.getBanList(BanList.Type.NAME).addBan(reportedPlayer.getName(), reason, null, player.getName());
+            reportedPlayer.kickPlayer(ChatColor.RED + "You have been banned for: " + reason);
+            player.sendMessage(ChatColor.GREEN + "Player " + reportedPlayer.getName() + " has been banned for: " + reason);
+            playerBanReason.remove(uuid);
+            return;
+        }
 
         event.setCancelled(true);
         UpdateSession session = updateSessions.get(uuid);
