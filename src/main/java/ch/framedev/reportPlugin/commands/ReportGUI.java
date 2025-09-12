@@ -324,8 +324,11 @@ public class ReportGUI implements CommandExecutor, Listener {
                 player.sendMessage(ChatColor.GREEN + "---- Update History for Report " + reportId + " ----");
                 history.forEach((updater, rep) -> {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    player.sendMessage(ChatColor.YELLOW + "Updated by: " + updater);
+                    String updaterName = updater.replace("_-_", "");
+                    player.sendMessage(ChatColor.YELLOW + "Updated by: " + updaterName);
                     player.sendMessage(ChatColor.YELLOW + "Reason: " + rep.getReason());
+                    player.sendMessage(ChatColor.YELLOW + "Reported Player: " + rep.getReportedPlayer());
+                    player.sendMessage(ChatColor.YELLOW + "Reporter: " + rep.getReporter());
                     player.sendMessage(ChatColor.YELLOW + "Additional Info: " + (rep.getAdditionalInfo().isEmpty() ? "N/A" : rep.getAdditionalInfo()));
                     player.sendMessage(ChatColor.YELLOW + "Resolved: " + (rep.isResolved() ? "Yes" : "No"));
                     if (rep.isResolved()) {
@@ -478,7 +481,11 @@ public class ReportGUI implements CommandExecutor, Listener {
                 database.updateReport(report);
                 player.sendMessage(ChatColor.GREEN + "Report updated!");
                 updateSessions.remove(uuid);
-                database.writeUpdateHistory(report, player.getName());
+                if(database.writeUpdateHistory(report, player.getName())) {
+                    player.sendMessage(ChatColor.GREEN + "Update history recorded.");
+                } else {
+                    player.sendMessage(ChatColor.RED + "Failed to record update history.");
+                }
                 sendDiscordWebhookUpdate(report);
                 break;
         }

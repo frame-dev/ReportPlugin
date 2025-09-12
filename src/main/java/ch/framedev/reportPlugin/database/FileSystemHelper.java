@@ -202,29 +202,25 @@ public class FileSystemHelper implements DatabaseHelper {
     }
 
     private Map<String, Report> readHistoryFile(File file) throws IOException {
-        if (!file.exists()) return Map.of();
+        if (!file.exists()) return new LinkedHashMap<>();
         try (Reader r = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-            Report[] reports = gson.fromJson(r, Report[].class);
-            Map<String, Report> historyMap = new LinkedHashMap<>();
-            if (reports != null) {
-                for (Report rep : reports) {
-                    historyMap.put(rep.getReportId(), rep);
-                }
-            }
-            return historyMap;
+            // Map<String, Report> statt Report[]
+            java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<LinkedHashMap<String, Report>>(){}.getType();
+            Map<String, Report> historyMap = gson.fromJson(r, type);
+            return historyMap != null ? historyMap : new LinkedHashMap<>();
         }
     }
 
     private void writeHistoryFile(File target, Map<String, Report> history) throws IOException {
-        // Write to a temp file then move into place for atomic-ish replace
+        // Schreibe in eine temporäre Datei und verschiebe sie dann atomar
         File tmp = File.createTempFile("history_", ".json", getHistoryDir());
         try (Writer w = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8)) {
-            gson.toJson(history.values(), w);
+            gson.toJson(history, w);
         }
         try {
             Files.move(tmp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (AtomicMoveNotSupportedException e) {
-            // Fallback if filesystem doesn't support atomic move
+            // Fallback, falls das Dateisystem keinen atomaren Move unterstützt
             Files.move(tmp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
@@ -238,8 +234,8 @@ public class FileSystemHelper implements DatabaseHelper {
         File historyFile = historyFileForReportId(report.getReportId());
         try {
             Map<String, Report> history = readHistoryFile(historyFile);
-            // Use updater and timestamp to create a unique key
-            String key = updater + "_" + System.currentTimeMillis();
+            // Nutze Updater und Zeitstempel als eindeutigen Schlüssel
+            String key = updater + "_-_" + System.currentTimeMillis();
             history.put(key, report);
             writeHistoryFile(historyFile, history);
             return true;
