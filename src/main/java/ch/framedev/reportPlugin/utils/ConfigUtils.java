@@ -120,17 +120,28 @@ public record ConfigUtils(FileConfiguration config) {
             config.set("server-name", "Localhost Server");
             config.setComments("server-name", Collections.singletonList("This name will be displayed in the Discord webhook and saved in the database."));
         }
+
         if (!config.contains("server-address")) {
             config.set("server-address", "localhost");
             config.setComments("server-address", Collections.singletonList("This address will be displayed in the Discord webhook and saved in the database."));
         }
+
         if (!config.contains("bungeecord")) {
             config.set("bungeecord", false);
             config.setComments("bungeecord", Collections.singletonList("Set to true if you are using Bungeecord or Waterfall."));
         }
+
         if (!config.contains("useDiscordWebhook")) {
             config.set("useDiscordWebhook", false);
             config.setComments("useDiscordWebhook", Collections.singletonList("Set to true to enable Discord webhook notifications for reports."));
+        }
+
+        if (!config.contains("report-settings")) {
+            ConfigurationSection section = config.createSection("report-settings");
+            section.set("max-reports-per-player", 3);
+            section.set("max-reports-per-reporter", 10);
+            config.set("report-settings", section);
+            config.setComments("report-settings", Collections.singletonList("Settings related to reporting limits."));
         }
     }
 }
