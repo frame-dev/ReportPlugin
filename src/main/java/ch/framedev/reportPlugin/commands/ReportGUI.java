@@ -64,17 +64,19 @@ public class ReportGUI implements CommandExecutor, Listener {
             return true;
         }
 
+        // Fetch all reports and calculate the required inventory size
         List<Report> reports = database.getAllReports();
         int reportCount = reports.size();
-        int size = ((reportCount - 1) / 9 + 1) * 9;
-        size = Math.max(9, Math.min(size, 54));
+        int inventorySize = Math.max(9, Math.min(((reportCount - 1) / 9 + 1) * 9, 54));
 
-        Inventory gui = Bukkit.createInventory(null, size, GUI_TITLE);
+        Inventory gui = Bukkit.createInventory(null, inventorySize, GUI_TITLE);
 
-        for (int i = 0; i < Math.min(reports.size(), size - 7); i++) {
+        // Add report items to the GUI
+        int maxReportSlots = inventorySize - 7;
+        for (int i = 0; i < Math.min(reports.size(), maxReportSlots); i++) {
             Report report = reports.get(i);
-            ItemStack item = new ItemStack(Material.PAPER);
-            ItemMeta meta = item.getItemMeta();
+            ItemStack reportItem = new ItemStack(Material.PAPER);
+            ItemMeta meta = reportItem.getItemMeta();
             if (meta != null) {
                 meta.setDisplayName(ChatColor.YELLOW + "Report: " + report.getReportId());
                 meta.setLore(List.of(
@@ -89,83 +91,34 @@ public class ReportGUI implements CommandExecutor, Listener {
                         ChatColor.GRAY + "World: " + report.getWorldName(),
                         ChatColor.GRAY + "Click to select this report"
                 ));
-                item.setItemMeta(meta);
+                reportItem.setItemMeta(meta);
             }
-            gui.setItem(i, item);
+            gui.setItem(i, reportItem);
         }
 
-        // View Update History button
-        ItemStack historyItem = new ItemStack(Material.BOOK);
-        ItemMeta historyMeta = historyItem.getItemMeta();
-        if (historyMeta != null) {
-            historyMeta.setDisplayName(UPDATE_HISTORY_TITLE);
-            historyMeta.setLore(List.of(ChatColor.GRAY + "View the update history of the selected report"));
-            historyItem.setItemMeta(historyMeta);
-        }
-        gui.setItem(size - 7, historyItem);
-
-        // Teleport to Reporter button
-        ItemStack teleportToReporterItem = new ItemStack(Material.COMPASS);
-        ItemMeta teleportToReporterMeta = teleportToReporterItem.getItemMeta();
-        if (teleportToReporterMeta != null) {
-            teleportToReporterMeta.setDisplayName(TELEPORT_TO_REPORTER);
-            teleportToReporterMeta.setLore(List.of(ChatColor.GRAY + "Teleport to the reporter of the selected report"));
-            teleportToReporterItem.setItemMeta(teleportToReporterMeta);
-        }
-        gui.setItem(size - 6, teleportToReporterItem);
-
-        // Ban button
-        ItemStack banItem = new ItemStack(Material.DIAMOND_SWORD);
-        ItemMeta banMeta = banItem.getItemMeta();
-        if (banMeta != null) {
-            banMeta.setDisplayName(BAN_TITLE);
-            banMeta.setLore(List.of(ChatColor.GRAY + "Click to ban the reported player"));
-            banItem.setItemMeta(banMeta);
-        }
-        gui.setItem(size - 5, banItem);
-
-        // Kick button
-        ItemStack kickItem = new ItemStack(Material.IRON_BOOTS);
-        ItemMeta kickMeta = kickItem.getItemMeta();
-        if (kickMeta != null) {
-            kickMeta.setDisplayName(KICK_TITLE);
-            kickMeta.setLore(List.of(ChatColor.GRAY + "Click to kick the reported player"));
-            kickItem.setItemMeta(kickMeta);
-        }
-        gui.setItem(size - 4, kickItem);
-
-        // Delete button
-        ItemStack deleteItem = new ItemStack(Material.RED_WOOL);
-        ItemMeta deleteMeta = deleteItem.getItemMeta();
-        if (deleteMeta != null) {
-            deleteMeta.setDisplayName(DELETE_TITLE);
-            deleteMeta.setLore(List.of(ChatColor.GRAY + "Click to delete the selected report"));
-            deleteItem.setItemMeta(deleteMeta);
-        }
-        gui.setItem(size - 3, deleteItem);
-
-        // Teleport button
-        ItemStack teleportItem = new ItemStack(Material.ENDER_PEARL);
-        ItemMeta teleportMeta = teleportItem.getItemMeta();
-        if (teleportMeta != null) {
-            teleportMeta.setDisplayName(TELEPORT_TITLE);
-            teleportMeta.setLore(List.of(ChatColor.GRAY + "Teleport to the selected report location"));
-            teleportItem.setItemMeta(teleportMeta);
-        }
-        gui.setItem(size - 2, teleportItem);
-
-        // Update button
-        ItemStack updateItem = new ItemStack(Material.WRITABLE_BOOK);
-        ItemMeta updateMeta = updateItem.getItemMeta();
-        if (updateMeta != null) {
-            updateMeta.setDisplayName(UPDATE_TITLE);
-            updateMeta.setLore(List.of(ChatColor.GRAY + "Click to update the selected report"));
-            updateItem.setItemMeta(updateMeta);
-        }
-        gui.setItem(size - 1, updateItem);
+        // Add action buttons at the end of the GUI
+        addButton(gui, inventorySize - 7, Material.BOOK, UPDATE_HISTORY_TITLE, "View the update history of the selected report");
+        addButton(gui, inventorySize - 6, Material.COMPASS, TELEPORT_TO_REPORTER, "Teleport to the reporter of the selected report");
+        addButton(gui, inventorySize - 5, Material.DIAMOND_SWORD, BAN_TITLE, "Click to ban the reported player");
+        addButton(gui, inventorySize - 4, Material.IRON_BOOTS, KICK_TITLE, "Click to kick the reported player");
+        addButton(gui, inventorySize - 3, Material.RED_WOOL, DELETE_TITLE, "Click to delete the selected report");
+        addButton(gui, inventorySize - 2, Material.ENDER_PEARL, TELEPORT_TITLE, "Teleport to the selected report location");
+        addButton(gui, inventorySize - 1, Material.WRITABLE_BOOK, UPDATE_TITLE, "Click to update the selected report");
 
         player.openInventory(gui);
         return true;
+    }
+
+    // Helper method to add a button to the GUI
+    private void addButton(Inventory gui, int slot, Material material, String title, String lore) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(title);
+            meta.setLore(List.of(ChatColor.GRAY + lore));
+            item.setItemMeta(meta);
+        }
+        gui.setItem(slot, item);
     }
 
     @EventHandler
