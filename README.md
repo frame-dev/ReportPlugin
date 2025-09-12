@@ -39,8 +39,8 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 - `/report-gui`  
   Open the report management GUI.
 
-- `/report-data`
-    View detailed information about Player data and if they are reported.
+- `/report-data`  
+  View detailed information about Player data and if they are reported.
 
 - `/reporttp <player> <reportID>`  
   Teleport to the location of a specific report.
