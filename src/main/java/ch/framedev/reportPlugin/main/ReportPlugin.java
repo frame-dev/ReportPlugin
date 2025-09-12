@@ -1,9 +1,6 @@
 package ch.framedev.reportPlugin.main;
 
-import ch.framedev.reportPlugin.commands.ReportCommand;
-import ch.framedev.reportPlugin.commands.ReportDataCommand;
-import ch.framedev.reportPlugin.commands.ReportGUI;
-import ch.framedev.reportPlugin.commands.ReportListCommand;
+import ch.framedev.reportPlugin.commands.*;
 import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.utils.ConfigUtils;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,6 +36,9 @@ public final class ReportPlugin extends JavaPlugin {
         ReportDataCommand reportDataCommand = new ReportDataCommand(database);
         getServer().getPluginManager().registerEvents(reportDataCommand, this);
         getCommand("report-data").setExecutor(reportDataCommand);
+        ReportTeleportCommand reportTeleportCommand = new ReportTeleportCommand(database);
+        getCommand("reporttp").setExecutor(reportTeleportCommand);
+        getCommand("reporttp").setTabCompleter(reportTeleportCommand);
 
         // Log plugin enable message
         getLogger().info("ReportPlugin has been enabled!");

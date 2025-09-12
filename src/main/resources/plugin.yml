@@ -1,5 +1,5 @@
 name: ReportPlugin
-version: '0.2-SNAPSHOT'
+version: '0.3-SNAPSHOT'
 main: ch.framedev.reportPlugin.main.ReportPlugin
 api-version: '1.21'
 description: A simple Spigot plugin for reporting players. Supports SQLite, MySQL, MongoDB, and File storage.
@@ -31,3 +31,8 @@ commands:
     usage: /reportdata
     permission: reportplugin.reportdata
     permission-message: You do not have permission to view report data.
+  reporttp:
+    description: A command to teleport to a reported player.
+    usage: /reporttp <player> <reportID>
+    permission: reportplugin.reporttp
+    permission-message: You do not have permission to teleport to reported players.
