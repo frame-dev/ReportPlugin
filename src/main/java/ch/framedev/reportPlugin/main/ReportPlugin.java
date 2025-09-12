@@ -50,6 +50,9 @@ public final class ReportPlugin extends JavaPlugin {
         ReportTeleportCommand reportTeleportCommand = new ReportTeleportCommand(database);
         getCommand("reporttp").setExecutor(reportTeleportCommand);
         getCommand("reporttp").setTabCompleter(reportTeleportCommand);
+        ReportDeleteCommand reportDeleteCommand = new ReportDeleteCommand(database);
+        getCommand("report-delete").setExecutor(reportDeleteCommand);
+        getCommand("report-delete").setTabCompleter(reportDeleteCommand);
         getLogger().info("Commands and events registered successfully!");
 
         // Log plugin enable message

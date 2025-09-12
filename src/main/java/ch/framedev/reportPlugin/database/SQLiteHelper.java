@@ -14,7 +14,6 @@ package ch.framedev.reportPlugin.database;
 import ch.framedev.reportPlugin.utils.Report;
 import ch.framedev.reportPlugin.main.ReportPlugin;
 import com.google.gson.Gson;
-import org.checkerframework.checker.units.qual.C;
 
 import java.sql.Connection;
 import java.util.List;

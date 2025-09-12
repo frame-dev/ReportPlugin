@@ -45,6 +45,9 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 - `/reporttp <player> <reportID>`  
   Teleport to the location of a specific report.
 
+- `/report-delete <reportID>`  
+  Delete a specific report.
+
 ## Permissions
 
 - `reportplugin.report` — Use the `/report` command.
@@ -53,6 +56,7 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 - `reportplugin.reportdata` — Use the `/report-data` command.
 - `reportplugin.report.notify` — Receive notifications for new reports.
 - `reportplugin.reporttp` — Use the `/reporttp` command.
+- `reportplugin.reportdelete` - Use the `report-delete <reportID>` command.
 
 ## Configuration
 

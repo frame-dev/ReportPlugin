@@ -84,5 +84,9 @@ public interface DatabaseHelper {
      */
     int countReportsForPlayer(String reportedPlayer);
 
+    /**
+     * Establish a connection to the database
+     * @return true if the connection was successful, false otherwise
+     */
     boolean connect();
 }

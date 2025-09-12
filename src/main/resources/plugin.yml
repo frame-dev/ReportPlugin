@@ -36,3 +36,8 @@ commands:
     usage: /reporttp <player> <reportID>
     permission: reportplugin.reporttp
     permission-message: You do not have permission to teleport to reported players.
+  report-delete:
+    description: A command to delete a report.
+    usage: /report-delete <reportID>
+    permission: reportplugin.reportdelete
+    permission-message: You do not have permission to delete reports.
