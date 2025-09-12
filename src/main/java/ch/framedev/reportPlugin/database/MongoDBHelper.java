@@ -87,9 +87,10 @@ public class MongoDBHelper implements DatabaseHelper {
     }
 
     @Override
-    public void deleteReport(String reportId) {
+    public boolean deleteReport(String reportId) {
         Document query = new Document("reportId", reportId);
-        getReportsCollection().deleteOne(query);
+        long count = getReportsCollection().deleteOne(query).getDeletedCount();
+        return count > 0;
     }
 
     @Override

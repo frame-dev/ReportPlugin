@@ -225,7 +225,11 @@ public class ReportGUI implements CommandExecutor, Listener {
                 player.sendMessage(ChatColor.RED + "Report not found.");
                 return;
             }
-            database.deleteReport(reportId);
+            if(database.deleteReport(reportId)) {
+                player.sendMessage(ChatColor.GREEN + "Report " + reportId + " deleted.");
+            } else {
+                player.sendMessage(ChatColor.RED + "Failed to delete report " + reportId + ".");
+            }
             player.sendMessage(ChatColor.GREEN + "Report " + reportId + " deleted.");
             player.closeInventory();
         } else if(displayName.equals(ChatColor.stripColor(KICK_TITLE))) {

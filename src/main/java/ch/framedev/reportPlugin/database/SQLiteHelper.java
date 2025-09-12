@@ -253,19 +253,21 @@ public class SQLiteHelper implements DatabaseHelper {
         }
     }
 
-    public void deleteReport(String reportId) {
+    public boolean deleteReport(String reportId) {
         try (Connection connection = sqLite.connect()) {
             if (connection != null) {
                 String sql = "DELETE FROM reports WHERE report_id = ?";
                 var preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, reportId);
-                preparedStatement.executeUpdate();
+                int count = preparedStatement.executeUpdate();
+                return count > 0;
             } else {
                 System.err.println("Failed to connect to the database.");
             }
         } catch (Exception ex) {
             ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error deleting report", ex);
         }
+        return false;
     }
 
     @Override

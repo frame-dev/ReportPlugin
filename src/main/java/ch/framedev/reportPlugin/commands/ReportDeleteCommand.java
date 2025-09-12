@@ -29,8 +29,11 @@ public record ReportDeleteCommand(Database database) implements CommandExecutor,
             return true;
         }
         String reportId = args[0];
-        database.deleteReport(reportId);
-        player.sendMessage("§aReport with ID " + reportId + " has been deleted.");
+        if (!database.deleteReport(reportId)) {
+            player.sendMessage("§cNo report found with ID " + reportId + ".");
+            return true;
+        } else
+            player.sendMessage("§aReport with ID " + reportId + " has been deleted.");
         return true;
     }
 

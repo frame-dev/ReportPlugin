@@ -54,7 +54,7 @@ public interface DatabaseHelper {
      * Delete a report by its ID
      * @param reportId the ID of the report to delete
      */
-    void deleteReport(String reportId);
+    boolean deleteReport(String reportId);
     /**
      * Create the reports table in the database if it does not exist
      */

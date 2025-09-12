@@ -139,12 +139,14 @@ public class FileSystemHelper implements DatabaseHelper {
     }
 
     @Override
-    public void deleteReport(String reportId) {
-        if (reportId == null || reportId.isEmpty()) return;
+    public boolean deleteReport(String reportId) {
+        if (reportId == null || reportId.isEmpty()) return false;
         File f = fileForReportId(reportId);
         if (f.exists() && !f.delete()) {
             plugin.getLogger().log(Level.SEVERE, "Could not delete report file: " + f.getAbsolutePath());
+            return false;
         }
+        return true;
     }
 
     @Override

@@ -151,9 +151,10 @@ public class Database {
      * Deletes a report from the database based on its unique identifier.
      *
      * @param reportId the unique identifier of the report to be deleted.
+     * @return
      */
-    public void deleteReport(String reportId) {
-        databaseHelper.deleteReport(reportId);
+    public boolean deleteReport(String reportId) {
+        return databaseHelper.deleteReport(reportId);
     }
 
     /**
