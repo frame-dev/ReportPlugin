@@ -15,11 +15,13 @@ import ch.framedev.reportPlugin.utils.Report;
 import ch.framedev.reportPlugin.main.ReportPlugin;
 
 import java.util.List;
-
+@SuppressWarnings("unused")
 public class Database {
 
+    // The database helper instance that provides database-specific operations
     private final DatabaseHelper databaseHelper;
 
+    // The type of database being used (e.g., "mysql", "sqlite", "mongodb", "filesystem")
     private final String databaseType;
 
     /**
@@ -55,7 +57,6 @@ public class Database {
     /**
      * Creates the necessary table in the database if it doesn't already exist.
      */
-    @SuppressWarnings("unused")
     public void createTable() {
         databaseHelper.createTable();
     }
@@ -156,6 +157,11 @@ public class Database {
         return databaseHelper.countReportsForPlayer(reportedPlayer);
     }
 
+    /**
+     * Returns the underlying DatabaseHelper instance.
+     *
+     * @return the DatabaseHelper instance.
+     */
     public DatabaseHelper getDatabaseHelper() {
         return databaseHelper;
     }

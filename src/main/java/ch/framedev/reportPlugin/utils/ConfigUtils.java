@@ -19,11 +19,21 @@ import java.util.Collections;
 
 public record ConfigUtils(FileConfiguration config) {
 
+    /**
+     * Initializes the configuration file with default values if they do not exist.
+     *
+     * @param plugin The instance of the ReportPlugin for logging and saving the config.
+     */
     public void initializeConfig(ReportPlugin plugin) {
         setupConfig(plugin);
         plugin.saveConfig();
     }
 
+    /**
+     * Sets up the configuration file with default values if they do not exist.
+     *
+     * @param plugin The instance of the ReportPlugin for logging and saving the config.
+     */
     private void setupConfig(ReportPlugin plugin) {
         if (!config.contains("discord")) {
             ConfigurationSection section = config.createSection("discord");
@@ -113,6 +123,14 @@ public record ConfigUtils(FileConfiguration config) {
         if (!config.contains("server-address")) {
             config.set("server-address", "localhost");
             config.setComments("server-address", Collections.singletonList("This address will be displayed in the Discord webhook and saved in the database."));
+        }
+        if (!config.contains("bungeecord")) {
+            config.set("bungeecord", false);
+            config.setComments("bungeecord", Collections.singletonList("Set to true if you are using Bungeecord or Waterfall."));
+        }
+        if (!config.contains("useDiscordWebhook")) {
+            config.set("useDiscordWebhook", false);
+            config.setComments("useDiscordWebhook", Collections.singletonList("Set to true to enable Discord webhook notifications for reports."));
         }
     }
 }

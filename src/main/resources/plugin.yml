@@ -1,5 +1,5 @@
 name: ReportPlugin
-version: '1.0-SNAPSHOT'
+version: '0.2-SNAPSHOT'
 main: ch.framedev.reportPlugin.main.ReportPlugin
 api-version: '1.21'
 description: A simple Spigot plugin for reporting players. Supports SQLite, MySQL, MongoDB, and File storage.
