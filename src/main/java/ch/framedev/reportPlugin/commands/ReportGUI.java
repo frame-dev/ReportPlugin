@@ -28,6 +28,9 @@ public class ReportGUI implements CommandExecutor, Listener {
     private static final String DELETE_TITLE = ChatColor.DARK_RED + "Delete Report";
     private static final String KICK_TITLE = ChatColor.DARK_RED + "Kick Player";
     private static final String BAN_TITLE = ChatColor.DARK_RED + "Ban Player";
+    private static final String TELEPORT_TO_REPORTER = ChatColor.LIGHT_PURPLE + "Teleport to Reporter";
+    private static final String UPDATE_HISTORY_TITLE = ChatColor.BLUE + "View Update History";
+
     private final Database database;
 
     // Track update state per player
@@ -68,7 +71,7 @@ public class ReportGUI implements CommandExecutor, Listener {
 
         Inventory gui = Bukkit.createInventory(null, size, GUI_TITLE);
 
-        for (int i = 0; i < Math.min(reports.size(), size - 5); i++) {
+        for (int i = 0; i < Math.min(reports.size(), size - 7); i++) {
             Report report = reports.get(i);
             ItemStack item = new ItemStack(Material.PAPER);
             ItemMeta meta = item.getItemMeta();
@@ -90,6 +93,27 @@ public class ReportGUI implements CommandExecutor, Listener {
             }
             gui.setItem(i, item);
         }
+
+        // View Update History button
+        ItemStack historyItem = new ItemStack(Material.BOOK);
+        ItemMeta historyMeta = historyItem.getItemMeta();
+        if (historyMeta != null) {
+            historyMeta.setDisplayName(UPDATE_HISTORY_TITLE);
+            historyMeta.setLore(List.of(ChatColor.GRAY + "View the update history of the selected report"));
+            historyItem.setItemMeta(historyMeta);
+        }
+        gui.setItem(size - 7, historyItem);
+
+        // Teleport to Reporter button
+        ItemStack teleportToReporterItem = new ItemStack(Material.COMPASS);
+        ItemMeta teleportToReporterMeta = teleportToReporterItem.getItemMeta();
+        if (teleportToReporterMeta != null) {
+            teleportToReporterMeta.setDisplayName(TELEPORT_TO_REPORTER);
+            teleportToReporterMeta.setLore(List.of(ChatColor.GRAY + "Teleport to the reporter of the selected report"));
+            teleportToReporterItem.setItemMeta(teleportToReporterMeta);
+        }
+        gui.setItem(size - 6, teleportToReporterItem);
+
         // Ban button
         ItemStack banItem = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta banMeta = banItem.getItemMeta();
@@ -270,6 +294,48 @@ public class ReportGUI implements CommandExecutor, Listener {
             player.sendMessage(ChatColor.GREEN + "Please type the ban reason in chat:");
             playerBanReason.put(uuid, reportId);
             player.closeInventory();
+        } else if(displayName.equals(ChatColor.stripColor(TELEPORT_TO_REPORTER))) {
+            if (!playerSelectedReport.containsKey(uuid)) {
+                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                return;
+            }
+            Report report = database.getReportById(playerSelectedReport.get(uuid));
+            if (report == null) {
+                player.sendMessage(ChatColor.RED + "Report not found.");
+                return;
+            }
+            Player reporter = Bukkit.getPlayerExact(report.getReporter());
+            if (reporter == null || !reporter.isOnline()) {
+                player.sendMessage(ChatColor.RED + "Reporter is not online.");
+                return;
+            }
+            player.teleport(reporter.getLocation());
+            player.sendMessage(ChatColor.GREEN + "Teleported to reporter's location.");
+        } else if(displayName.equals(ChatColor.stripColor(UPDATE_HISTORY_TITLE))) {
+            if (!playerSelectedReport.containsKey(uuid)) {
+                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                return;
+            }
+            String reportId = playerSelectedReport.get(uuid);
+            Map<String, Report> history = database.getUpdateHistory(database.getReportById(reportId));
+            if (history.isEmpty()) {
+                player.sendMessage(ChatColor.YELLOW + "No update history for this report.");
+            } else {
+                player.sendMessage(ChatColor.GREEN + "---- Update History for Report " + reportId + " ----");
+                history.forEach((updater, rep) -> {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    player.sendMessage(ChatColor.YELLOW + "Updated by: " + updater);
+                    player.sendMessage(ChatColor.YELLOW + "Reason: " + rep.getReason());
+                    player.sendMessage(ChatColor.YELLOW + "Additional Info: " + (rep.getAdditionalInfo().isEmpty() ? "N/A" : rep.getAdditionalInfo()));
+                    player.sendMessage(ChatColor.YELLOW + "Resolved: " + (rep.isResolved() ? "Yes" : "No"));
+                    if (rep.isResolved()) {
+                        player.sendMessage(ChatColor.YELLOW + "Resolution Comment: " + (rep.getResolutionComment().isEmpty() ? "N/A" : rep.getResolutionComment()));
+                    }
+                    player.sendMessage(ChatColor.YELLOW + "Time: " + sdf.format(new Date(rep.getTimestamp())));
+                    player.sendMessage(ChatColor.GRAY + "-----------------------------");
+                });
+                player.sendMessage(ChatColor.GREEN + "----------------------------------------");
+            }
         }
     }
 
@@ -412,6 +478,7 @@ public class ReportGUI implements CommandExecutor, Listener {
                 database.updateReport(report);
                 player.sendMessage(ChatColor.GREEN + "Report updated!");
                 updateSessions.remove(uuid);
+                database.writeUpdateHistory(report, player.getName());
                 sendDiscordWebhookUpdate(report);
                 break;
         }

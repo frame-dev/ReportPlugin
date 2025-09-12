@@ -14,6 +14,7 @@ package ch.framedev.reportPlugin.database;
 import ch.framedev.reportPlugin.utils.Report;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DatabaseHelper {
 
@@ -90,4 +91,8 @@ public interface DatabaseHelper {
      * @return true if the connection was successful, false otherwise
      */
     boolean connect();
+
+    boolean writeToUpdateHistory(Report report, String updater);
+    Map<String, Report> getUpdateHistory(Report report);
+    boolean clearUpdateHistory(Report report);
 }

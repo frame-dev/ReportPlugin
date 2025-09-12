@@ -15,6 +15,8 @@ import ch.framedev.reportPlugin.utils.Report;
 import ch.framedev.reportPlugin.main.ReportPlugin;
 
 import java.util.List;
+import java.util.Map;
+
 @SuppressWarnings("unused")
 public class Database {
 
@@ -174,5 +176,17 @@ public class Database {
      */
     public DatabaseHelper getDatabaseHelper() {
         return databaseHelper;
+    }
+
+    public boolean writeUpdateHistory(Report report, String updater) {
+        return databaseHelper.writeToUpdateHistory(report, updater);
+    }
+
+    public Map<String, Report> getUpdateHistory(Report report) {
+        return databaseHelper.getUpdateHistory(report);
+    }
+
+    public boolean clearUpdateHistory(Report report) {
+        return databaseHelper.clearUpdateHistory(report);
     }
 }

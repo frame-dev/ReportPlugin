@@ -187,4 +187,94 @@ public class FileSystemHelper implements DatabaseHelper {
         // Always "connected" for filesystem
         return true;
     }
+
+    private static final String HISTORY_DIR_NAME = "history";
+    private File getHistoryDir() {
+        File historyDir = new File(reportsDir, HISTORY_DIR_NAME);
+        if (!historyDir.exists() && !historyDir.mkdirs()) {
+            plugin.getLogger().log(Level.SEVERE, "Could not create history directory: " + historyDir.getAbsolutePath());
+        }
+        return historyDir;
+    }
+
+    private File historyFileForReportId(String reportId) {
+        return new File(getHistoryDir(), "history_" + reportId + ".json");
+    }
+
+    private Map<String, Report> readHistoryFile(File file) throws IOException {
+        if (!file.exists()) return Map.of();
+        try (Reader r = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+            Report[] reports = gson.fromJson(r, Report[].class);
+            Map<String, Report> historyMap = new LinkedHashMap<>();
+            if (reports != null) {
+                for (Report rep : reports) {
+                    historyMap.put(rep.getReportId(), rep);
+                }
+            }
+            return historyMap;
+        }
+    }
+
+    private void writeHistoryFile(File target, Map<String, Report> history) throws IOException {
+        // Write to a temp file then move into place for atomic-ish replace
+        File tmp = File.createTempFile("history_", ".json", getHistoryDir());
+        try (Writer w = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8)) {
+            gson.toJson(history.values(), w);
+        }
+        try {
+            Files.move(tmp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+            // Fallback if filesystem doesn't support atomic move
+            Files.move(tmp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    @Override
+    public boolean writeToUpdateHistory(Report report, String updater) {
+        if (report == null || report.getReportId() == null || report.getReportId().isEmpty()) {
+            plugin.getLogger().log(Level.SEVERE, "writeToUpdateHistory called with invalid report");
+            return false;
+        }
+        File historyFile = historyFileForReportId(report.getReportId());
+        try {
+            Map<String, Report> history = readHistoryFile(historyFile);
+            // Use updater and timestamp to create a unique key
+            String key = updater + "_" + System.currentTimeMillis();
+            history.put(key, report);
+            writeHistoryFile(historyFile, history);
+            return true;
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not write update history for report " + report.getReportId(), e);
+            return false;
+        }
+    }
+
+    @Override
+    public Map<String, Report> getUpdateHistory(Report report) {
+        if (report == null || report.getReportId() == null || report.getReportId().isEmpty()) {
+            plugin.getLogger().log(Level.SEVERE, "getUpdateHistory called with invalid report");
+            return Map.of();
+        }
+        File historyFile = historyFileForReportId(report.getReportId());
+        try {
+            return readHistoryFile(historyFile);
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not read update history for report " + report.getReportId(), e);
+            return Map.of();
+        }
+    }
+
+    @Override
+    public boolean clearUpdateHistory(Report report) {
+        if (report == null || report.getReportId() == null || report.getReportId().isEmpty()) {
+            plugin.getLogger().log(Level.SEVERE, "clearUpdateHistory called with invalid report");
+            return false;
+        }
+        File historyFile = historyFileForReportId(report.getReportId());
+        if (historyFile.exists() && !historyFile.delete()) {
+            plugin.getLogger().log(Level.SEVERE, "Could not delete history file: " + historyFile.getAbsolutePath());
+            return false;
+        }
+        return true;
+    }
 }

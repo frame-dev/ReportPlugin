@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class MySQLHelper implements DatabaseHelper {
@@ -281,5 +282,90 @@ public class MySQLHelper implements DatabaseHelper {
             ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "An error occurred while connection to database", ex);
             return false;
         }
+    }
+
+    private void createUpdateHistoryTable() {
+        try (Connection connection = mySQL.connect()) {
+            if (connection != null) {
+                String sql = "CREATE TABLE IF NOT EXISTS report_update_history (" +
+                             "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                             "report_id VARCHAR(255) NOT NULL, " +
+                             "updater VARCHAR(255) NOT NULL, " +
+                             "update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                             "data TEXT NOT NULL, " +
+                             "FOREIGN KEY (report_id) REFERENCES reports(report_id) ON DELETE CASCADE" +
+                             ")";
+                connection.createStatement().executeUpdate(sql);
+            } else {
+                System.err.println("Failed to connect to the database.");
+            }
+        } catch (Exception ex) {
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "An error occurred while creating the report_update_history table.", ex);
+        }
+    }
+
+    @Override
+    public boolean writeToUpdateHistory(Report report, String updater) {
+        createUpdateHistoryTable();
+        try (Connection connection = mySQL.connect()) {
+            if (connection != null) {
+                String sql = "INSERT INTO report_update_history (report_id, updater, data) VALUES (?, ?, ?)";
+                var preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, report.getReportId());
+                preparedStatement.setString(2, updater);
+                preparedStatement.setString(3, new Gson().toJson(report));
+                preparedStatement.executeUpdate();
+                return true;
+            } else {
+                System.err.println("Failed to connect to the database.");
+            }
+        } catch (Exception ex) {
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "An error occurred while writing to update history.", ex);
+        }
+        return false;
+    }
+
+    @Override
+    public Map<String, Report> getUpdateHistory(Report report) {
+        createUpdateHistoryTable();
+        Map<String, Report> history = new java.util.HashMap<>();
+        try (Connection connection = mySQL.connect()) {
+            if (connection != null) {
+                String sql = "SELECT * FROM report_update_history WHERE report_id = ? ORDER BY update_time DESC";
+                var preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, report.getReportId());
+                var resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    String updater = resultSet.getString("updater");
+                    String data = resultSet.getString("data");
+                    Report updatedReport = new Gson().fromJson(data, Report.class);
+                    history.put(updater + " at " + resultSet.getTimestamp("update_time"), updatedReport);
+                }
+            } else {
+                System.err.println("Failed to connect to the database.");
+            }
+        } catch (Exception ex) {
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "An error occurred while retrieving update history.", ex);
+        }
+        return history;
+    }
+
+    @Override
+    public boolean clearUpdateHistory(Report report) {
+        createUpdateHistoryTable();
+        try (Connection connection = mySQL.connect()) {
+            if (connection != null) {
+                String sql = "DELETE FROM report_update_history WHERE report_id = ?";
+                var preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, report.getReportId());
+                int count = preparedStatement.executeUpdate();
+                return count > 0;
+            } else {
+                System.err.println("Failed to connect to the database.");
+            }
+        } catch (Exception ex) {
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "An error occurred while clearing update history.", ex);
+        }
+        return false;
     }
 }

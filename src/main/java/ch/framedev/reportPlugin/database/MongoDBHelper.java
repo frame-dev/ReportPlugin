@@ -18,6 +18,7 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MongoDBHelper implements DatabaseHelper {
 
@@ -44,6 +45,10 @@ public class MongoDBHelper implements DatabaseHelper {
 
     private MongoCollection<Document> getReportsCollection() {
         return this.mongoDb.getDatabase().getCollection("reports");
+    }
+
+    private MongoCollection<Document> getUpdateHistoryCollection() {
+        return this.mongoDb.getDatabase().getCollection("update_history");
     }
 
     @Override
@@ -123,5 +128,34 @@ public class MongoDBHelper implements DatabaseHelper {
     @Override
     public boolean connect() {
         return mongoDb.getDatabase() != null;
+    }
+
+    @Override
+    public boolean writeToUpdateHistory(Report report, String updater) {
+        Document historyEntry = new Document()
+                .append("reportId", report.getReportId())
+                .append("updater", updater)
+                .append("timestamp", System.currentTimeMillis())
+                .append("reportData", report.toDocument());
+        getUpdateHistoryCollection().insertOne(historyEntry);
+        return true;
+    }
+
+    @Override
+    public Map<String, Report> getUpdateHistory(Report report) {
+        Map<String, Report> history = new java.util.HashMap<>();
+        getUpdateHistoryCollection().find(new Document("reportId", report.getReportId()))
+                .forEach(doc -> history.put(
+                        doc.getString("updater") + " at " + doc.getLong("timestamp"),
+                        new Report((Document) doc.get("reportData"))
+                ));
+        return history;
+    }
+
+    @Override
+    public boolean clearUpdateHistory(Report report) {
+        Document query = new Document("reportId", report.getReportId());
+        long count = getUpdateHistoryCollection().deleteMany(query).getDeletedCount();
+        return count > 0;
     }
 }
