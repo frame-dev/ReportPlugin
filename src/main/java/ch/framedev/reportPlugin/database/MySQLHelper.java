@@ -270,4 +270,14 @@ public class MySQLHelper implements DatabaseHelper {
             ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "An error occurred while deleting a report.", ex);
         }
     }
+
+    @Override
+    public boolean connect() {
+        try (Connection connection = mySQL.connect()) {
+            return connection != null && !connection.isClosed();
+        } catch (Exception ex) {
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "An error occurred while connection to database", ex);
+            return false;
+        }
+    }
 }

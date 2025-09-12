@@ -83,4 +83,6 @@ public interface DatabaseHelper {
      * @return the number of reports for the player
      */
     int countReportsForPlayer(String reportedPlayer);
+
+    boolean connect();
 }

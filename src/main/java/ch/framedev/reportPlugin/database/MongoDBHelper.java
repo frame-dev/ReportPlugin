@@ -118,4 +118,9 @@ public class MongoDBHelper implements DatabaseHelper {
     public int countReportsForPlayer(String reportedPlayer) {
         return (int) getReportsCollection().countDocuments(new Document("reportedPlayer", reportedPlayer));
     }
+
+    @Override
+    public boolean connect() {
+        return mongoDb.getDatabase() != null;
+    }
 }

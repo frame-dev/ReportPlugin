@@ -45,6 +45,10 @@ public class Database {
         plugin.getLogger().info("Database initialized successfully using " + databaseType.toUpperCase() + ".");
     }
 
+    public boolean connect() {
+        return databaseHelper.connect();
+    }
+
     /**
      * Returns the type of database being used.
      *

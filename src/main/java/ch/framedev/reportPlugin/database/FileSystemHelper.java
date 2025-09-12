@@ -179,4 +179,10 @@ public class FileSystemHelper implements DatabaseHelper {
         }
         return count;
     }
+
+    @Override
+    public boolean connect() {
+        // Always "connected" for filesystem
+        return true;
+    }
 }

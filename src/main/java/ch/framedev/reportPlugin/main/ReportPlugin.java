@@ -22,12 +22,23 @@ public final class ReportPlugin extends JavaPlugin {
         saveDefaultConfig();
 
         // Initialize configuration utilities
+        getLogger().info("Loading configuration...");
         ConfigUtils configUtils = new ConfigUtils(getConfig());
         configUtils.initializeConfig(this);
+        getLogger().info("Configuration loaded successfully!");
 
         // Initialize the database connection
+        getLogger().info("Setting up the database connection...");
         database = new Database(this);
+        if (database.connect()) {
+            getLogger().info("Database connection established successfully!");
+        } else {
+            getLogger().severe("Failed to connect to the database. Disabling plugin.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
+        getLogger().info("Registering commands and events...");
         getCommand("report").setExecutor(new ReportCommand(this, database));
         getCommand("reports-list").setExecutor(new ReportListCommand(database));
         ReportGUI reportGUI = new ReportGUI(database);
@@ -39,6 +50,7 @@ public final class ReportPlugin extends JavaPlugin {
         ReportTeleportCommand reportTeleportCommand = new ReportTeleportCommand(database);
         getCommand("reporttp").setExecutor(reportTeleportCommand);
         getCommand("reporttp").setTabCompleter(reportTeleportCommand);
+        getLogger().info("Commands and events registered successfully!");
 
         // Log plugin enable message
         getLogger().info("ReportPlugin has been enabled!");
@@ -48,6 +60,7 @@ public final class ReportPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        getLogger().info("Disabling ReportPlugin...");
         instance = null;
         database = null;
         getLogger().info("ReportPlugin has been disabled!");

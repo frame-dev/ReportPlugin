@@ -14,6 +14,7 @@ package ch.framedev.reportPlugin.database;
 import ch.framedev.reportPlugin.utils.Report;
 import ch.framedev.reportPlugin.main.ReportPlugin;
 import com.google.gson.Gson;
+import org.checkerframework.checker.units.qual.C;
 
 import java.sql.Connection;
 import java.util.List;
@@ -265,6 +266,16 @@ public class SQLiteHelper implements DatabaseHelper {
             }
         } catch (Exception ex) {
             ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error deleting report", ex);
+        }
+    }
+
+    @Override
+    public boolean connect() {
+        try(Connection connection = sqLite.connect()) {
+            return connection != null && !connection.isClosed();
+        } catch (Exception ex) {
+            ReportPlugin.getInstance().getLogger().log(Level.SEVERE, "Error connecting to SQLite database", ex);
+            return false;
         }
     }
 }
