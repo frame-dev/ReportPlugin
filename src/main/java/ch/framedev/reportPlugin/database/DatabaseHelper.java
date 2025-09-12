@@ -33,6 +33,7 @@ public interface DatabaseHelper {
      * @param reportedPlayer the name of the reported player
      * @return the Report object if found, null otherwise
      */
+    @SuppressWarnings("unused")
     Report getReportByReportedPlayer(String reportedPlayer);
     /**
      * Retrieve a report by the reporter's name

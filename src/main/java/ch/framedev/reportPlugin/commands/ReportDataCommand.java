@@ -74,7 +74,7 @@ public record ReportDataCommand(Database database) implements CommandExecutor, L
                 } else {
                     lore.add("§7Last Reported Reason: §6" + lastReport.getReason());
                     lore.add("§7Last Reported By: §6" + lastReport.getReporter());
-                    lore.add("§7Last Reported At: §6" + new Date(lastReport.getTimestamp()).toString());
+                    lore.add("§7Last Reported At: §6" + new Date(lastReport.getTimestamp()));
                     lore.add("§7Last Report Resolved: §6" + (lastReport.isResolved() ? "Yes" : "No"));
                     lore.add("§7Total Reports: §6" + database.countReportsForPlayer(p.getName()));
                 }

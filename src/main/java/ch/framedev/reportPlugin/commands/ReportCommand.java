@@ -16,15 +16,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Level;
 
-public class ReportCommand implements CommandExecutor {
-
-    private final ReportPlugin plugin;
-    private final Database database;
-
-    public ReportCommand(ReportPlugin plugin, Database database) {
-        this.plugin = plugin;
-        this.database = database;
-    }
+public record ReportCommand(ReportPlugin plugin, Database database) implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -88,11 +80,11 @@ public class ReportCommand implements CommandExecutor {
         embedObject.setTitle(embedTitle);
         String description = plugin.getConfig().getString("discord.embed.description", "**Reported Player:** %ReportedPlayer%\\n**Reporter:** %Reporter%\\n**Reason:** %Reason%\\n**Server:** %ServerName%\\n**Location:** %Location%\\n**World:** %WorldName%");
         description = description.replace("%ReportedPlayer%", reportedPlayer)
-                                 .replace("%Reporter%", player.getName())
-                                 .replace("%Reason%", reason)
-                                 .replace("%ServerName%", report.getServerName())
-                                 .replace("%Location%", report.getLocation())
-                                 .replace("%WorldName%", report.getWorldName());
+                .replace("%Reporter%", player.getName())
+                .replace("%Reason%", reason)
+                .replace("%ServerName%", report.getServerName())
+                .replace("%Location%", report.getLocation())
+                .replace("%WorldName%", report.getWorldName());
         embedObject.setDescription(description);
         embedObject.setColor(Color.BLACK);
         String embedUrl = plugin.getConfig().getString("discord.embed.url", "https://example.com");
@@ -104,7 +96,7 @@ public class ReportCommand implements CommandExecutor {
         String footerText = plugin.getConfig().getString("discord.embed.footer.text", "Report ID: %ReporterID%");
         footerText = footerText.replace("%ReporterID%", report.getReportId());
         String avatarFooterUrl = plugin.getConfig().getString("discord.embed.footer.icon-url", "https://example.com/footer-icon.png");
-        embedObject.setFooter(footerText,  avatarUrl);
+        embedObject.setFooter(footerText, avatarFooterUrl);
         discordWebhook.addEmbed(embedObject);
         try {
             discordWebhook.execute();

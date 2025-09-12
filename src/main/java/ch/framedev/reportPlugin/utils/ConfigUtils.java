@@ -25,16 +25,15 @@ public record ConfigUtils(FileConfiguration config) {
      * @param plugin The instance of the ReportPlugin for logging and saving the config.
      */
     public void initializeConfig(ReportPlugin plugin) {
-        setupConfig(plugin);
+        setupConfig();
         plugin.saveConfig();
     }
 
     /**
      * Sets up the configuration file with default values if they do not exist.
      *
-     * @param plugin The instance of the ReportPlugin for logging and saving the config.
      */
-    private void setupConfig(ReportPlugin plugin) {
+    private void setupConfig() {
         if (!config.contains("discord")) {
             ConfigurationSection section = config.createSection("discord");
             section.setComments("discord", Collections.singletonList("Make sure to set up a Discord Webhook!"));
