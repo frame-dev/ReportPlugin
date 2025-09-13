@@ -40,6 +40,7 @@ public class Database {
         switch (databaseType) {
             case "mysql" -> this.databaseHelper = new MySQLHelper(plugin);
             case "sqlite" -> this.databaseHelper = new SQLiteHelper(plugin);
+            case "postgresql" -> this.databaseHelper = new PostgreSQLHelper(plugin);
             case "h2" -> this.databaseHelper = new H2StorageHelper(plugin);
             case "mongodb" -> this.databaseHelper = new MongoDBHelper(plugin);
             case "filesystem" -> this.databaseHelper = new FileSystemHelper(plugin);

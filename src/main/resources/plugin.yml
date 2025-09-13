@@ -10,6 +10,7 @@ libraries:
   - org.xerial:sqlite-jdbc:3.50.3.0
   - org.mongodb:mongodb-driver-sync:5.1.0
   - com.h2database:h2:2.2.224
+  - org.postgresql:postgresql:42.7.3
 
 commands:
   report:

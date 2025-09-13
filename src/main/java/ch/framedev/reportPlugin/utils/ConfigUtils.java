@@ -91,6 +91,17 @@ public record ConfigUtils(FileConfiguration config) {
             config.set("mysql", section);
         }
 
+        if(!config.contains("postgresql")) {
+            ConfigurationSection section = config.createSection("postgresql");
+            section.setComments("postgresql", Collections.singletonList("Make sure to have a running PostgreSQL instance!"));
+            section.set("host", "localhost");
+            section.set("port", 5432);
+            section.set("database", "reports");
+            section.set("username", "yourUsername");
+            section.set("password", "yourPassword");
+            config.set("postgresql", section);
+        }
+
         if (!config.contains("sqlite")) {
             ConfigurationSection section = config.createSection("sqlite");
             section.setComments("sqlite", Collections.singletonList("The database file will be created in the plugin's data folder."));
@@ -120,7 +131,7 @@ public record ConfigUtils(FileConfiguration config) {
 
         if (!config.contains("database")) {
             config.set("database", "filesystem");
-            config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, h2, mongodb, filesystem"));
+            config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, postgresql, h2, mongodb, filesystem"));
         }
 
         if (!config.contains("server-name")) {
