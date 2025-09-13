@@ -13,10 +13,13 @@ package ch.framedev.reportPlugin;
 
 import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.main.ReportPlugin;
+import ch.framedev.reportPlugin.utils.DiscordUtils;
 import ch.framedev.reportPlugin.utils.Report;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public class ReportAPI {
@@ -46,15 +49,25 @@ public class ReportAPI {
                 java.util.UUID.randomUUID().toString(),
                 serverName,
                 serverAddress,
-                "Bukkit Version",
+                Bukkit.getVersion(),
                 reportedPlayer.getWorld().getName(),
                 Report.getLocationAsString(reportedPlayer.getLocation())
         );
         database.insertReport(report);
+        if (ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
+            if (!DiscordUtils.sendReportToDiscord(ReportPlugin.getInstance(), report)) {
+                ReportPlugin.getInstance().getLogger().warning("Failed to send report to Discord webhook for player: " + reportedPlayer.getName());
+            }
+        }
     }
 
     public void updateReport(Report report) {
         database.updateReport(report);
+        if(ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
+            if (!DiscordUtils.sendReportUpdateToDiscord(report)) {
+                ReportPlugin.getInstance().getLogger().warning("Failed to send report update to Discord webhook for report ID: " + report.getReportId());
+            }
+        }
     }
 
     public boolean resolveReport(String reportedPlayer, String resolutionComment, boolean resolved) {
@@ -63,6 +76,11 @@ public class ReportAPI {
             report.setResolutionComment(resolutionComment);
             report.setResolved(true);
             database.updateReport(report);
+            if (ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
+                if (!DiscordUtils.sendReportResolvedToDiscord(report)) {
+                    ReportPlugin.getInstance().getLogger().warning("Failed to send resolved report to Discord webhook for player: " + reportedPlayer);
+                }
+            }
             return true;
         } else {
             return false;
@@ -143,5 +161,9 @@ public class ReportAPI {
         return (int) database.getAllReports().stream()
                 .filter(Report::isResolved)
                 .count();
+    }
+
+    public Map<String, Report> getUpdateHistory(String reportId) {
+        return database.getUpdateHistory(database.getReportById(reportId));
     }
 }

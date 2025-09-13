@@ -114,6 +114,28 @@ public record ConfigUtils(FileConfiguration config) {
             updatedSection.set("embed.image.url", "https://example.com/image.png");
             updatedSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
             config.set("discord.update", updatedSection);
+
+            ConfigurationSection resolvedSection = config.createSection("discord.resolved");
+            updatedSection.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
+            updatedSection.set("username", "ReportBot");
+            updatedSection.set("avatar-url", "https://example.com/avatar.png");
+            updatedSection.set("content", "Report Solved!");
+            updatedSection.set("embed.title", "Report Solved");
+            updatedSection.set("embed.description", "**Reported Player:** %ReportedPlayer%\\n" +
+                    "**Reporter:** %Reporter%\\n" +
+                    "**Reason:** %Reason%\\n" +
+                    "**Status:** %Status%\\n" +
+                    "**Additional Info:** %AdditionalInfo%\\n" +
+                    "**Resolution Comment:** %ResolutionComment%\\n" +
+                    "**Server:** %ServerName%\\n" +
+                    "**Location:** %Location%\\n" +
+                    "**World:** %WorldName%");
+            updatedSection.set("embed.url", "https://example.com");
+            updatedSection.set("embed.footer.text", "Report ID: %ReporterID%");
+            updatedSection.set("embed.footer.icon-url", "https://example.com/footer-icon.png");
+            updatedSection.set("embed.image.url", "https://example.com/image.png");
+            updatedSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
+            config.set("discord.resolved", resolvedSection);
         }
     }
 
