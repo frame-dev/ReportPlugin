@@ -302,6 +302,7 @@ public class H2StorageHelper implements DatabaseHelper {
 
     @Override
     public boolean writeToUpdateHistory(Report report, String updater) {
+        createUpdateHistoryTable();
         try (Connection connection = h2Storage.connect()) {
             if (connection != null) {
                 String sql = "INSERT INTO update_history (report_id, updated_at, update_data) VALUES (?, ?, ?)";
@@ -322,6 +323,7 @@ public class H2StorageHelper implements DatabaseHelper {
 
     @Override
     public Map<String, Report> getUpdateHistory(Report report) {
+        createUpdateHistoryTable();
         Map<String, Report> history = new java.util.HashMap<>();
         try (Connection connection = h2Storage.connect()) {
             if (connection != null) {
@@ -346,6 +348,7 @@ public class H2StorageHelper implements DatabaseHelper {
 
     @Override
     public boolean clearUpdateHistory(Report report) {
+        createUpdateHistoryTable();
         try (Connection connection = h2Storage.connect()) {
             if (connection != null) {
                 String sql = "DELETE FROM update_history WHERE report_id = ?";
