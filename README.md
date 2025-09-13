@@ -142,6 +142,21 @@ server-address: localhost
 ## Changelogs
 See the [CHANGELOG.md](CHANGELOG.md) file for detailed changes in each version.
 
+## API
+An API is available for developers to interact with the plugin's functionalities. Documentation will be provided in future updates.
+```java 
+import ch.framedev.reportPlugin.ReportAPI;
+ReportAPI api = ReportAPI.getInstance();
+
+// Example: Create a new report
+api.createReport(String reportedPlayer, String reporter, String reason);
+
+// Example: Fetch all reports
+List<Report> reports = api.getAllReports();
+
+// Example: Update a report
+api.updateReport(Report report);
+```
 ## License
 
 Created by FrameDev. Do not modify without consent.
