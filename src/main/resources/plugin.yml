@@ -43,3 +43,8 @@ commands:
     usage: /report-delete <reportID>
     permission: reportplugin.reportdelete
     permission-message: You do not have permission to delete reports.
+  report-updatehistory:
+    description: A command to show all updates made to a report.
+    usage: /report-updatehistory <reportID>
+    permission: reportplugin.updatehistory
+    permission-message: You do not have permission to update report history.

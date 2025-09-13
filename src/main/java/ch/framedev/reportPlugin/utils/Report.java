@@ -11,6 +11,7 @@ package ch.framedev.reportPlugin.utils;
  * This Class was created at 29.07.2025 18:10
  */
 
+import com.google.gson.Gson;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -279,6 +280,10 @@ public class Report {
                ", location='" + location + '\'' +
                ", additionalInfo='" + additionalInfo + '\'' +
                '}';
+    }
+
+    public String toJson() {
+        return new Gson().toJson(this);
     }
 
     /**

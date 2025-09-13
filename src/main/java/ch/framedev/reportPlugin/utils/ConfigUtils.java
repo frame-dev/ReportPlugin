@@ -34,6 +34,42 @@ public record ConfigUtils(FileConfiguration config) {
      *
      */
     private void setupConfig() {
+        // Discord webhook configurations
+        setupDiscordWebhookConfig();
+
+        // Database configurations
+        setupDatabaseConfig();
+
+        if (!config.contains("server-name")) {
+            config.set("server-name", "Localhost Server");
+            config.setComments("server-name", Collections.singletonList("This name will be displayed in the Discord webhook and saved in the database."));
+        }
+
+        if (!config.contains("server-address")) {
+            config.set("server-address", "localhost");
+            config.setComments("server-address", Collections.singletonList("This address will be displayed in the Discord webhook and saved in the database."));
+        }
+
+        if (!config.contains("bungeecord")) {
+            config.set("bungeecord", false);
+            config.setComments("bungeecord", Collections.singletonList("Set to true if you are using Bungeecord or Waterfall."));
+        }
+
+        if (!config.contains("useDiscordWebhook")) {
+            config.set("useDiscordWebhook", false);
+            config.setComments("useDiscordWebhook", Collections.singletonList("Set to true to enable Discord webhook notifications for reports."));
+        }
+
+        if (!config.contains("report-settings")) {
+            ConfigurationSection section = config.createSection("report-settings");
+            section.set("max-reports-per-player", 3);
+            section.set("max-reports-per-reporter", 10);
+            config.set("report-settings", section);
+            config.setComments("report-settings", Collections.singletonList("Settings related to reporting limits."));
+        }
+    }
+
+    private void setupDiscordWebhookConfig() {
         if (!config.contains("discord")) {
             ConfigurationSection section = config.createSection("discord");
             section.setComments("discord", Collections.singletonList("Make sure to set up a Discord Webhook!"));
@@ -79,7 +115,9 @@ public record ConfigUtils(FileConfiguration config) {
             updatedSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
             config.set("discord.update", updatedSection);
         }
+    }
 
+    private void setupDatabaseConfig() {
         if (!config.contains("mysql")) {
             ConfigurationSection section = config.createSection("mysql");
             section.setComments("mysql", Collections.singletonList("Make sure to have a running MySQL instance!"));
@@ -132,34 +170,6 @@ public record ConfigUtils(FileConfiguration config) {
         if (!config.contains("database")) {
             config.set("database", "filesystem");
             config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, postgresql, h2, mongodb, filesystem"));
-        }
-
-        if (!config.contains("server-name")) {
-            config.set("server-name", "Localhost Server");
-            config.setComments("server-name", Collections.singletonList("This name will be displayed in the Discord webhook and saved in the database."));
-        }
-
-        if (!config.contains("server-address")) {
-            config.set("server-address", "localhost");
-            config.setComments("server-address", Collections.singletonList("This address will be displayed in the Discord webhook and saved in the database."));
-        }
-
-        if (!config.contains("bungeecord")) {
-            config.set("bungeecord", false);
-            config.setComments("bungeecord", Collections.singletonList("Set to true if you are using Bungeecord or Waterfall."));
-        }
-
-        if (!config.contains("useDiscordWebhook")) {
-            config.set("useDiscordWebhook", false);
-            config.setComments("useDiscordWebhook", Collections.singletonList("Set to true to enable Discord webhook notifications for reports."));
-        }
-
-        if (!config.contains("report-settings")) {
-            ConfigurationSection section = config.createSection("report-settings");
-            section.set("max-reports-per-player", 3);
-            section.set("max-reports-per-reporter", 10);
-            config.set("report-settings", section);
-            config.setComments("report-settings", Collections.singletonList("Settings related to reporting limits."));
         }
     }
 }

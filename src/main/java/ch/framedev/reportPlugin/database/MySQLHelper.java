@@ -85,7 +85,7 @@ public class MySQLHelper implements DatabaseHelper {
                 preparedStatement.setString(1, report.getReportId());
                 preparedStatement.setString(2, report.getReportedPlayer());
                 preparedStatement.setString(3, report.getReporter());
-                preparedStatement.setString(4, new Gson().toJson(report));
+                preparedStatement.setString(4, report.toJson());
                 preparedStatement.executeUpdate();
             } else {
                 System.err.println("Failed to connect to the database.");
@@ -246,7 +246,7 @@ public class MySQLHelper implements DatabaseHelper {
                 var preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, report.getReportedPlayer());
                 preparedStatement.setString(2, report.getReporter());
-                preparedStatement.setString(3, new Gson().toJson(report));
+                preparedStatement.setString(3, report.toJson());
                 preparedStatement.setString(4, report.getReportId());
                 preparedStatement.executeUpdate();
             } else {
@@ -313,7 +313,7 @@ public class MySQLHelper implements DatabaseHelper {
                 var preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, report.getReportId());
                 preparedStatement.setString(2, updater);
-                preparedStatement.setString(3, new Gson().toJson(report));
+                preparedStatement.setString(3, report.toJson());
                 preparedStatement.executeUpdate();
                 return true;
             } else {
