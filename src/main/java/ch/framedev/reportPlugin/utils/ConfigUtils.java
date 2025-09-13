@@ -99,6 +99,14 @@ public record ConfigUtils(FileConfiguration config) {
             config.set("sqlite", section);
         }
 
+        if (!config.contains("h2Storage")) {
+            ConfigurationSection section = config.createSection("h2Storage");
+            section.setComments("h2Storage", Collections.singletonList("The database file will be created in the plugin's data folder."));
+            section.set("file", "reports");
+            section.set("path", "database");
+            config.set("h2Storage", section);
+        }
+
         if (!config.contains("mongodb")) {
             ConfigurationSection section = config.createSection("mongodb");
             section.setComments("mongodb", Collections.singletonList("Make sure to have a running MongoDB instance!"));
@@ -112,7 +120,7 @@ public record ConfigUtils(FileConfiguration config) {
 
         if (!config.contains("database")) {
             config.set("database", "filesystem");
-            config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, mongodb, filesystem"));
+            config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, h2, mongodb, filesystem"));
         }
 
         if (!config.contains("server-name")) {

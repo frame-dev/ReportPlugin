@@ -8,14 +8,17 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 
 ## Features
 
-- Players can report other players with a reason.
-- Reports are stored in a database.
-- Staff can view and update reports via commands or a GUI.
-- Reports are sent to a Discord channel via webhook.
-- Configurable settings via `config.yml`.
-- Permission-based access control.
-- Detailed player report data viewing.
-- Supports MySQL, SQLite, MongoDB and File Storage.
+- Players can report others with a specified reason.
+- All reports are securely stored in a database.
+- Staff can view and update reports via commands or an intuitive GUI.
+- Reports are automatically sent to a Discord channel using a webhook.
+- Fully configurable through the `config.yml` file.
+- Permission-based access control for all features.
+- View detailed information about each player report.
+- Supports MySQL, SQLite, MongoDB, and file-based storage.
+- Instantly teleport to the reporter's location.
+- Delete reports directly from the interface.
+- View the complete update history of each report.
 
 ## Installation
 
@@ -124,6 +127,16 @@ server-name: Localhost Server
 # This address will be displayed in the Discord webhook and saved in the database.
 server-address: localhost
 ```
+
+## Future Plans
+- Add more customization options for Discord messages.
+- Implement additional storage options.
+- Enhance the GUI with more features.
+- Add localization support for multiple languages.
+- BungeeCord support.
+
+## Changelogs
+See the [CHANGELOG.md](CHANGELOG.md) file for detailed changes in each version.
 
 ## License
 
