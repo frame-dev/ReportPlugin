@@ -372,4 +372,10 @@ public class PostgreSQLHelper implements DatabaseHelper {
         }
         return false;
     }
+
+    @Override
+    public boolean isResolved(String reportId) {
+        Report report = getReportById(reportId);
+        return report != null && report.isResolved();
+    }
 }

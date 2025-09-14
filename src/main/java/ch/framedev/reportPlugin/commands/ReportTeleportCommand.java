@@ -1,6 +1,5 @@
 package ch.framedev.reportPlugin.commands;
 
-import ch.framedev.reportPlugin.ReportAPI;
 import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.utils.Report;
 import org.bukkit.command.Command;

@@ -174,6 +174,12 @@ public class FileSystemHelper implements DatabaseHelper {
     }
 
     @Override
+    public boolean isResolved(String reportId) {
+        Report r = getReportById(reportId);
+        return r != null && r.isResolved();
+    }
+
+    @Override
     public int countReportsForPlayer(String reportedPlayer) {
         int count = 0;
         for (Report r : getAllReports()) {

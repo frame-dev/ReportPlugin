@@ -23,7 +23,7 @@ public class Database {
     // The database helper instance that provides database-specific operations
     private final DatabaseHelper databaseHelper;
 
-    // The type of database being used (e.g., "mysql", "sqlite", "mongodb", "filesystem")
+    // The type of database being used (e.g., "mysql", "sqlite", "mongodb", "postgresql", "h2, "filesystem")
     private final String databaseType;
 
     /**
@@ -36,6 +36,7 @@ public class Database {
         databaseType = plugin.getConfig().getString("database", "filesystem").toLowerCase();
 
         plugin.getLogger().info("Initializing database with type: " + databaseType);
+
         // Initialize the database helper based on the configured database type
         switch (databaseType) {
             case "mysql" -> this.databaseHelper = new MySQLHelper(plugin);

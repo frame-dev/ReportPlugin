@@ -351,6 +351,12 @@ public class MySQLHelper implements DatabaseHelper {
     }
 
     @Override
+    public boolean isResolved(String reportId) {
+        Report report = getReportById(reportId);
+        return report != null && report.isResolved();
+    }
+
+    @Override
     public boolean clearUpdateHistory(Report report) {
         createUpdateHistoryTable();
         try (Connection connection = mySQL.connect()) {

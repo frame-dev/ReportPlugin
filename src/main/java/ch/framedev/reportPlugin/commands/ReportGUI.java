@@ -5,6 +5,8 @@ import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.main.ReportPlugin;
 import ch.framedev.reportPlugin.utils.DiscordWebhook;
 import ch.framedev.reportPlugin.utils.Report;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -47,6 +49,7 @@ public class ReportGUI implements CommandExecutor, Listener {
     private final Map<UUID, String> playerSelectedReport = new HashMap<>();
     private final Map<UUID, String> playerKickReason = new HashMap<>();
     private final Map<UUID, String> playerBanReason = new HashMap<>();
+    private final Map<UUID, String> playerViewReport = new HashMap<>();
 
     public ReportGUI(Database database) {
         this.database = database;
@@ -64,17 +67,58 @@ public class ReportGUI implements CommandExecutor, Listener {
             return true;
         }
 
-        // Fetch all reports and calculate the required inventory size
-        List<Report> reports = database.getAllReports();
-        int reportCount = reports.size();
-        int inventorySize = Math.max(9, Math.min(((reportCount - 1) / 9 + 1) * 9, 54));
+        if (args.length == 0) {
 
-        Inventory gui = Bukkit.createInventory(null, inventorySize, GUI_TITLE);
+            // Fetch all reports and calculate the required inventory size
+            List<Report> reports = database.getAllReports();
+            int reportCount = reports.size();
+            int inventorySize = Math.max(9, Math.min(((reportCount - 1) / 9 + 1) * 9, 54));
 
-        // Add report items to the GUI
-        int maxReportSlots = inventorySize - 7;
-        for (int i = 0; i < Math.min(reports.size(), maxReportSlots); i++) {
-            Report report = reports.get(i);
+            Inventory gui = Bukkit.createInventory(null, inventorySize, GUI_TITLE);
+
+            // Add report items to the GUI
+            int maxReportSlots = inventorySize - 7;
+            for (int i = 0; i < Math.min(reports.size(), maxReportSlots); i++) {
+                Report report = reports.get(i);
+                ItemStack reportItem = new ItemStack(Material.PAPER);
+                ItemMeta meta = reportItem.getItemMeta();
+                if (meta != null) {
+                    meta.setDisplayName(ChatColor.YELLOW + "Report: " + report.getReportId());
+                    meta.setLore(List.of(
+                            ChatColor.GRAY + "Player: " + report.getReportedPlayer(),
+                            ChatColor.GRAY + "Reporter: " + report.getReporter(),
+                            ChatColor.GRAY + "Reason: " + report.getReason(),
+                            ChatColor.GRAY + "Time: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(report.getTimestamp())),
+                            ChatColor.GRAY + "Resolved: " + (report.isResolved() ? "Yes" : "No"),
+                            ChatColor.GRAY + (report.isResolved() ? " (" + report.getResolutionComment() + ")" : ""),
+                            ChatColor.GRAY + "Server: " + report.getServerName(),
+                            ChatColor.GRAY + "Location: " + report.getLocation(),
+                            ChatColor.GRAY + "World: " + report.getWorldName(),
+                            ChatColor.GRAY + "Click to select this report"
+                    ));
+                    reportItem.setItemMeta(meta);
+                }
+                gui.setItem(i, reportItem);
+            }
+
+            // Add action buttons at the end of the GUI
+            addButton(gui, inventorySize - 7, Material.BOOK, UPDATE_HISTORY_TITLE, "View the update history of the selected report");
+            addButton(gui, inventorySize - 6, Material.COMPASS, TELEPORT_TO_REPORTER, "Teleport to the reporter of the selected report");
+            addButton(gui, inventorySize - 5, Material.DIAMOND_SWORD, BAN_TITLE, "Click to ban the reported player");
+            addButton(gui, inventorySize - 4, Material.IRON_BOOTS, KICK_TITLE, "Click to kick the reported player");
+            addButton(gui, inventorySize - 3, Material.RED_WOOL, DELETE_TITLE, "Click to delete the selected report");
+            addButton(gui, inventorySize - 2, Material.ENDER_PEARL, TELEPORT_TITLE, "Teleport to the selected report location");
+            addButton(gui, inventorySize - 1, Material.WRITABLE_BOOK, UPDATE_TITLE, "Click to update the selected report");
+
+            player.openInventory(gui);
+        } else {
+            String reportId = args[0];
+            Report report = database.getReportById(reportId);
+            if (report == null) {
+                player.sendMessage(ChatColor.RED + "Report with ID " + reportId + " not found.");
+                return true;
+            }
+            Inventory inventory = Bukkit.createInventory(null, 9, "Report: " + reportId);
             ItemStack reportItem = new ItemStack(Material.PAPER);
             ItemMeta meta = reportItem.getItemMeta();
             if (meta != null) {
@@ -88,24 +132,21 @@ public class ReportGUI implements CommandExecutor, Listener {
                         ChatColor.GRAY + (report.isResolved() ? " (" + report.getResolutionComment() + ")" : ""),
                         ChatColor.GRAY + "Server: " + report.getServerName(),
                         ChatColor.GRAY + "Location: " + report.getLocation(),
-                        ChatColor.GRAY + "World: " + report.getWorldName(),
-                        ChatColor.GRAY + "Click to select this report"
+                        ChatColor.GRAY + "World: " + report.getWorldName()
                 ));
                 reportItem.setItemMeta(meta);
             }
-            gui.setItem(i, reportItem);
+            inventory.setItem(0, reportItem);
+            addButton(inventory, 2, Material.BOOK, UPDATE_HISTORY_TITLE, "View the update history of this report");
+            addButton(inventory, 3, Material.COMPASS, TELEPORT_TO_REPORTER, "Teleport to the reporter of this report");
+            addButton(inventory, 4, Material.DIAMOND_SWORD, BAN_TITLE, "Click to ban the reported player");
+            addButton(inventory, 5, Material.IRON_BOOTS, KICK_TITLE, "Click to kick the reported player");
+            addButton(inventory, 6, Material.RED_WOOL, DELETE_TITLE, "Click to delete this report");
+            addButton(inventory, 7, Material.ENDER_PEARL, TELEPORT_TITLE, "Teleport to the report location");
+            addButton(inventory, 8, Material.WRITABLE_BOOK, UPDATE_TITLE, "Click to update this report");
+            player.openInventory(inventory);
+            playerViewReport.put(player.getUniqueId(), reportId);
         }
-
-        // Add action buttons at the end of the GUI
-        addButton(gui, inventorySize - 7, Material.BOOK, UPDATE_HISTORY_TITLE, "View the update history of the selected report");
-        addButton(gui, inventorySize - 6, Material.COMPASS, TELEPORT_TO_REPORTER, "Teleport to the reporter of the selected report");
-        addButton(gui, inventorySize - 5, Material.DIAMOND_SWORD, BAN_TITLE, "Click to ban the reported player");
-        addButton(gui, inventorySize - 4, Material.IRON_BOOTS, KICK_TITLE, "Click to kick the reported player");
-        addButton(gui, inventorySize - 3, Material.RED_WOOL, DELETE_TITLE, "Click to delete the selected report");
-        addButton(gui, inventorySize - 2, Material.ENDER_PEARL, TELEPORT_TITLE, "Teleport to the selected report location");
-        addButton(gui, inventorySize - 1, Material.WRITABLE_BOOK, UPDATE_TITLE, "Click to update the selected report");
-
-        player.openInventory(gui);
         return true;
     }
 
@@ -123,7 +164,9 @@ public class ReportGUI implements CommandExecutor, Listener {
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals(GUI_TITLE)) return;
+        if (!event.getView().getTitle().equals(GUI_TITLE) ||
+                (playerViewReport.containsKey(event.getWhoClicked().getUniqueId()) && event.getView().getTitle().equals("Report: " + playerViewReport.get(event.getWhoClicked().getUniqueId()))))
+            return;
         event.setCancelled(true);
 
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -202,14 +245,14 @@ public class ReportGUI implements CommandExecutor, Listener {
                 player.sendMessage(ChatColor.RED + "Report not found.");
                 return;
             }
-            if(database.deleteReport(reportId)) {
+            if (database.deleteReport(reportId)) {
                 player.sendMessage(ChatColor.GREEN + "Report " + reportId + " deleted.");
             } else {
                 player.sendMessage(ChatColor.RED + "Failed to delete report " + reportId + ".");
             }
             player.sendMessage(ChatColor.GREEN + "Report " + reportId + " deleted.");
             player.closeInventory();
-        } else if(displayName.equals(ChatColor.stripColor(KICK_TITLE))) {
+        } else if (displayName.equals(ChatColor.stripColor(KICK_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
                 player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
                 return;
@@ -228,7 +271,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             player.sendMessage(ChatColor.GREEN + "Please type the kick reason in chat:");
             playerKickReason.put(uuid, reportId);
             player.closeInventory();
-        } else if(displayName.equals(ChatColor.stripColor(BAN_TITLE))) {
+        } else if (displayName.equals(ChatColor.stripColor(BAN_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
                 player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
                 return;
@@ -247,7 +290,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             player.sendMessage(ChatColor.GREEN + "Please type the ban reason in chat:");
             playerBanReason.put(uuid, reportId);
             player.closeInventory();
-        } else if(displayName.equals(ChatColor.stripColor(TELEPORT_TO_REPORTER))) {
+        } else if (displayName.equals(ChatColor.stripColor(TELEPORT_TO_REPORTER))) {
             if (!playerSelectedReport.containsKey(uuid)) {
                 player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
                 return;
@@ -264,7 +307,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             }
             player.teleport(reporter.getLocation());
             player.sendMessage(ChatColor.GREEN + "Teleported to reporter's location.");
-        } else if(displayName.equals(ChatColor.stripColor(UPDATE_HISTORY_TITLE))) {
+        } else if (displayName.equals(ChatColor.stripColor(UPDATE_HISTORY_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
                 player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
                 return;
@@ -302,7 +345,7 @@ public class ReportGUI implements CommandExecutor, Listener {
 
         UUID uuid = player.getUniqueId();
         if (!updateSessions.containsKey(uuid)) return;
-        if(playerKickReason.containsKey(uuid)) {
+        if (playerKickReason.containsKey(uuid)) {
             event.setCancelled(true);
             String reason = event.getMessage();
             String reportId = playerKickReason.get(uuid);
@@ -323,7 +366,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             playerKickReason.remove(uuid);
             return;
         }
-        if(playerBanReason.containsKey(uuid)) {
+        if (playerBanReason.containsKey(uuid)) {
             event.setCancelled(true);
             String reason = event.getMessage();
             String reportId = playerBanReason.get(uuid);
@@ -434,11 +477,32 @@ public class ReportGUI implements CommandExecutor, Listener {
                 database.updateReport(report);
                 player.sendMessage(ChatColor.GREEN + "Report updated!");
                 updateSessions.remove(uuid);
-                if(database.writeUpdateHistory(report, player.getName())) {
+                if (database.writeUpdateHistory(report, player.getName())) {
                     player.sendMessage(ChatColor.GREEN + "Update history recorded.");
                 } else {
                     player.sendMessage(ChatColor.RED + "Failed to record update history.");
                 }
+                boolean notifyUpdate = ReportPlugin.getInstance().getConfig().getBoolean("notify.on-update", false);
+                boolean notifyResolved = ReportPlugin.getInstance().getConfig().getBoolean("notify.on-resolved", false);
+                boolean notify = (report.isResolved() && notifyResolved) || (!report.isResolved() && notifyUpdate);
+                if (notify) {
+                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                        if (onlinePlayer.hasPermission("reportplugin.report.notify")) {
+                            if(notifyResolved) {
+                                if(report.isResolved()) {
+                                    onlinePlayer.sendMessage(ChatColor.AQUA + "Report " + report.getReportId() + " has been resolved by " + player.getName() + ".");
+                                }
+                            } else {
+                                onlinePlayer.sendMessage(ChatColor.AQUA + "Report " + report.getReportId() + " has been updated by " + player.getName() + ".");
+                            }
+                            // Add clickable message to view report details
+                            TextComponent hoverMessage = new TextComponent(ChatColor.GRAY + "Click to view report details");
+                            hoverMessage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/report-gui " + report.getReportId()));
+                            onlinePlayer.spigot().sendMessage(hoverMessage);
+                        }
+                    }
+                }
+                // Send Discord webhook update if enabled
                 sendDiscordWebhookUpdate(report);
                 break;
         }

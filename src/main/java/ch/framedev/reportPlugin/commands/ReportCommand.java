@@ -4,7 +4,10 @@ import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.utils.DiscordWebhook;
 import ch.framedev.reportPlugin.utils.Report;
 import ch.framedev.reportPlugin.main.ReportPlugin;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -55,7 +58,17 @@ public record ReportCommand(ReportPlugin plugin, Database database) implements C
         Bukkit.getLogger().info("Report created by " + player.getName() + ": " + report.getReportedPlayer() + " for reason: " + report.getReason());
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             if (onlinePlayer.hasPermission("reportplugin.report.notify")) {
-                onlinePlayer.sendMessage("§cNew report: §e" + player.getName() + " §areported §e" + reportedPlayer + " §afor: §f" + reason);
+                boolean enabledNotify = plugin.getConfig().getBoolean("notify.on-create", false);
+                if (enabledNotify) {
+                    onlinePlayer.sendMessage("§cNew report: §e" + player.getName() + " §areported §e" + reportedPlayer + " §afor: §f" + reason + ".");
+                    boolean isHoverEnabled = plugin.getConfig().getBoolean("notify.hoverable-teleport", false);
+                    if (isHoverEnabled) {
+                        TextComponent textComponent = new TextComponent("§7[§eClick to Teleport to Report Location§7]");
+                        Location location = Report.getLocationAsBukkitLocation(report.getLocation());
+                        textComponent.setClickEvent(new net.md_5.bungee.api.chat.ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tp " + location.getX() + " " + location.getY() + " " + location.getZ()));
+                        onlinePlayer.spigot().sendMessage(textComponent);
+                    }
+                }
             }
         }
         if (plugin.getConfig().getBoolean("useDiscordWebhook", false)) {

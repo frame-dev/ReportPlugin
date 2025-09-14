@@ -236,6 +236,12 @@ public class H2StorageHelper implements DatabaseHelper {
         return getReportByPlayer(reportedPlayer);
     }
 
+    @Override
+    public boolean isResolved(String reportId) {
+        Report report = getReportById(reportId);
+        return report != null && report.isResolved();
+    }
+
     public void updateReport(Report report) {
         try (Connection connection = h2Storage.connect()) {
             if (connection != null) {

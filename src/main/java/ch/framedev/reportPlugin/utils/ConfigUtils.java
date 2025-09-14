@@ -67,6 +67,16 @@ public record ConfigUtils(FileConfiguration config) {
             config.set("report-settings", section);
             config.setComments("report-settings", Collections.singletonList("Settings related to reporting limits."));
         }
+
+        if(!config.contains("notify")) {
+            ConfigurationSection section = config.createSection("notify");
+            section.set("on-create", true);
+            section.set("hoverable-teleport", true);
+            section.set("on-update", false);
+            section.set("on-resolve", false);
+            config.set("notify", section);
+            config.setComments("notify", Collections.singletonList("Settings related to notifications."));
+        }
     }
 
     private void setupDiscordWebhookConfig() {

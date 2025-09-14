@@ -158,4 +158,10 @@ public class MongoDBHelper implements DatabaseHelper {
         long count = getUpdateHistoryCollection().deleteMany(query).getDeletedCount();
         return count > 0;
     }
+
+    @Override
+    public boolean isResolved(String reportId) {
+        Report report = getReportById(reportId);
+        return report != null && report.isResolved();
+    }
 }
