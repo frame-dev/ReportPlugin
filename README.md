@@ -20,7 +20,7 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 - Delete reports directly from the interface.
 - View the complete update history of each report.
 
-## Databases
+## Supported Databases
 
 - MySQL
 - SQLite
@@ -164,17 +164,13 @@ import ch.framedev.reportPlugin.ReportAPI;
 ReportAPI api = ReportAPI.getInstance();
 
 // Example: Create a new report
-api.
-
-createReport(String reportedPlayer, String reporter, String reason);
+api.createReport(String reportedPlayer, String reporter, String reason);
 
 // Example: Fetch all reports
 List<Report> reports = api.getAllReports();
 
 // Example: Update a report
-api.
-
-updateReport(Report report);
+api.updateReport(Report report);
 ```
 
 ## License
