@@ -166,4 +166,10 @@ public class ReportAPI {
     public Map<String, Report> getUpdateHistory(String reportId) {
         return database.getUpdateHistory(database.getReportById(reportId));
     }
+
+    public List<Report> getAllResolvedReportsByPlayer(String reportedPlayer) {
+        return database.getAllReports().stream()
+                .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer) && report.isResolved())
+                .toList();
+    }
 }

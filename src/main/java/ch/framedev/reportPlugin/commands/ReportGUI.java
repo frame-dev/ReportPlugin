@@ -111,7 +111,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             addButton(gui, inventorySize - 1, Material.WRITABLE_BOOK, UPDATE_TITLE, "Click to update the selected report");
 
             player.openInventory(gui);
-        } else {
+        } else if (args.length == 1) {
             String reportId = args[0];
             Report report = database.getReportById(reportId);
             if (report == null) {
@@ -146,6 +146,9 @@ public class ReportGUI implements CommandExecutor, Listener {
             addButton(inventory, 8, Material.WRITABLE_BOOK, UPDATE_TITLE, "Click to update this report");
             player.openInventory(inventory);
             playerViewReport.put(player.getUniqueId(), reportId);
+        } else {
+            player.sendMessage(ChatColor.RED + "Usage: /report-gui [reportId]");
+            return true;
         }
         return true;
     }
@@ -488,8 +491,8 @@ public class ReportGUI implements CommandExecutor, Listener {
                 if (notify) {
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                         if (onlinePlayer.hasPermission("reportplugin.report.notify")) {
-                            if(notifyResolved) {
-                                if(report.isResolved()) {
+                            if (notifyResolved) {
+                                if (report.isResolved()) {
                                     onlinePlayer.sendMessage(ChatColor.AQUA + "Report " + report.getReportId() + " has been resolved by " + player.getName() + ".");
                                 }
                             } else {

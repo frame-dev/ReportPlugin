@@ -43,7 +43,10 @@ public record ReportDeleteCommand(Database database) implements CommandExecutor,
             return null;
         }
         if (args.length == 1) {
-            return database.getAllReports().stream().map(Report::getReportId).toList();
+            return database.getAllReports().stream()
+                    .map(Report::getReportId)
+                    .filter(s -> s.startsWith(args[0]))
+                    .toList();
         }
         return List.of();
     }

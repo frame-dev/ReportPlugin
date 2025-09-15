@@ -70,7 +70,7 @@ public record ReportTeleportCommand(Database database) implements CommandExecuto
             return database.getAllReports().stream().map(Report::getReportedPlayer).toList();
         } else if (args.length == 2) {
             String reportedPlayerName = args[0];
-            return database.getAllReports().stream().filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayerName)).map(Report::getReportId).toList();
+            return database.getAllReports().stream().filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayerName)).map(Report::getReportId).filter(s -> s.startsWith(args[0])).toList();
         }
         return List.of();
     }

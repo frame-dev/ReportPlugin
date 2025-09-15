@@ -1,4 +1,4 @@
- # ReportPlugin
+# ReportPlugin
 
 A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 
@@ -15,10 +15,19 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 - Fully configurable through the `config.yml` file.
 - Permission-based access control for all features.
 - View detailed information about each player report.
-- Supports MySQL, SQLite, MongoDB, and file-based storage.
+- Supports MySQL, SQLite, PostgreSQL, H2, MongoDB, and file-based storage.
 - Instantly teleport to the reporter's location.
 - Delete reports directly from the interface.
 - View the complete update history of each report.
+
+## Databases
+
+- MySQL
+- SQLite
+- PostgreSQL
+- H2
+- MongoDB
+- File-based storage
 
 ## Installation
 
@@ -133,6 +142,7 @@ server-address: localhost
 ```
 
 ## Future Plans
+
 - Add more customization options for Discord messages.
 - Implement additional storage options.
 - Enhance the GUI with more features.
@@ -140,23 +150,33 @@ server-address: localhost
 - BungeeCord support.
 
 ## Changelogs
+
 See the [CHANGELOG.md](CHANGELOG.md) file for detailed changes in each version.
 
 ## API
-An API is available for developers to interact with the plugin's functionalities. Documentation will be provided in future updates.
+
+An API is available for developers to interact with the plugin's functionalities. Documentation will be provided in
+future updates.
+
 ```java 
 import ch.framedev.reportPlugin.ReportAPI;
+
 ReportAPI api = ReportAPI.getInstance();
 
 // Example: Create a new report
-api.createReport(String reportedPlayer, String reporter, String reason);
+api.
+
+createReport(String reportedPlayer, String reporter, String reason);
 
 // Example: Fetch all reports
 List<Report> reports = api.getAllReports();
 
 // Example: Update a report
-api.updateReport(Report report);
+api.
+
+updateReport(Report report);
 ```
+
 ## License
 
 Created by FrameDev. Do not modify without consent.
