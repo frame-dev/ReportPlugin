@@ -10,6 +10,8 @@ public final class ReportPlugin extends JavaPlugin {
     private static ReportPlugin instance;
     private Database database;
 
+    private ReportGUI reportGUI;
+
     @SuppressWarnings("DataFlowIssue")
     @Override
     public void onEnable() {
@@ -41,7 +43,7 @@ public final class ReportPlugin extends JavaPlugin {
         getLogger().info("Registering commands and events...");
         getCommand("report").setExecutor(new ReportCommand(this, database));
         getCommand("reports-list").setExecutor(new ReportListCommand(database));
-        ReportGUI reportGUI = new ReportGUI(database);
+        this.reportGUI = new ReportGUI(database);
         getCommand("report-gui").setExecutor(reportGUI);
         getServer().getPluginManager().registerEvents(reportGUI, this);
         ReportDataCommand reportDataCommand = new ReportDataCommand(database);
@@ -68,6 +70,7 @@ public final class ReportPlugin extends JavaPlugin {
     public void onDisable() {
         getLogger().info("Disabling ReportPlugin...");
         instance = null;
+        reportGUI.clearData();
         database = null;
         getLogger().info("ReportPlugin has been disabled!");
     }

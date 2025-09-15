@@ -55,6 +55,14 @@ public class ReportGUI implements CommandExecutor, Listener {
         this.database = database;
     }
 
+    public void clearData() {
+        updateSessions.clear();
+        playerSelectedReport.clear();
+        playerKickReason.clear();
+        playerBanReason.clear();
+        playerViewReport.clear();
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
@@ -348,6 +356,7 @@ public class ReportGUI implements CommandExecutor, Listener {
 
         UUID uuid = player.getUniqueId();
         if (!updateSessions.containsKey(uuid)) return;
+        // Check if the player is in kick input mode.
         if (playerKickReason.containsKey(uuid)) {
             event.setCancelled(true);
             String reason = event.getMessage();
@@ -369,6 +378,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             playerKickReason.remove(uuid);
             return;
         }
+        // Check if the player is in ban input mode.
         if (playerBanReason.containsKey(uuid)) {
             event.setCancelled(true);
             String reason = event.getMessage();
@@ -392,6 +402,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             return;
         }
 
+        // Handle report update input
         event.setCancelled(true);
         UpdateSession session = updateSessions.get(uuid);
         String input = event.getMessage();
