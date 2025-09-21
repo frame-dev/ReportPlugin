@@ -39,8 +39,7 @@ public record ReportTeleportCommand(Database database) implements CommandExecuto
                 player.sendMessage("No reports found for player: " + reportedPlayerName);
             }
             return true;
-        }
-        if (args.length == 2) {
+        } else if (args.length == 2) {
             String reportedPlayerName = args[0];
             String reportId = args[1];
             Report report = database.getReportById(reportId);
@@ -67,10 +66,17 @@ public record ReportTeleportCommand(Database database) implements CommandExecuto
             return null;
         }
         if (args.length == 1) {
-            return database.getAllReports().stream().map(Report::getReportedPlayer).toList();
+            return database.getAllReports().stream()
+                    .map(Report::getReportedPlayer)
+                    .distinct()
+                    .toList();
         } else if (args.length == 2) {
             String reportedPlayerName = args[0];
-            return database.getAllReports().stream().filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayerName)).map(Report::getReportId).filter(s -> s.startsWith(args[0])).toList();
+            return database.getAllReports().stream()
+                    .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayerName))
+                    .map(Report::getReportId)
+                    .filter(s -> s.startsWith(args[1]))
+                    .toList();
         }
         return List.of();
     }

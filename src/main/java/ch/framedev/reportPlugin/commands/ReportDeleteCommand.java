@@ -32,8 +32,9 @@ public record ReportDeleteCommand(Database database) implements CommandExecutor,
         if (!database.deleteReport(reportId)) {
             player.sendMessage("§cNo report found with ID " + reportId + ".");
             return true;
-        } else
+        } else {
             player.sendMessage("§aReport with ID " + reportId + " has been deleted.");
+        }
         return true;
     }
 

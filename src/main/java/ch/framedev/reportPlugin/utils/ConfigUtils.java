@@ -146,6 +146,12 @@ public record ConfigUtils(FileConfiguration config) {
             updatedSection.set("embed.image.url", "https://example.com/image.png");
             updatedSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
             config.set("discord.resolved", resolvedSection);
+
+            ConfigurationSection notifySection = config.createSection("discord.notify");
+            notifySection.set("on-create", true);
+            notifySection.set("on-update", true);
+            notifySection.set("on-resolve", false);
+            config.set("discord.notify", notifySection);
         }
     }
 

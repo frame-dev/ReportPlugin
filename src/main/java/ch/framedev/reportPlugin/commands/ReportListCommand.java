@@ -21,7 +21,10 @@ public record ReportListCommand(Database database) implements CommandExecutor {
             return true;
         }
 
-        List<Report> reports = database.getAllReports().stream().filter(report -> !report.isResolved()).toList();
+        List<Report> reports = database.getAllReports().stream()
+                .filter(report -> !report.isResolved())
+                .toList();
+
         if (reports.isEmpty()) {
             sender.sendMessage(ChatColor.YELLOW + "There are no reports.");
             return true;
@@ -30,6 +33,7 @@ public record ReportListCommand(Database database) implements CommandExecutor {
             sender.sendMessage(ChatColor.YELLOW + "Use /reportgui to view reports in a GUI.");
             return true;
         }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sender.sendMessage(ChatColor.GREEN + "---- Report List ----");
         for (Report report : reports) {

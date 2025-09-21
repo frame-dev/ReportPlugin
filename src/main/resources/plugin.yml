@@ -35,7 +35,7 @@ commands:
     permission-message: You do not have permission to view report data.
   reporttp:
     description: A command to teleport to a reported player.
-    usage: /reporttp <player> <reportID>
+    usage: /reporttp <player> [reportID]
     permission: reportplugin.reporttp
     permission-message: You do not have permission to teleport to reported players.
   report-delete:

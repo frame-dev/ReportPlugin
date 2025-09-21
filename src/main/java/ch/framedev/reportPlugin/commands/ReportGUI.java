@@ -3,6 +3,7 @@ package ch.framedev.reportPlugin.commands;
 
 import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.main.ReportPlugin;
+import ch.framedev.reportPlugin.utils.DiscordUtils;
 import ch.framedev.reportPlugin.utils.DiscordWebhook;
 import ch.framedev.reportPlugin.utils.Report;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -505,9 +506,14 @@ public class ReportGUI implements CommandExecutor, Listener {
                             if (notifyResolved) {
                                 if (report.isResolved()) {
                                     onlinePlayer.sendMessage(ChatColor.AQUA + "Report " + report.getReportId() + " has been resolved by " + player.getName() + ".");
+                                    if (ReportPlugin.getInstance().getConfig().getBoolean("discord.notify.on-resolve", false))
+                                        DiscordUtils.sendReportResolvedToDiscord(report);
                                 }
                             } else {
                                 onlinePlayer.sendMessage(ChatColor.AQUA + "Report " + report.getReportId() + " has been updated by " + player.getName() + ".");
+                                // Send Discord webhook update if enabled
+                                if (ReportPlugin.getInstance().getConfig().getBoolean("discord.notify.on-update", false))
+                                    sendDiscordWebhookUpdate(report);
                             }
                             // Add clickable message to view report details
                             TextComponent hoverMessage = new TextComponent(ChatColor.GRAY + "Click to view report details");
@@ -516,8 +522,6 @@ public class ReportGUI implements CommandExecutor, Listener {
                         }
                     }
                 }
-                // Send Discord webhook update if enabled
-                sendDiscordWebhookUpdate(report);
                 break;
         }
     }

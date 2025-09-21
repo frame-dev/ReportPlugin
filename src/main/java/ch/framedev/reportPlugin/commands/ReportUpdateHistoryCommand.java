@@ -43,8 +43,8 @@ public record ReportUpdateHistoryCommand(Database database) implements CommandEx
             player.sendMessage(ChatColor.YELLOW + "No update history for this report.");
         } else {
             player.sendMessage(ChatColor.GREEN + "---- Update History for Report " + reportId + " ----");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             history.forEach((updater, rep) -> {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String updaterName = updater.replace("_-_", "");
                 player.sendMessage(ChatColor.YELLOW + "Updated by: " + updaterName);
                 player.sendMessage(ChatColor.YELLOW + "Reason: " + rep.getReason());

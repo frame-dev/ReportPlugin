@@ -35,14 +35,15 @@ public record ReportCommand(ReportPlugin plugin, Database database) implements C
             sender.sendMessage("§cThis command can only be used by players.");
             return true;
         }
-        report(args, sender, player);
+        report(args, player);
         return true;
     }
 
-    private void report(String[] args, CommandSender sender, Player player) {
+    private void report(String[] args, Player player) {
         String reportedPlayer = args[0];
         String reason = args.length > 1 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "No reason provided";
-        sender.sendMessage("§aYou reported §e" + reportedPlayer + "§a for: §f" + reason);
+        player.sendMessage("§aYou reported §e" + reportedPlayer + "§a for: §f" + reason);
+
         Report report = new Report(
                 reportedPlayer,
                 reason,
@@ -51,11 +52,12 @@ public record ReportCommand(ReportPlugin plugin, Database database) implements C
                 plugin.getConfig().getString("server-name", "Localhost"),
                 plugin.getConfig().getString("server-address", "localhost"),
                 Bukkit.getVersion(),
-                "world",
+                player.getWorld().getName(),
                 Report.getLocationAsString(player.getLocation())
         );
         database.insertReport(report);
         Bukkit.getLogger().info("Report created by " + player.getName() + ": " + report.getReportedPlayer() + " for reason: " + report.getReason());
+
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             if (onlinePlayer.hasPermission("reportplugin.report.notify")) {
                 boolean enabledNotify = plugin.getConfig().getBoolean("notify.on-create", false);
@@ -65,17 +67,20 @@ public record ReportCommand(ReportPlugin plugin, Database database) implements C
                     if (isHoverEnabled) {
                         TextComponent textComponent = new TextComponent("§7[§eClick to Teleport to Report Location§7]");
                         Location location = Report.getLocationAsBukkitLocation(report.getLocation());
-                        textComponent.setClickEvent(new net.md_5.bungee.api.chat.ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tp " + location.getX() + " " + location.getY() + " " + location.getZ()));
+                        textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tp " + location.getX() + " " + location.getY() + " " + location.getZ()));
                         onlinePlayer.spigot().sendMessage(textComponent);
                     }
                 }
             }
         }
+
         if (plugin.getConfig().getBoolean("useDiscordWebhook", false)) {
-            if (!sendReportToDiscord(player, reportedPlayer, reason, report)) {
-                Bukkit.getLogger().severe("Failed to send report to Discord.");
-            } else {
-                Bukkit.getLogger().info("Report sent to Discord successfully.");
+            if (ReportPlugin.getInstance().getConfig().getBoolean("discord.notify-on-report", true)) {
+                if (!sendReportToDiscord(player, reportedPlayer, reason, report)) {
+                    Bukkit.getLogger().severe("Failed to send report to Discord.");
+                } else {
+                    Bukkit.getLogger().info("Report sent to Discord successfully.");
+                }
             }
         }
     }
@@ -88,10 +93,12 @@ public record ReportCommand(ReportPlugin plugin, Database database) implements C
         discordWebhook.setUsername(userName);
         String avatarUrl = plugin.getConfig().getString("discord.avatar-url", "https://example.com/avatar.png");
         discordWebhook.setAvatarUrl(avatarUrl);
+
         DiscordWebhook.EmbedObject embedObject = new DiscordWebhook.EmbedObject();
         String embedTitle = plugin.getConfig().getString("discord.embed.title", "New Report");
         embedObject.setTitle(embedTitle);
-        String description = plugin.getConfig().getString("discord.embed.description", "**Reported Player:** %ReportedPlayer%\\n**Reporter:** %Reporter%\\n**Reason:** %Reason%\\n**Server:** %ServerName%\\n**Location:** %Location%\\n**World:** %WorldName%");
+        String description = plugin.getConfig().getString("discord.embed.description",
+                "**Reported Player:** %ReportedPlayer%\\n**Reporter:** %Reporter%\\n**Reason:** %Reason%\\n**Server:** %ServerName%\\n**Location:** %Location%\\n**World:** %WorldName%");
         description = description.replace("%ReportedPlayer%", reportedPlayer)
                 .replace("%Reporter%", player.getName())
                 .replace("%Reason%", reason)
@@ -111,6 +118,7 @@ public record ReportCommand(ReportPlugin plugin, Database database) implements C
         String avatarFooterUrl = plugin.getConfig().getString("discord.embed.footer.icon-url", "https://example.com/footer-icon.png");
         embedObject.setFooter(footerText, avatarFooterUrl);
         discordWebhook.addEmbed(embedObject);
+
         try {
             discordWebhook.execute();
             return true;
