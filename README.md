@@ -63,6 +63,9 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 - `/report-updatehistory <reportID>`  
   View the update history of a specific report.
 
+- `/report-clearupdatehistory <reportID>`  
+  Clear the update history of a specific report.
+
 ## Permissions
 
 - `reportplugin.report` — Use the `/report` command.
@@ -73,73 +76,11 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 - `reportplugin.reporttp` — Use the `/reporttp` command.
 - `reportplugin.reportdelete` - Use the `report-delete <reportID>` command.
 - `reportplugin.updatehistory` - Use the `report-updatehistory <reportID>` command.
+- `reportplugin.clearupdatehistory` - Use the `report-clearupdatehistory <reportID>` command.
 
 ## Configuration
 
 Edit the `discord` section in `config.yml` to set your webhook URL.
-
-### Example `config.yml`
-
-```yaml
-useDiscordWebhook: false
-database: filesystem
-discord:
-  create:
-    webhook-url: YOUR_WEBHOOK_URL_HERE
-    username: ReportBot
-    avatar-url: https://example.com/avatar.png
-    content: New report received!
-    embed:
-      title: New Report
-      description: '**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:**
-        %Reason%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%'
-      url: https://example.com
-      footer:
-        text: 'Report ID: %ReporterID%'
-        icon-url: https://example.com/footer-icon.png
-      image:
-        url: https://example.com/image.png
-      thumbnail:
-        url: https://example.com/thumbnail.png
-  update:
-    webhook-url: YOUR_WEBHOOK_URL_HERE
-    username: ReportBot
-    avatar-url: https://example.com/avatar.png
-    content: Report updated!
-    embed:
-      title: Report Updated
-      description: '**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:**
-        %Reason%\n**Status:** %Status%\n**Additional Info:** %AdditionalInfo%\n**Resolution
-        Comment:** %ResolutionComment%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:**
-        %WorldName%'
-      url: https://example.com
-      footer:
-        text: 'Report ID: %ReporterID%'
-        icon-url: https://example.com/footer-icon.png
-      image:
-        url: https://example.com/image.png
-      thumbnail:
-        url: https://example.com/thumbnail.png
-mysql:
-  host: localhost
-  port: 3306
-  database: reports
-  username: yourUsername
-  password: yourPassword
-sqlite:
-  file: reports.db
-  path: database
-mongodb:
-  host: localhost
-  port: 27017
-  database: spigotTestDB
-  username: yourUsername
-  password: yourPassword
-# This name will be displayed in the Discord webhook and saved in the database.
-server-name: Localhost Server
-# This address will be displayed in the Discord webhook and saved in the database.
-server-address: localhost
-```
 
 ## Future Plans
 
@@ -157,21 +98,6 @@ See the [CHANGELOG.md](CHANGELOG.md) file for detailed changes in each version.
 
 An API is available for developers to interact with the plugin's functionalities. Documentation will be provided in
 future updates.
-
-```java 
-import ch.framedev.reportPlugin.ReportAPI;
-
-ReportAPI api = ReportAPI.getInstance();
-
-// Example: Create a new report
-api.createReport(String reportedPlayer, String reporter, String reason);
-
-// Example: Fetch all reports
-List<Report> reports = api.getAllReports();
-
-// Example: Update a report
-api.updateReport(Report report);
-```
 
 ## License
 

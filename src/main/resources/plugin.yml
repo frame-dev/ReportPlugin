@@ -48,3 +48,8 @@ commands:
     usage: /report-updatehistory <reportID>
     permission: reportplugin.updatehistory
     permission-message: You do not have permission to update report history.
+  report-clearupdatehistory:
+    description: A command to clear the update history of a report.
+    usage: /report-clearupdatehistory <reportID>
+    permission: reportplugin.clearupdatehistory
+    permission-message: You do not have permission to clear report update history.

@@ -58,6 +58,9 @@ public final class ReportPlugin extends JavaPlugin {
         ReportUpdateHistoryCommand reportUpdateHistoryCommand = new ReportUpdateHistoryCommand(database);
         getCommand("report-updatehistory").setExecutor(reportUpdateHistoryCommand);
         getCommand("report-updatehistory").setTabCompleter(reportUpdateHistoryCommand);
+        ReportClearUpdateHistoryCommand reportClearUpdateHistoryCommand = new ReportClearUpdateHistoryCommand(database);
+        getCommand("report-clearupdatehistory").setExecutor(reportClearUpdateHistoryCommand);
+        getCommand("report-clearupdatehistory").setTabCompleter(reportClearUpdateHistoryCommand);
         getLogger().info("Commands and events registered successfully!");
 
         // Log plugin enable message
