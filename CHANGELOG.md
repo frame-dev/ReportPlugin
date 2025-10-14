@@ -54,3 +54,12 @@
 - README.md updated
 - Add Discord notification settings and improve report command functionality
 
+
+[0.4] - 2025-10-14
+- Add report update command and enhance report management features
+- Refactor ReportUpdateCommand to improve command handling and validation
+- Update README.md to include new /report-updatehistory and /report-clearupdatehistory commands and
+- related permissions
+- Refactor ReportUpdateCommand to improve command handling and validation
+- Clear update history command added ReportClearUpdateHistoryCommand
+

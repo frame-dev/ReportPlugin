@@ -78,6 +78,16 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 - `reportplugin.updatehistory` - Use the `report-updatehistory <reportID>` command.
 - `reportplugin.clearupdatehistory` - Use the `report-clearupdatehistory <reportID>` command.
 
+## Discord Webhook Features
+
+- Sends a notification to a specified Discord channel whenever a player is reported.
+- Includes details such as the reported player's name, the reporter's name, the reason for the report, and the timestamp.
+- Customizable message format through the configuration file.
+- Supports rich embeds for better presentation of report details.
+- Handles webhook failures gracefully with retry mechanisms.
+- Supports multiple webhooks for different types of reports.
+- Option to include player UUIDs and IP addresses in the Discord message for better identification.
+
 ## Configuration
 
 Edit the `discord` section in `config.yml` to set your webhook URL.
