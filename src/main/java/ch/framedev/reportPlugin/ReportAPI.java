@@ -38,9 +38,6 @@ public class ReportAPI {
         return instance;
     }
 
-    // Add methods to interact with the report system here
-    // For example, methods to create, resolve, or list reports
-
     public void createReport(Player reportedPlayer, String reason, String reporter, String serverName, String serverAddress) {
         Report report = new Report(
                 reportedPlayer.getName(),
