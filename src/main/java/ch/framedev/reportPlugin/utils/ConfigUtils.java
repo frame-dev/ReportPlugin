@@ -207,8 +207,8 @@ public record ConfigUtils(FileConfiguration config) {
         }
 
         if (!config.contains("database")) {
-            config.set("database", "filesystem");
-            config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, postgresql, h2, mongodb, filesystem"));
+            config.set("database", "jsonfilesystem");
+            config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, postgresql, h2, mongodb, jsonfilesystem, yamlfilesystem"));
         }
     }
 }

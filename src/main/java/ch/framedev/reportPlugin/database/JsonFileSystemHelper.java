@@ -11,7 +11,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Level;
 
-public class FileSystemHelper implements DatabaseHelper {
+public class JsonFileSystemHelper implements DatabaseHelper {
 
     private final ReportPlugin plugin;
     private final File reportsDir;
@@ -23,7 +23,7 @@ public class FileSystemHelper implements DatabaseHelper {
      *
      * @param plugin The ReportPlugin instance for logging and configuration access.
      */
-    public FileSystemHelper(ReportPlugin plugin) {
+    public JsonFileSystemHelper(ReportPlugin plugin) {
         this.plugin = plugin;
         this.reportsDir = new File(plugin.getDataFolder(), "reports");
         if (!reportsDir.exists() && !reportsDir.mkdirs()) {
