@@ -126,12 +126,12 @@ public record ConfigUtils(FileConfiguration config) {
             config.set("discord.update", updatedSection);
 
             ConfigurationSection resolvedSection = config.createSection("discord.resolved");
-            updatedSection.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
-            updatedSection.set("username", "ReportBot");
-            updatedSection.set("avatar-url", "https://example.com/avatar.png");
-            updatedSection.set("content", "Report Solved!");
-            updatedSection.set("embed.title", "Report Solved");
-            updatedSection.set("embed.description", "**Reported Player:** %ReportedPlayer%\\n" +
+            resolvedSection.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
+            resolvedSection.set("username", "ReportBot");
+            resolvedSection.set("avatar-url", "https://example.com/avatar.png");
+            resolvedSection.set("content", "Report Solved!");
+            resolvedSection.set("embed.title", "Report Solved");
+            resolvedSection.set("embed.description", "**Reported Player:** %ReportedPlayer%\\n" +
                     "**Reporter:** %Reporter%\\n" +
                     "**Reason:** %Reason%\\n" +
                     "**Status:** %Status%\\n" +
@@ -140,17 +140,18 @@ public record ConfigUtils(FileConfiguration config) {
                     "**Server:** %ServerName%\\n" +
                     "**Location:** %Location%\\n" +
                     "**World:** %WorldName%");
-            updatedSection.set("embed.url", "https://example.com");
-            updatedSection.set("embed.footer.text", "Report ID: %ReporterID%");
-            updatedSection.set("embed.footer.icon-url", "https://example.com/footer-icon.png");
-            updatedSection.set("embed.image.url", "https://example.com/image.png");
-            updatedSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
+            resolvedSection.set("embed.url", "https://example.com");
+            resolvedSection.set("embed.footer.text", "Report ID: %ReporterID%");
+            resolvedSection.set("embed.footer.icon-url", "https://example.com/footer-icon.png");
+            resolvedSection.set("embed.image.url", "https://example.com/image.png");
+            resolvedSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
             config.set("discord.resolved", resolvedSection);
 
             ConfigurationSection notifySection = config.createSection("discord.notify");
             notifySection.set("on-create", true);
             notifySection.set("on-update", true);
             notifySection.set("on-resolve", false);
+            notifySection.set("hoverable-teleport", true);
             config.set("discord.notify", notifySection);
         }
     }

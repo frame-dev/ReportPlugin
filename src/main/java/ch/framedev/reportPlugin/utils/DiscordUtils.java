@@ -10,17 +10,17 @@ import java.util.logging.Level;
 public class DiscordUtils {
 
     public static boolean sendReportToDiscord(ReportPlugin plugin, Report report) {
-        DiscordWebhook discordWebhook = new DiscordWebhook(plugin.getConfig().getString("discord.webhook-url"));
-        String contentText = plugin.getConfig().getString("discord.content", "New report received!");
+        DiscordWebhook discordWebhook = new DiscordWebhook(plugin.getConfig().getString("discord.create.webhook-url"));
+        String contentText = plugin.getConfig().getString("discord.create.content", "New report received!");
         discordWebhook.setContent(contentText);
-        String userName = plugin.getConfig().getString("discord.username", "ReportBot");
+        String userName = plugin.getConfig().getString("discord.create.username", "ReportBot");
         discordWebhook.setUsername(userName);
-        String avatarUrl = plugin.getConfig().getString("discord.avatar-url", "https://example.com/avatar.png");
+        String avatarUrl = plugin.getConfig().getString("discord.create.avatar-url", "https://example.com/avatar.png");
         discordWebhook.setAvatarUrl(avatarUrl);
         DiscordWebhook.EmbedObject embedObject = new DiscordWebhook.EmbedObject();
-        String embedTitle = plugin.getConfig().getString("discord.embed.title", "New Report");
+        String embedTitle = plugin.getConfig().getString("discord.create.embed.title", "New Report");
         embedObject.setTitle(embedTitle);
-        String description = plugin.getConfig().getString("discord.embed.description", "**Reported Player:** %ReportedPlayer%\\n**Reporter:** %Reporter%\\n**Reason:** %Reason%\\n**Server:** %ServerName%\\n**Location:** %Location%\\n**World:** %WorldName%");
+        String description = plugin.getConfig().getString("discord.create.embed.description", "**Reported Player:** %ReportedPlayer%\\n**Reporter:** %Reporter%\\n**Reason:** %Reason%\\n**Server:** %ServerName%\\n**Location:** %Location%\\n**World:** %WorldName%");
         description = description.replace("%ReportedPlayer%", report.getReportedPlayer())
                 .replace("%Reporter%", report.getReporter())
                 .replace("%Reason%", report.getReason())
@@ -29,15 +29,15 @@ public class DiscordUtils {
                 .replace("%WorldName%", report.getWorldName());
         embedObject.setDescription(description);
         embedObject.setColor(Color.BLACK);
-        String embedUrl = plugin.getConfig().getString("discord.embed.url", "https://example.com");
+        String embedUrl = plugin.getConfig().getString("discord.create.embed.url", "https://example.com");
         embedObject.setUrl(embedUrl);
-        String imageUrl = plugin.getConfig().getString("discord.embed.image.url", "https://example.com/image.png");
+        String imageUrl = plugin.getConfig().getString("discord.create.embed.image.url", "https://example.com/image.png");
         embedObject.setImage(imageUrl);
-        String thumbnailUrl = plugin.getConfig().getString("discord.embed.thumbnail.url", "https://example.com/thumbnail.png");
+        String thumbnailUrl = plugin.getConfig().getString("discord.create.embed.thumbnail.url", "https://example.com/thumbnail.png");
         embedObject.setThumbnail(thumbnailUrl);
-        String footerText = plugin.getConfig().getString("discord.embed.footer.text", "Report ID: %ReporterID%");
+        String footerText = plugin.getConfig().getString("discord.create.embed.footer.text", "Report ID: %ReporterID%");
         footerText = footerText.replace("%ReporterID%", report.getReportId());
-        String avatarFooterUrl = plugin.getConfig().getString("discord.embed.footer.icon-url", "https://example.com/footer-icon.png");
+        String avatarFooterUrl = plugin.getConfig().getString("discord.create.embed.footer.icon-url", "https://example.com/footer-icon.png");
         embedObject.setFooter(footerText, avatarFooterUrl);
         discordWebhook.addEmbed(embedObject);
         try {

@@ -77,16 +77,21 @@ public class ReportGUI implements CommandExecutor, Listener {
         }
 
         if (args.length == 0) {
-
-            // Fetch all reports and calculate the required inventory size
-            List<Report> reports = database.getAllReports();
+// Fetch all reports and calculate the required inventory size
+            List<Report> reports = database.getAllReports().stream().filter(report -> !report.isResolved()).toList();
             int reportCount = reports.size();
-            int inventorySize = Math.max(9, Math.min(((reportCount - 1) / 9 + 1) * 9, 54));
+            int minInventorySize = 9;
+            int maxInventorySize = 54;
+            int actionButtonCount = 7;
+
+            // Calculate inventory size: enough for all reports + action buttons, but max 54
+            int neededSlots = Math.max(reportCount, 1) + actionButtonCount;
+            int inventorySize = Math.min(Math.max(((neededSlots - 1) / 9 + 1) * 9, minInventorySize), maxInventorySize);
 
             Inventory gui = Bukkit.createInventory(null, inventorySize, GUI_TITLE);
 
             // Add report items to the GUI
-            int maxReportSlots = inventorySize - 7;
+            int maxReportSlots = inventorySize - actionButtonCount;
             for (int i = 0; i < Math.min(reports.size(), maxReportSlots); i++) {
                 Report report = reports.get(i);
                 ItemStack reportItem = new ItemStack(Material.PAPER);
@@ -111,13 +116,14 @@ public class ReportGUI implements CommandExecutor, Listener {
             }
 
             // Add action buttons at the end of the GUI
-            addButton(gui, inventorySize - 7, Material.BOOK, UPDATE_HISTORY_TITLE, "View the update history of the selected report");
-            addButton(gui, inventorySize - 6, Material.COMPASS, TELEPORT_TO_REPORTER, "Teleport to the reporter of the selected report");
-            addButton(gui, inventorySize - 5, Material.DIAMOND_SWORD, BAN_TITLE, "Click to ban the reported player");
-            addButton(gui, inventorySize - 4, Material.IRON_BOOTS, KICK_TITLE, "Click to kick the reported player");
-            addButton(gui, inventorySize - 3, Material.RED_WOOL, DELETE_TITLE, "Click to delete the selected report");
-            addButton(gui, inventorySize - 2, Material.ENDER_PEARL, TELEPORT_TITLE, "Teleport to the selected report location");
-            addButton(gui, inventorySize - 1, Material.WRITABLE_BOOK, UPDATE_TITLE, "Click to update the selected report");
+            int firstButtonSlot = inventorySize - actionButtonCount;
+            addButton(gui, firstButtonSlot, Material.BOOK, UPDATE_HISTORY_TITLE, "View the update history of the selected report");
+            addButton(gui, firstButtonSlot + 1, Material.COMPASS, TELEPORT_TO_REPORTER, "Teleport to the reporter of the selected report");
+            addButton(gui, firstButtonSlot + 2, Material.DIAMOND_SWORD, BAN_TITLE, "Click to ban the reported player");
+            addButton(gui, firstButtonSlot + 3, Material.IRON_BOOTS, KICK_TITLE, "Click to kick the reported player");
+            addButton(gui, firstButtonSlot + 4, Material.RED_WOOL, DELETE_TITLE, "Click to delete the selected report");
+            addButton(gui, firstButtonSlot + 5, Material.ENDER_PEARL, TELEPORT_TITLE, "Teleport to the selected report location");
+            addButton(gui, firstButtonSlot + 6, Material.WRITABLE_BOOK, UPDATE_TITLE, "Click to update the selected report");
 
             player.openInventory(gui);
         } else if (args.length == 1) {
@@ -176,9 +182,13 @@ public class ReportGUI implements CommandExecutor, Listener {
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals(GUI_TITLE) ||
-                (playerViewReport.containsKey(event.getWhoClicked().getUniqueId()) && event.getView().getTitle().equals("Report: " + playerViewReport.get(event.getWhoClicked().getUniqueId()))))
-            return;
+        if (!event.getView().getTitle().equals(GUI_TITLE)) {
+            UUID uuid = event.getWhoClicked().getUniqueId();
+            String selectedReportId = playerViewReport.get(uuid);
+            if (selectedReportId == null || !event.getView().getTitle().equals("Report: " + selectedReportId)) {
+                return;
+            }
+        }
         event.setCancelled(true);
 
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -498,69 +508,33 @@ public class ReportGUI implements CommandExecutor, Listener {
                     player.sendMessage(ChatColor.RED + "Failed to record update history.");
                 }
                 boolean notifyUpdate = ReportPlugin.getInstance().getConfig().getBoolean("notify.on-update", false);
-                boolean notifyResolved = ReportPlugin.getInstance().getConfig().getBoolean("notify.on-resolved", false);
-                boolean notify = (report.isResolved() && notifyResolved) || (!report.isResolved() && notifyUpdate);
-                if (notify) {
+                boolean notifyResolved = ReportPlugin.getInstance().getConfig().getBoolean("notify.on-resolve", false);
+
+                boolean isResolved = report.isResolved();
+                boolean shouldNotify = (isResolved && notifyResolved) || (!isResolved && notifyUpdate);
+
+                if (shouldNotify) {
+                    String message = ChatColor.AQUA + "Report " + report.getReportId() + " has been " +
+                            (isResolved ? "resolved" : "updated") + " by " + player.getName() + ".";
                     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                         if (onlinePlayer.hasPermission("reportplugin.report.notify")) {
-                            if (notifyResolved) {
-                                if (report.isResolved()) {
-                                    onlinePlayer.sendMessage(ChatColor.AQUA + "Report " + report.getReportId() + " has been resolved by " + player.getName() + ".");
-                                    if (ReportPlugin.getInstance().getConfig().getBoolean("discord.notify.on-resolve", false))
-                                        DiscordUtils.sendReportResolvedToDiscord(report);
-                                }
-                            } else {
-                                onlinePlayer.sendMessage(ChatColor.AQUA + "Report " + report.getReportId() + " has been updated by " + player.getName() + ".");
-                                // Send Discord webhook update if enabled
-                                if (ReportPlugin.getInstance().getConfig().getBoolean("discord.notify.on-update", false))
-                                    sendDiscordWebhookUpdate(report);
-                            }
-                            // Add clickable message to view report details
+                            onlinePlayer.sendMessage(message);
                             TextComponent hoverMessage = new TextComponent(ChatColor.GRAY + "Click to view report details");
                             hoverMessage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/report-gui " + report.getReportId()));
                             onlinePlayer.spigot().sendMessage(hoverMessage);
+                            playerViewReport.put(player.getUniqueId(), report.getReportId());
                         }
+                    }
+                    // Send Discord webhook if enabled
+                    if (isResolved && ReportPlugin.getInstance().getConfig().getBoolean("notify.on-resolve", false)) {
+                        DiscordUtils.sendReportResolvedToDiscord(report);
+                        player.sendMessage(ChatColor.GREEN + "Discord notified about the resolution.");
+                    } else if (!isResolved) {
+                        DiscordUtils.sendReportUpdateToDiscord(report);
+                        player.sendMessage(ChatColor.GREEN + "Discord notified about the update.");
                     }
                 }
                 break;
-        }
-    }
-
-    private void sendDiscordWebhookUpdate(Report report) {
-        // Implement Discord webhook update logic here
-        FileConfiguration config = ReportPlugin.getInstance().getConfig();
-        if (!config.getBoolean("useDiscordWebhook", false)) return;
-        String webhookUrl = config.getString("discord.update.webhook-url");
-        if (webhookUrl == null || webhookUrl.isEmpty()) return;
-        DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
-        discordWebhook.setUsername(config.getString("discord.update.username", "ReportBot"));
-        discordWebhook.setAvatarUrl(config.getString("discord.update.avatar-url", "https://example.com/avatar.png"));
-        discordWebhook.setContent(config.getString("discord.update.content", "Report updated!"));
-        DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
-        embed.setTitle(config.getString("discord.update.embed.title", "Report Updated"));
-        String description = config.getString("discord.update.embed.description", "");
-        description = description.replace("%ReportedPlayer%", report.getReportedPlayer())
-                .replace("%Reporter%", report.getReporter())
-                .replace("%Reason%", report.getReason())
-                .replace("%AdditionalInfo%", report.getAdditionalInfo() != null ? report.getAdditionalInfo() : "N/A")
-                .replace("%Status%", report.isResolved() ? "Resolved" : "Unresolved")
-                .replace("%ResolutionComment%", report.getResolutionComment() != null ? report.getResolutionComment() : "N/A")
-                .replace("%ServerName%", report.getServerName())
-                .replace("%Location%", report.getLocation())
-                .replace("%WorldName%", report.getWorldName());
-        embed.setDescription(description);
-        embed.setUrl(config.getString("discord.update.embed.url", "https://example.com"));
-        embed.setColor(java.awt.Color.BLUE);
-        embed.setFooter(config.getString("discord.update.embed.footer.text", "Report ID: %ReporterID%").replace("%ReporterID%", report.getReportId()),
-                config.getString("discord.update.embed.footer.icon-url", "https://example.com/footer-icon.png"));
-        embed.setImage(config.getString("discord.update.embed.image.url", "https://example.com/image.png"));
-        embed.setThumbnail(config.getString("discord.update.embed.thumbnail.url", "https://example.com/thumbnail.png"));
-        discordWebhook.addEmbed(embed);
-        try {
-            discordWebhook.execute();
-        } catch (Exception e) {
-            Bukkit.getLogger().severe("Failed to send report update to Discord: " + e.getMessage());
-            ReportPlugin.getInstance().getLogger().severe("Failed to send report update to Discord: " + e.getMessage());
         }
     }
 }
