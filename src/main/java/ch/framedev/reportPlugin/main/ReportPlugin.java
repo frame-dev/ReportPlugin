@@ -5,6 +5,12 @@ import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.utils.ConfigUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
+/**
+ * Main class for the ReportPlugin
+ * Handles plugin enable/disable and command registration
+ * @version 0.4
+ * @author FrameDev
+ */
 public final class ReportPlugin extends JavaPlugin {
 
     private static ReportPlugin instance;
