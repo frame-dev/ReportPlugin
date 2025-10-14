@@ -28,6 +28,7 @@ public final class ReportPlugin extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         // Save the default config if it doesn't exist
         saveDefaultConfig();
+        getLogger().info("Default configuration file created!");
 
         // Initialize configuration utilities
         getLogger().info("Loading configuration...");
