@@ -24,7 +24,7 @@ public class DiscordUtils {
         description = description.replace("%ReportedPlayer%", report.getReportedPlayer())
                 .replace("%Reporter%", report.getReporter())
                 .replace("%Reason%", report.getReason())
-                .replace("%ServerName%", report.getServerName())
+                .replace("%ServerName%", report.getServerName() + ":" + plugin.getConfig().getString("server-address"))
                 .replace("%Location%", report.getLocation())
                 .replace("%WorldName%", report.getWorldName());
         embedObject.setDescription(description);
@@ -69,7 +69,7 @@ public class DiscordUtils {
                 .replace("%AdditionalInfo%", report.getAdditionalInfo() != null ? report.getAdditionalInfo() : "N/A")
                 .replace("%Status%", report.isResolved() ? "Resolved" : "Unresolved")
                 .replace("%ResolutionComment%", report.getResolutionComment() != null ? report.getResolutionComment() : "N/A")
-                .replace("%ServerName%", report.getServerName())
+                .replace("%ServerName%", report.getServerName() + ":" + ReportPlugin.getInstance().getConfig().getString("server-address"))
                 .replace("%Location%", report.getLocation())
                 .replace("%WorldName%", report.getWorldName());
         embed.setDescription(description);
@@ -109,7 +109,7 @@ public class DiscordUtils {
                 .replace("%AdditionalInfo%", report.getAdditionalInfo() != null ? report.getAdditionalInfo() : "N/A")
                 .replace("%Status%", report.isResolved() ? "Resolved" : "Unresolved")
                 .replace("%ResolutionComment%", report.getResolutionComment() != null ? report.getResolutionComment() : "N/A")
-                .replace("%ServerName%", report.getServerName())
+                .replace("%ServerName%", report.getServerName() + ":" + ReportPlugin.getInstance().getConfig().getString("server-address"))
                 .replace("%Location%", report.getLocation())
                 .replace("%WorldName%", report.getWorldName());
         embed.setDescription(description);

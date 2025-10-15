@@ -13,7 +13,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -33,6 +32,10 @@ public record ReportCommand(ReportPlugin plugin, Database database) implements C
         }
         if (!(sender instanceof Player player)) {
             sender.sendMessage("§cThis command can only be used by players.");
+            return true;
+        }
+        if (args[0].equalsIgnoreCase(player.getName())) {
+            sender.sendMessage("§cYou cannot report yourself.");
             return true;
         }
         report(args, player);

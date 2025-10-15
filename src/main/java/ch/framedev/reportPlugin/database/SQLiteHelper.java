@@ -281,6 +281,12 @@ public class SQLiteHelper implements DatabaseHelper {
         }
     }
 
+    @Override
+    public void disconnect() {
+        // SQLite connections are typically closed after each operation.
+        // If you maintain a persistent connection, implement the logic to close it here.
+    }
+
     private void createUpdateHistoryTable() {
         try (Connection connection = sqLite.connect()) {
             if (connection != null) {

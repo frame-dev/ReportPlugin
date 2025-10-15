@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public final class ReportPlugin extends JavaPlugin {
 
+    /** Singleton instance */
     private static ReportPlugin instance;
     private Database database;
 
@@ -49,25 +50,33 @@ public final class ReportPlugin extends JavaPlugin {
 
         getLogger().info("Registering commands and events...");
         getCommand("report").setExecutor(new ReportCommand(this, database));
+        getLogger().info("Report command registered.");
         getCommand("reports-list").setExecutor(new ReportListCommand(database));
+        getLogger().info("Reports list command registered.");
         this.reportGUI = new ReportGUI(database);
         getCommand("report-gui").setExecutor(reportGUI);
+        getLogger().info("Report GUI command registered.");
         getServer().getPluginManager().registerEvents(reportGUI, this);
         ReportDataCommand reportDataCommand = new ReportDataCommand(database);
         getServer().getPluginManager().registerEvents(reportDataCommand, this);
         getCommand("report-data").setExecutor(reportDataCommand);
+        getLogger().info("Report data command registered.");
         ReportTeleportCommand reportTeleportCommand = new ReportTeleportCommand(database);
         getCommand("reporttp").setExecutor(reportTeleportCommand);
         getCommand("reporttp").setTabCompleter(reportTeleportCommand);
+        getLogger().info("Report teleport command registered.");
         ReportDeleteCommand reportDeleteCommand = new ReportDeleteCommand(database);
         getCommand("report-delete").setExecutor(reportDeleteCommand);
         getCommand("report-delete").setTabCompleter(reportDeleteCommand);
+        getLogger().info("Report delete command registered.");
         ReportUpdateHistoryCommand reportUpdateHistoryCommand = new ReportUpdateHistoryCommand(database);
         getCommand("report-updatehistory").setExecutor(reportUpdateHistoryCommand);
         getCommand("report-updatehistory").setTabCompleter(reportUpdateHistoryCommand);
+        getLogger().info("Report update history command registered.");
         ReportClearUpdateHistoryCommand reportClearUpdateHistoryCommand = new ReportClearUpdateHistoryCommand(database);
         getCommand("report-clearupdatehistory").setExecutor(reportClearUpdateHistoryCommand);
         getCommand("report-clearupdatehistory").setTabCompleter(reportClearUpdateHistoryCommand);
+        getLogger().info("Report clear update history command registered.");
         getLogger().info("Commands and events registered successfully!");
 
         // Log plugin enable message
@@ -80,6 +89,7 @@ public final class ReportPlugin extends JavaPlugin {
     public void onDisable() {
         getLogger().info("Disabling ReportPlugin...");
         instance = null;
+        // Clear Data
         reportGUI.clearData();
         database = null;
         getLogger().info("ReportPlugin has been disabled!");

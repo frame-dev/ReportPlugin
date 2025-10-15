@@ -63,4 +63,9 @@ public class H2Storage {
         }
         return null;
     }
+
+    public void disconnect() {
+        // H2 database connections are typically closed after each operation.
+        // If you maintain a persistent connection, implement the logic to close it here.
+    }
 }

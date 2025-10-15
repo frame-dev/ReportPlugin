@@ -289,6 +289,12 @@ public class PostgreSQLHelper implements DatabaseHelper {
         }
     }
 
+    @Override
+    public void disconnect() {
+        // PostgreSQL connections are typically closed after each operation.
+        // If you maintain a persistent connection, implement the logic to close it here.
+    }
+
     private void createUpdateHistoryTable() {
         try (Connection connection = postgreSQL.connect()) {
             if (connection != null) {

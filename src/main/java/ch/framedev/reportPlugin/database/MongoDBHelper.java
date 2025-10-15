@@ -131,6 +131,11 @@ public class MongoDBHelper implements DatabaseHelper {
     }
 
     @Override
+    public void disconnect() {
+        // MongoDB connections are typically managed by the driver and do not require explicit disconnection.
+    }
+
+    @Override
     public boolean writeToUpdateHistory(Report report, String updater) {
         Document historyEntry = new Document()
                 .append("reportId", report.getReportId())

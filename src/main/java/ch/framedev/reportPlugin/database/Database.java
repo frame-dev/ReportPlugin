@@ -17,13 +17,12 @@ import ch.framedev.reportPlugin.main.ReportPlugin;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("unused")
 public class Database {
 
     // The database helper instance that provides database-specific operations
     private final DatabaseHelper databaseHelper;
 
-    // The type of database being used (e.g., "mysql", "sqlite", "mongodb", "postgresql", "h2, "filesystem")
+    // The type of database being used (e.g., "mysql", "sqlite", "mongodb", "postgresql", "h2, "jsonfilesystem")
     private final String databaseType;
 
     /**
@@ -33,7 +32,7 @@ public class Database {
      */
     public Database(ReportPlugin plugin) {
         // Load the database type from the plugin configuration
-        databaseType = plugin.getConfig().getString("database", "filesystem").toLowerCase();
+        databaseType = plugin.getConfig().getString("database", "jsonfilesystem").toLowerCase();
 
         plugin.getLogger().info("Initializing database with type: " + databaseType);
 

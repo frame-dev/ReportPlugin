@@ -194,6 +194,11 @@ public class JsonFileSystemHelper implements DatabaseHelper {
         return true;
     }
 
+    @Override
+    public void disconnect() {
+        // Nothing to do for filesystem
+    }
+
     private static final String HISTORY_DIR_NAME = "history";
     private File getHistoryDir() {
         File historyDir = new File(reportsDir, HISTORY_DIR_NAME);

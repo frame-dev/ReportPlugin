@@ -94,6 +94,8 @@ public interface DatabaseHelper {
      */
     boolean connect();
 
+    void disconnect();
+
     boolean writeToUpdateHistory(Report report, String updater);
     Map<String, Report> getUpdateHistory(Report report);
     boolean clearUpdateHistory(Report report);

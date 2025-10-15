@@ -6,7 +6,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -240,6 +239,11 @@ public class YamlFileSystemHelper implements DatabaseHelper {
     @Override
     public boolean connect() {
         return true;
+    }
+
+    @Override
+    public void disconnect() {
+        // Nothing to do for filesystem
     }
 
     private static final String HISTORY_DIR_NAME = "history";

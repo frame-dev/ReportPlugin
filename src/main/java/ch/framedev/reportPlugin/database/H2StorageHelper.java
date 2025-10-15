@@ -287,6 +287,11 @@ public class H2StorageHelper implements DatabaseHelper {
         }
     }
 
+    @Override
+    public void disconnect() {
+        // H2 connections are typically closed after each operation.
+    }
+
     private void createUpdateHistoryTable() {
         try (Connection connection = h2Storage.connect()) {
             if (connection != null) {
