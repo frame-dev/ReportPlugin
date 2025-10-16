@@ -18,7 +18,19 @@ import java.util.UUID;
 
 import static ch.framedev.reportPlugin.utils.DiscordUtils.sendReportToDiscord;
 
-public record ReportCommand(ReportPlugin plugin, Database database) implements CommandExecutor {
+public class ReportCommand implements CommandExecutor {
+
+    private final ReportPlugin plugin;
+    private Database database;
+
+    public ReportCommand(ReportPlugin plugin, Database database) {
+        this.plugin = plugin;
+        this.database = database;
+    }
+
+    public void setDatabase(Database database) {
+        this.database = database;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

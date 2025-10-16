@@ -21,6 +21,11 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Singleton class providing an API for managing player reports.
+ * This class allows creating, updating, resolving, and retrieving reports,
+ * as well as interacting with the underlying database and sending notifications via Discord webhooks.
+ */
 @SuppressWarnings("unused")
 public class ReportAPI {
 
@@ -60,7 +65,7 @@ public class ReportAPI {
 
     public void updateReport(Report report) {
         database.updateReport(report);
-        if(ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
+        if (ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
             if (!DiscordUtils.sendReportUpdateToDiscord(report)) {
                 ReportPlugin.getInstance().getLogger().warning("Failed to send report update to Discord webhook for report ID: " + report.getReportId());
             }
@@ -168,5 +173,32 @@ public class ReportAPI {
         return database.getAllReports().stream()
                 .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer) && report.isResolved())
                 .toList();
+    }
+
+    public List<Report> getAllUnresolvedReportsByPlayer(String reportedPlayer) {
+        return database.getAllReports().stream()
+                .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer) && !report.isResolved())
+                .toList();
+    }
+
+    public boolean isResolved(String reportId) {
+        Report report = database.getReportById(reportId);
+        return report != null && report.isResolved();
+    }
+
+    public boolean isResolved(Report report) {
+        return report != null && report.isResolved();
+    }
+
+    public void clearUpdateHistory(String reportId) {
+        database.clearUpdateHistory(database.getReportById(reportId));
+    }
+
+    public void writeUpdateHistory(Report report, String updater) {
+        database.writeUpdateHistory(report, updater);
+    }
+
+    public Map<String, Report> getUpdateHistory(Report report) {
+        return database.getUpdateHistory(report);
     }
 }

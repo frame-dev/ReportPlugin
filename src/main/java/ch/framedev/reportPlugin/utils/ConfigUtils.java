@@ -31,7 +31,8 @@ public record ConfigUtils(FileConfiguration config) {
 
     /**
      * Sets up the configuration file with default values if they do not exist.
-     *
+     * This includes sections for Discord webhooks, database configurations,
+     * server information, reporting settings, and notification preferences.
      */
     private void setupConfig() {
         // Discord webhook configurations
@@ -79,6 +80,9 @@ public record ConfigUtils(FileConfiguration config) {
         }
     }
 
+    /**
+     * Sets up the Discord webhook configuration section with default values if they do not exist.
+     */
     private void setupDiscordWebhookConfig() {
         if (!config.contains("discord")) {
             ConfigurationSection section = config.createSection("discord");
@@ -156,6 +160,9 @@ public record ConfigUtils(FileConfiguration config) {
         }
     }
 
+    /**
+     * Sets up the database configuration section with default values if they do not exist.
+     */
     private void setupDatabaseConfig() {
         if (!config.contains("mysql")) {
             ConfigurationSection section = config.createSection("mysql");

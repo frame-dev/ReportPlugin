@@ -11,7 +11,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public record ReportClearUpdateHistoryCommand(Database database) implements CommandExecutor, TabCompleter {
+public class ReportClearUpdateHistoryCommand implements CommandExecutor, TabCompleter {
+
+    private Database database;
+
+    public ReportClearUpdateHistoryCommand(Database database) {
+        this.database = database;
+    }
+
+    public void setDatabase(Database database) {
+        this.database = database;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

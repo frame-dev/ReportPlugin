@@ -12,7 +12,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public record ReportListCommand(Database database) implements CommandExecutor {
+public class ReportListCommand implements CommandExecutor {
+
+    private Database database;
+
+    public ReportListCommand(Database database) {
+        this.database = database;
+    }
+
+    public void setDatabase(Database database) {
+        this.database = database;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

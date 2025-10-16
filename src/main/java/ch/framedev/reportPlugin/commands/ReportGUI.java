@@ -32,7 +32,7 @@ public class ReportGUI implements CommandExecutor, Listener {
     private static final String TELEPORT_TO_REPORTER = ChatColor.LIGHT_PURPLE + "Teleport to Reporter";
     private static final String UPDATE_HISTORY_TITLE = ChatColor.BLUE + "View Update History";
 
-    private final Database database;
+    private Database database;
 
     // Track update state per player
     private static class UpdateSession {
@@ -51,6 +51,10 @@ public class ReportGUI implements CommandExecutor, Listener {
     private final Map<UUID, String> playerViewReport = new HashMap<>();
 
     public ReportGUI(Database database) {
+        this.database = database;
+    }
+
+    public void setDatabase(Database database) {
         this.database = database;
     }
 

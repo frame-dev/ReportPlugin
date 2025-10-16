@@ -53,3 +53,11 @@ commands:
     usage: /report-clearupdatehistory <reportID>
     permission: reportplugin.clearupdatehistory
     permission-message: You do not have permission to clear report update history.
+  reportplugin:
+    description: A command to reload the plugin configuration.
+    usage: /reportplugin
+    permission: reportplugin.reload
+    permission-message: You do not have permission to reload the plugin.
+    aliases:
+      - rpplugin
+      - rp

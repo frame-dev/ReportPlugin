@@ -12,7 +12,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public record ReportDeleteCommand(Database database) implements CommandExecutor, TabCompleter {
+public class ReportDeleteCommand implements CommandExecutor, TabCompleter {
+
+    private Database database;
+
+    public ReportDeleteCommand(Database database) {
+        this.database = database;
+    }
+
+    public void setDatabase(Database database) {
+        this.database = database;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

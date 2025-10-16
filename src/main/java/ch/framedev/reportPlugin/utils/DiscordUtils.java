@@ -9,6 +9,13 @@ import java.util.logging.Level;
 
 public class DiscordUtils {
 
+    /**
+     * Sends a report to a Discord channel using a webhook.
+     *
+     * @param plugin the ReportPlugin instance containing configuration settings.
+     * @param report the Report object containing details of the report.
+     * @return true if the report was sent successfully, false otherwise.
+     */
     public static boolean sendReportToDiscord(ReportPlugin plugin, Report report) {
         DiscordWebhook discordWebhook = new DiscordWebhook(plugin.getConfig().getString("discord.create.webhook-url"));
         String contentText = plugin.getConfig().getString("discord.create.content", "New report received!");
@@ -50,6 +57,12 @@ public class DiscordUtils {
         }
     }
 
+    /**
+     * Sends a report update to a Discord channel using a webhook.
+     *
+     * @param report the Report object containing details of the report.
+     * @return true if the report update was sent successfully, false otherwise.
+     */
     public static boolean sendReportUpdateToDiscord(Report report) {
         // Implement Discord webhook update logic here
         FileConfiguration config = ReportPlugin.getInstance().getConfig();
@@ -90,6 +103,12 @@ public class DiscordUtils {
         return false;
     }
 
+    /**
+     * Sends a report resolution to a Discord channel using a webhook.
+     *
+     * @param report the Report object containing details of the report.
+     * @return true if the report resolution was sent successfully, false otherwise.
+     */
     public static boolean sendReportResolvedToDiscord(Report report) {
         // Implement Discord webhook update logic here
         FileConfiguration config = ReportPlugin.getInstance().getConfig();

@@ -16,7 +16,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public record ReportUpdateHistoryCommand(Database database) implements CommandExecutor, TabCompleter {
+public class ReportUpdateHistoryCommand implements CommandExecutor, TabCompleter {
+
+    private Database database;
+
+    public ReportUpdateHistoryCommand(Database database) {
+        this.database = database;
+    }
+
+    public void setDatabase(Database database) {
+        this.database = database;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

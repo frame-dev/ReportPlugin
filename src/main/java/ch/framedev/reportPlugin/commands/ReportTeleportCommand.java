@@ -13,7 +13,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 
-public record ReportTeleportCommand(Database database) implements CommandExecutor, TabCompleter {
+public class ReportTeleportCommand implements CommandExecutor, TabCompleter {
+
+    private Database database;
+
+    public ReportTeleportCommand(Database database) {
+        this.database = database;
+    }
+
+    public void setDatabase(Database database) {
+        this.database = database;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

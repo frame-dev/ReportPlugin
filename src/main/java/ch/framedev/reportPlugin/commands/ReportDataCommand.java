@@ -21,7 +21,17 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public record ReportDataCommand(Database database) implements CommandExecutor, Listener {
+public class ReportDataCommand implements CommandExecutor, Listener {
+
+    private Database database;
+
+    public ReportDataCommand(Database database) {
+        this.database = database;
+    }
+
+    public void setDatabase(Database database) {
+        this.database = database;
+    }
 
     private static final String GUI_TITLE = ChatColor.AQUA + "Report Data";
     private static final int PAGE_SIZE = 45; // 5 rows for heads, 1 row for navigation

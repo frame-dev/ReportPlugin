@@ -59,6 +59,10 @@ public class Database {
         return databaseHelper.connect();
     }
 
+    public void disconnect() {
+        databaseHelper.disconnect();
+    }
+
     /**
      * Returns the type of database being used.
      *

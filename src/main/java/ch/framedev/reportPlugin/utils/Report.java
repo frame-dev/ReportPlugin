@@ -19,6 +19,16 @@ import org.bukkit.Location;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Represents a player report in the system.
+ * This class encapsulates details about the report, including the reported player,
+ * the reason for the report, the reporter, timestamps, server information, and resolution status.
+ * It provides methods to convert to/from JSON and MongoDB Document formats.
+ * It also includes utility methods for handling player locations.
+ * @author FrameDev
+ * @version 1.0
+ * @since 2025-07-29
+ */
 @SuppressWarnings("unused")
 public class Report {
 
