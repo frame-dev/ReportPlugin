@@ -115,6 +115,5 @@ run/
 delete_unnecessary_files.sh
 copy.sh
 commits.sh
-log.txt
 
 /.vscode
