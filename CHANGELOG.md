@@ -62,4 +62,8 @@
 - related permissions
 - Refactor ReportUpdateCommand to improve command handling and validation
 - Clear update history command added ReportClearUpdateHistoryCommand
+- Redis support added for report management
+- RedisManager added for handling Redis connections
+- Refactor Database class to include Redis support
+- Added yaml support
 

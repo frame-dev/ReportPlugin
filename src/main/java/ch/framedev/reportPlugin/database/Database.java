@@ -45,6 +45,7 @@ public class Database {
             case "mongodb" -> this.databaseHelper = new MongoDBHelper(plugin);
             case "jsonfilesystem" -> this.databaseHelper = new JsonFileSystemHelper(plugin);
             case "yamlfilesystem" -> this.databaseHelper = new YamlFileSystemHelper(plugin);
+            case "textfilesystem" -> this.databaseHelper = new TextFileSystemHelper(plugin);
             default -> throw new IllegalArgumentException("Unsupported database type: " + databaseType);
         }
         plugin.getLogger().info("Database initialized successfully using " + databaseType.toUpperCase() + ".");

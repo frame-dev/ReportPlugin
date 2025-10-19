@@ -47,6 +47,9 @@ public class Report {
     private String location; // Format: "world,x,y,z"
     private String additionalInfo;
 
+    public Report() {
+    }
+
     /**
      * Constructs a Report object with the specified parameters.
      *

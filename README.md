@@ -22,12 +22,12 @@ A simple Spigot plugin for reporting a Player, with Discord webhook integration.
 
 ## Supported Databases
 
-- MySQL
+- MySQL (Redis Supported in version 0.4)
 - SQLite
 - PostgreSQL
 - H2
 - MongoDB
-- File-based storage
+- File-based storage (yaml, json, txt)
 
 ## Installation
 
