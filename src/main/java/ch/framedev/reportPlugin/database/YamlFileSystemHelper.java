@@ -79,6 +79,9 @@ public class YamlFileSystemHelper implements DatabaseHelper {
         report.setResolved(resolved);
         report.setAdditionalInfo(additionalInfo);
         report.setResolutionComment(resolutionComment);
+        if( reportId == null || reportId.isEmpty()) {
+            throw new IOException("Report file " + file.getName() + " is missing a valid reportId.");
+        }
         return report;
     }
 

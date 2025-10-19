@@ -49,6 +49,7 @@ public class RedisManager {
         return get(key).map(json -> gson.fromJson(json, clazz));
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean setObject(String key, Object obj, int ttlSeconds) {
         String json = gson.toJson(obj);
         return set(key, json, ttlSeconds);
