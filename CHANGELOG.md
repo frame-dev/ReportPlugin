@@ -66,4 +66,7 @@
 - RedisManager added for handling Redis connections
 - Refactor Database class to include Redis support
 - Added yaml support
+- Added YamlFileSystem class for yaml storage
+- Added txt support
+- Added TextFileSystem class for txt storage
 
