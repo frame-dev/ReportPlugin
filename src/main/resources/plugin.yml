@@ -11,6 +11,7 @@ libraries:
   - org.mongodb:mongodb-driver-sync:5.1.0
   - com.h2database:h2:2.2.224
   - org.postgresql:postgresql:42.7.3
+  - redis.clients:jedis:4.4.0
 
 commands:
   report:
