@@ -259,7 +259,7 @@ public class YamlFileSystemHelper implements DatabaseHelper {
         return new File(getHistoryDir(), "history_" + reportId + ".yml");
     }
 
-    private Map<String, Report> readHistoryFile(File file) throws IOException {
+    private Map<String, Report> readHistoryFile(File file) {
         if (!file.exists()) return new LinkedHashMap<>();
         FileConfiguration fileConfig = YamlConfiguration.loadConfiguration(file);
         Map<String, Report> history = new LinkedHashMap<>();

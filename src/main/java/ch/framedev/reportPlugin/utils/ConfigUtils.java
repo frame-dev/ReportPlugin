@@ -213,6 +213,17 @@ public record ConfigUtils(FileConfiguration config) {
             config.set("mongodb", section);
         }
 
+        if (!config.contains("redis")) {
+            ConfigurationSection section = config.createSection("redis");
+            section.setComments("redis", Collections.singletonList("Make sure to have a running Redis instance!"));
+            section.set("enabled", false);
+            section.set("host", "localhost");
+            section.set("port", 6379);
+            section.set("password", "yourPassword");
+            section.set("ttl", 300);
+            config.set("redis", section);
+        }
+
         if (!config.contains("database")) {
             config.set("database", "jsonfilesystem");
             config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, postgresql, h2, mongodb, jsonfilesystem, yamlfilesystem"));

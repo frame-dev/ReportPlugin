@@ -1,7 +1,5 @@
 package ch.framedev.reportPlugin.database;
 
-
-
 /*
  * ch.framedev.reportPlugin
  * =============================================
@@ -18,18 +16,15 @@ import com.google.gson.Gson;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class MySQLHelper implements DatabaseHelper {
 
     private final MySQL mySQL;
+    private final RedisManager redis;
+    private final int cacheTtlSeconds;
 
-    /**
-     * Initializes the MySQLHelper with the specified ReportPlugin instance.
-     * Connects to the MySQL database using configuration from the plugin.
-     *
-     * @param plugin The ReportPlugin instance for logging and configuration access.
-     */
     public MySQLHelper(ReportPlugin plugin) {
         String host = plugin.getConfig().getString("mysql.host", "localhost");
         String database = plugin.getConfig().getString("mysql.database", "database");
@@ -37,30 +32,54 @@ public class MySQLHelper implements DatabaseHelper {
         String password = plugin.getConfig().getString("mysql.password", "password");
         int port = plugin.getConfig().getInt("mysql.port", 3306);
         this.mySQL = new MySQL(host, database, username, password, port);
+
+        boolean redisEnabled = plugin.getConfig().getBoolean("redis.enabled", false);
+        RedisManager tmpRedis = null;
+        int ttl = plugin.getConfig().getInt("redis.ttl", 300);
+        if (redisEnabled) {
+            String rHost = plugin.getConfig().getString("redis.host", "localhost");
+            int rPort = plugin.getConfig().getInt("redis.port", 6379);
+            String rPass = plugin.getConfig().getString("redis.password", "");
+            try {
+                tmpRedis = new RedisManager(rHost, rPort, rPass);
+                plugin.getLogger().info("Redis caching enabled (" + rHost + ":" + rPort + "), TTL=" + ttl + "s");
+            } catch (Exception ex) {
+                plugin.getLogger().warning("Failed to initialize Redis, continuing without cache: " + ex.getMessage());
+            }
+        }
+        this.redis = tmpRedis;
+        this.cacheTtlSeconds = ttl;
+
         plugin.getLogger().info("Connecting to MySQL database at " + host + ":" + port + " with database " + database);
         plugin.getLogger().info("Using username: " + username);
         plugin.getLogger().info("Using password: " + (password.isEmpty() ? "not set" : "********") + " (hidden for security reasons)");
+        plugin.getLogger().info("Redis caching is " + (redisEnabled ? "enabled" : "disabled") + ".");
         plugin.getLogger().info("MySQL connection established successfully.");
         plugin.getLogger().info("Creating reports table...");
         createTable();
         plugin.getLogger().info("MySQL database initialized successfully.");
     }
 
-    /**
-     * Creates the reports table if it does not exist.
-     */
+    private String keyById(String id) {
+        return "report:id:" + id;
+    }
+
+    private String keyByPlayer(String player) {
+        return "report:player:" + player;
+    }
+
     @Override
     public void createTable() {
         try {
-            try(Connection connection = mySQL.connect()) {
+            try (Connection connection = mySQL.connect()) {
                 if (connection != null) {
                     String sql = "CREATE TABLE IF NOT EXISTS reports (" +
-                                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                                 "report_id VARCHAR(255) NOT NULL UNIQUE, " +
-                                 "reported_player VARCHAR(255) NOT NULL, " +
-                                 "reporter VARCHAR(255) NOT NULL, " +
-                                 "data TEXT NOT NULL" +
-                                 ")";
+                            "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                            "report_id VARCHAR(255) NOT NULL UNIQUE, " +
+                            "reported_player VARCHAR(255) NOT NULL, " +
+                            "reporter VARCHAR(255) NOT NULL, " +
+                            "data TEXT NOT NULL" +
+                            ")";
                     connection.createStatement().executeUpdate(sql);
                 } else {
                     System.err.println("Failed to connect to the database.");
@@ -71,11 +90,6 @@ public class MySQLHelper implements DatabaseHelper {
         }
     }
 
-    /**
-     * Inserts a report into the database.
-     *
-     * @param report The report to insert.
-     */
     @Override
     public void insertReport(Report report) {
         try (Connection connection = mySQL.connect()) {
@@ -87,6 +101,11 @@ public class MySQLHelper implements DatabaseHelper {
                 preparedStatement.setString(3, report.getReporter());
                 preparedStatement.setString(4, report.toJson());
                 preparedStatement.executeUpdate();
+
+                if (redis != null) {
+                    redis.setObject(keyById(report.getReportId()), report, cacheTtlSeconds);
+                    redis.setObject(keyByPlayer(report.getReportedPlayer()), report, cacheTtlSeconds);
+                }
             } else {
                 System.err.println("Failed to connect to the database.");
             }
@@ -175,6 +194,14 @@ public class MySQLHelper implements DatabaseHelper {
     }
 
     public Report getReportByPlayer(String reportedPlayer) {
+        if (redis != null) {
+            try {
+                Optional<Report> cached = redis.getObject(keyByPlayer(reportedPlayer), Report.class);
+                if (cached.isPresent()) return cached.get();
+            } catch (Exception ignored) {
+            }
+        }
+
         try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "SELECT * FROM reports WHERE reported_player = ?";
@@ -183,7 +210,9 @@ public class MySQLHelper implements DatabaseHelper {
                 var resultSet = preparedStatement.executeQuery();
                 if (resultSet.next()) {
                     String data = resultSet.getString("data");
-                    return new Gson().fromJson(data, Report.class);
+                    Report r = new Gson().fromJson(data, Report.class);
+                    if (redis != null) redis.setObject(keyByPlayer(reportedPlayer), r, cacheTtlSeconds);
+                    return r;
                 }
             } else {
                 System.err.println("Failed to connect to the database.");
@@ -215,6 +244,14 @@ public class MySQLHelper implements DatabaseHelper {
     }
 
     public Report getReportById(String reportId) {
+        if (redis != null) {
+            try {
+                Optional<Report> cached = redis.getObject(keyById(reportId), Report.class);
+                if (cached.isPresent()) return cached.get();
+            } catch (Exception ignored) {
+            }
+        }
+
         try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "SELECT * FROM reports WHERE report_id = ?";
@@ -223,7 +260,9 @@ public class MySQLHelper implements DatabaseHelper {
                 var resultSet = preparedStatement.executeQuery();
                 if (resultSet.next()) {
                     String data = resultSet.getString("data");
-                    return new Gson().fromJson(data, Report.class);
+                    Report r = new Gson().fromJson(data, Report.class);
+                    if (redis != null) redis.setObject(keyById(reportId), r, cacheTtlSeconds);
+                    return r;
                 }
             } else {
                 System.err.println("Failed to connect to the database.");
@@ -249,6 +288,11 @@ public class MySQLHelper implements DatabaseHelper {
                 preparedStatement.setString(3, report.toJson());
                 preparedStatement.setString(4, report.getReportId());
                 preparedStatement.executeUpdate();
+
+                if (redis != null) {
+                    redis.setObject(keyById(report.getReportId()), report, cacheTtlSeconds);
+                    redis.setObject(keyByPlayer(report.getReportedPlayer()), report, cacheTtlSeconds);
+                }
             } else {
                 System.err.println("Failed to connect to the database.");
             }
@@ -264,6 +308,10 @@ public class MySQLHelper implements DatabaseHelper {
                 var preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, reportId);
                 int count = preparedStatement.executeUpdate();
+                if (count > 0 && redis != null) {
+                    // try to remove both id and player keys (player may be unknown here)
+                    redis.del(keyById(reportId));
+                }
                 return count > 0;
             } else {
                 System.err.println("Failed to connect to the database.");
@@ -286,21 +334,26 @@ public class MySQLHelper implements DatabaseHelper {
 
     @Override
     public void disconnect() {
-        // MySQL connections are typically closed after each operation.
-        // If you maintain a persistent connection, implement the logic to close it here.
+        if (redis != null) {
+            try {
+                redis.close();
+            } catch (Exception ignored) {
+            }
+        }
+        // MySQL connections are closed per-operation by design.
     }
 
     private void createUpdateHistoryTable() {
         try (Connection connection = mySQL.connect()) {
             if (connection != null) {
                 String sql = "CREATE TABLE IF NOT EXISTS report_update_history (" +
-                             "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                             "report_id VARCHAR(255) NOT NULL, " +
-                             "updater VARCHAR(255) NOT NULL, " +
-                             "update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                             "data TEXT NOT NULL, " +
-                             "FOREIGN KEY (report_id) REFERENCES reports(report_id) ON DELETE CASCADE" +
-                             ")";
+                        "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                        "report_id VARCHAR(255) NOT NULL, " +
+                        "updater VARCHAR(255) NOT NULL, " +
+                        "update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                        "data TEXT NOT NULL, " +
+                        "FOREIGN KEY (report_id) REFERENCES reports(report_id) ON DELETE CASCADE" +
+                        ")";
                 connection.createStatement().executeUpdate(sql);
             } else {
                 System.err.println("Failed to connect to the database.");
