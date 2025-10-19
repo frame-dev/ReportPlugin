@@ -17,6 +17,7 @@ import ch.framedev.reportPlugin.main.ReportPlugin;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class Database {
 
     // The database helper instance that provides database-specific operations
