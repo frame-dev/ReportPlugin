@@ -26,7 +26,6 @@ import java.util.Map;
  * This class allows creating, updating, resolving, and retrieving reports,
  * as well as interacting with the underlying database and sending notifications via Discord webhooks.
  */
-@SuppressWarnings("unused")
 public class ReportAPI {
 
     private static ReportAPI instance;

@@ -9,6 +9,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.command.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,14 +24,14 @@ import java.util.*;
 
 public class ReportGUI implements CommandExecutor, Listener {
 
-    private static final String GUI_TITLE = ChatColor.RED + "Report List";
-    private static final String UPDATE_TITLE = ChatColor.BLUE + "Update Report";
-    private static final String TELEPORT_TITLE = ChatColor.LIGHT_PURPLE + "Teleport to Location";
-    private static final String DELETE_TITLE = ChatColor.DARK_RED + "Delete Report";
-    private static final String KICK_TITLE = ChatColor.DARK_RED + "Kick Player";
-    private static final String BAN_TITLE = ChatColor.DARK_RED + "Ban Player";
-    private static final String TELEPORT_TO_REPORTER = ChatColor.LIGHT_PURPLE + "Teleport to Reporter";
-    private static final String UPDATE_HISTORY_TITLE = ChatColor.BLUE + "View Update History";
+    private static String GUI_TITLE = ChatColor.RED + "Report List";
+    private static String UPDATE_TITLE = ChatColor.BLUE + "Update Report";
+    private static String TELEPORT_TITLE = ChatColor.LIGHT_PURPLE + "Teleport to Location";
+    private static String DELETE_TITLE = ChatColor.DARK_RED + "Delete Report";
+    private static String KICK_TITLE = ChatColor.DARK_RED + "Kick Player";
+    private static String BAN_TITLE = ChatColor.DARK_RED + "Ban Player";
+    private static String TELEPORT_TO_REPORTER = ChatColor.LIGHT_PURPLE + "Teleport to Reporter";
+    private static String UPDATE_HISTORY_TITLE = ChatColor.BLUE + "View Update History";
 
     private Database database;
 
@@ -52,6 +53,15 @@ public class ReportGUI implements CommandExecutor, Listener {
 
     public ReportGUI(Database database) {
         this.database = database;
+        FileConfiguration messages = ReportPlugin.getInstance().getMessagesConfig();
+        GUI_TITLE = ChatColor.translateAlternateColorCodes('&', messages.getString("gui.titles.report_list", "&cReport List"));
+        UPDATE_TITLE = ChatColor.translateAlternateColorCodes('&', messages.getString("gui.titles.update_report", "&aUpdate Report"));
+        TELEPORT_TITLE = ChatColor.translateAlternateColorCodes('&', messages.getString("gui.titles.teleport_title", "&6Teleport to Reported Location"));
+        DELETE_TITLE = ChatColor.translateAlternateColorCodes('&', messages.getString("gui.titles.delete_report", "&4Delete Report"));
+        KICK_TITLE = ChatColor.translateAlternateColorCodes('&', messages.getString("gui.titles.kick_player", "&eKick Player"));
+        BAN_TITLE = ChatColor.translateAlternateColorCodes('&', messages.getString("gui.titles.ban_player", "&cBan Player"));
+        TELEPORT_TO_REPORTER = ChatColor.translateAlternateColorCodes('&', messages.getString("gui.titles.teleport_to_reporter", "&bTeleport to Reporter"));
+        UPDATE_HISTORY_TITLE = ChatColor.translateAlternateColorCodes('&', messages.getString("gui.titles.view_update_history", "&dView Update History"));
     }
 
     public void setDatabase(Database database) {
@@ -68,13 +78,14 @@ public class ReportGUI implements CommandExecutor, Listener {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        FileConfiguration messages = ReportPlugin.getInstance().getMessagesConfig();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.only_players", "&cOnly players can use this command.")));
             return true;
         }
 
         if (!player.hasPermission("reportplugin.gui")) {
-            player.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.no_permission", "&cYou do not have permission to use this command.")));
             return true;
         }
 
@@ -154,17 +165,17 @@ public class ReportGUI implements CommandExecutor, Listener {
                 reportItem.setItemMeta(meta);
             }
             inventory.setItem(0, reportItem);
-            addButton(inventory, 2, Material.BOOK, UPDATE_HISTORY_TITLE, "View the update history of this report");
-            addButton(inventory, 3, Material.COMPASS, TELEPORT_TO_REPORTER, "Teleport to the reporter of this report");
-            addButton(inventory, 4, Material.DIAMOND_SWORD, BAN_TITLE, "Click to ban the reported player");
-            addButton(inventory, 5, Material.IRON_BOOTS, KICK_TITLE, "Click to kick the reported player");
-            addButton(inventory, 6, Material.RED_WOOL, DELETE_TITLE, "Click to delete this report");
-            addButton(inventory, 7, Material.ENDER_PEARL, TELEPORT_TITLE, "Teleport to the report location");
-            addButton(inventory, 8, Material.WRITABLE_BOOK, UPDATE_TITLE, "Click to update this report");
+            addButton(inventory, 2, Material.BOOK, UPDATE_HISTORY_TITLE, ChatColor.translateAlternateColorCodes('&', messages.getString("gui.lores.update_history_item", "View the update history of this report")));
+            addButton(inventory, 3, Material.COMPASS, TELEPORT_TO_REPORTER, ChatColor.translateAlternateColorCodes('&', messages.getString("gui.lores.teleport_to_reporter_item", "Teleport to the reporter's location")));
+            addButton(inventory, 4, Material.DIAMOND_SWORD, BAN_TITLE, ChatColor.translateAlternateColorCodes('&', messages.getString("gui.lores.ban_player_item", "Click to ban the reported player")));
+            addButton(inventory, 5, Material.IRON_BOOTS, KICK_TITLE, ChatColor.translateAlternateColorCodes('&', messages.getString("gui.lores.kick_player_item", "Click to kick the reported player")));
+            addButton(inventory, 6, Material.RED_WOOL, DELETE_TITLE, ChatColor.translateAlternateColorCodes('&', messages.getString("gui.lores.delete_report_item", "Click to delete this report")));
+            addButton(inventory, 7, Material.ENDER_PEARL, TELEPORT_TITLE, ChatColor.translateAlternateColorCodes('&', messages.getString("gui.lores.teleport_to_reported_location_item", "Teleport to the reported location")));
+            addButton(inventory, 8, Material.WRITABLE_BOOK, UPDATE_TITLE, ChatColor.translateAlternateColorCodes('&', messages.getString("gui.lores.update_report_item", "Click to update this report")));
             player.openInventory(inventory);
             playerViewReport.put(player.getUniqueId(), reportId);
         } else {
-            player.sendMessage(ChatColor.RED + "Usage: /report-gui [reportId]");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.usage_reportgui", "&cUsage: /report-gui [reportId]")));
             return true;
         }
         return true;
@@ -184,6 +195,7 @@ public class ReportGUI implements CommandExecutor, Listener {
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
+        FileConfiguration messages = ReportPlugin.getInstance().getMessagesConfig();
         if (!event.getView().getTitle().equals(GUI_TITLE)) {
             UUID uuid = event.getWhoClicked().getUniqueId();
             String selectedReportId = playerViewReport.get(uuid);
@@ -229,111 +241,113 @@ public class ReportGUI implements CommandExecutor, Listener {
                 if (!report.getAdditionalInfo().isEmpty()) {
                     player.sendMessage(ChatColor.YELLOW + "Additional: " + report.getAdditionalInfo());
                 }
-                player.sendMessage(ChatColor.AQUA + "To update this report, click the 'Update Report' book in the GUI.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.update_report_book", "&aTo update this report, click the 'Update Report' book in the GUI.")));
             }
         } else if (displayName.equals(ChatColor.stripColor(UPDATE_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
-                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.select_first_report", "&cPlease select a report first by clicking on it in the report list.")));
                 return;
             }
             UpdateSession session = new UpdateSession();
             session.reportId = playerSelectedReport.get(uuid);
             updateSessions.put(uuid, session);
             player.closeInventory();
-            player.sendMessage(ChatColor.GOLD + "Enter the new reason for the report:");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+            messages.getString("messages.enter_new_report_reason", "&ePlease enter the new reason for the report in chat:")));
         } else if (displayName.equals(ChatColor.stripColor(TELEPORT_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
-                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.select_first_report", "&cPlease select a report first by clicking on it in the report list.")));
                 return;
             }
             Report report = database.getReportById(playerSelectedReport.get(uuid));
             if (report == null) {
-                player.sendMessage(ChatColor.RED + "Report not found.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.report_not_found", "&cReport not found.")));
                 return;
             }
             World world = Bukkit.getWorld(report.getWorldName());
             if (world == null) {
-                player.sendMessage(ChatColor.RED + "World not found: " + report.getWorldName());
+                String worldNotFoundMessage = messages.getString("messages.world_not_found", "&cThe world for this report could not be found. {world}");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', worldNotFoundMessage.replace("{world}", report.getWorldName())));
                 return;
             }
             player.teleport(Report.getLocationAsBukkitLocation(report.getLocation()));
-            player.sendMessage(ChatColor.GREEN + "Teleported to report location.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+            messages.getString("messages.teleported_to_report_location", "&aTeleported to the reported location.")));
         } else if (displayName.equals(ChatColor.stripColor(DELETE_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
-                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.select_first_report", "&cPlease select a report first by clicking on it in the report list.")));
                 return;
             }
             String reportId = playerSelectedReport.get(uuid);
             Report report = database.getReportById(reportId);
             if (report == null) {
-                player.sendMessage(ChatColor.RED + "Report not found.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.report_not_found", "&cReport not found.")));
                 return;
             }
             if (database.deleteReport(reportId)) {
-                player.sendMessage(ChatColor.GREEN + "Report " + reportId + " deleted.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.report_deleted", "&aReport " + reportId + " deleted.").replace("{reportId}", reportId)));
             } else {
-                player.sendMessage(ChatColor.RED + "Failed to delete report " + reportId + ".");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.report_delete_failed", "&cFailed to delete report " + reportId + ".").replace("{reportId}", reportId)));
             }
-            player.sendMessage(ChatColor.GREEN + "Report " + reportId + " deleted.");
             player.closeInventory();
         } else if (displayName.equals(ChatColor.stripColor(KICK_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
-                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.select_first_report", "&cSelect a report first by clicking on it.")));
                 return;
             }
             String reportId = playerSelectedReport.get(uuid);
             Report report = database.getReportById(reportId);
             if (report == null) {
-                player.sendMessage(ChatColor.RED + "Report not found.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.report_not_found", "&cReport not found.")));
                 return;
             }
             Player reportedPlayer = Bukkit.getPlayerExact(report.getReportedPlayer());
             if (reportedPlayer == null || !reportedPlayer.isOnline()) {
-                player.sendMessage(ChatColor.RED + "Reported player is not online.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.reported_player_not_found", "&cReported player is not online.")));
                 return;
             }
-            player.sendMessage(ChatColor.GREEN + "Please type the kick reason in chat:");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.enter_kick_reason", "&ePlease type the kick reason in chat:")));
             playerKickReason.put(uuid, reportId);
             player.closeInventory();
         } else if (displayName.equals(ChatColor.stripColor(BAN_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
-                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.select_first_report", "&cSelect a report first by clicking on it.")));
                 return;
             }
             String reportId = playerSelectedReport.get(uuid);
             Report report = database.getReportById(reportId);
             if (report == null) {
-                player.sendMessage(ChatColor.RED + "Report not found.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.report_not_found", "&cReport not found.")));
                 return;
             }
             Player reportedPlayer = Bukkit.getPlayerExact(report.getReportedPlayer());
             if (reportedPlayer == null || !reportedPlayer.isOnline()) {
-                player.sendMessage(ChatColor.RED + "Reported player is not online.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.reported_player_not_found", "&cReported player is not online.")));
                 return;
             }
-            player.sendMessage(ChatColor.GREEN + "Please type the ban reason in chat:");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.please_type_ban_reason", "&ePlease type the ban reason in chat:")));
             playerBanReason.put(uuid, reportId);
             player.closeInventory();
         } else if (displayName.equals(ChatColor.stripColor(TELEPORT_TO_REPORTER))) {
             if (!playerSelectedReport.containsKey(uuid)) {
-                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.select_first_report", "&cSelect a report first by clicking on it.")));
                 return;
             }
             Report report = database.getReportById(playerSelectedReport.get(uuid));
             if (report == null) {
-                player.sendMessage(ChatColor.RED + "Report not found.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.report_not_found", "&cReport not found.")));
                 return;
             }
             Player reporter = Bukkit.getPlayerExact(report.getReporter());
             if (reporter == null || !reporter.isOnline()) {
-                player.sendMessage(ChatColor.RED + "Reporter is not online.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.reporter_not_found", "&cReporter is not online.")));
                 return;
             }
             player.teleport(reporter.getLocation());
-            player.sendMessage(ChatColor.GREEN + "Teleported to reporter's location.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.teleported_to_reporter", "&aTeleported to reporter's location.")));
         } else if (displayName.equals(ChatColor.stripColor(UPDATE_HISTORY_TITLE))) {
             if (!playerSelectedReport.containsKey(uuid)) {
-                player.sendMessage(ChatColor.RED + "Select a report first by clicking on it.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.select_first_report", "&cSelect a report first by clicking on it.")));
                 return;
             }
             String reportId = playerSelectedReport.get(uuid);
@@ -365,6 +379,7 @@ public class ReportGUI implements CommandExecutor, Listener {
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
+        FileConfiguration messages = ReportPlugin.getInstance().getMessagesConfig();
         Player player = event.getPlayer();
 
         UUID uuid = player.getUniqueId();
@@ -376,13 +391,13 @@ public class ReportGUI implements CommandExecutor, Listener {
             String reportId = playerKickReason.get(uuid);
             Report report = database.getReportById(reportId);
             if (report == null) {
-                player.sendMessage(ChatColor.RED + "Report not found.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.report_not_found", "&cReport not found.")));
                 playerKickReason.remove(uuid);
                 return;
             }
             Player reportedPlayer = Bukkit.getPlayerExact(report.getReportedPlayer());
             if (reportedPlayer == null || !reportedPlayer.isOnline()) {
-                player.sendMessage(ChatColor.RED + "Reported player is not online.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.reported_player_not_found", "&cReported player is not online.")));
                 playerKickReason.remove(uuid);
                 return;
             }
@@ -398,7 +413,7 @@ public class ReportGUI implements CommandExecutor, Listener {
             String reportId = playerBanReason.get(uuid);
             Report report = database.getReportById(reportId);
             if (report == null) {
-                player.sendMessage(ChatColor.RED + "Report not found.");
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.report_not_found", "&cReport not found.")));
                 playerBanReason.remove(uuid);
                 return;
             }
@@ -421,7 +436,7 @@ public class ReportGUI implements CommandExecutor, Listener {
         String input = event.getMessage();
 
         if (input.equalsIgnoreCase("cancel")) {
-            player.sendMessage(ChatColor.RED + "Update cancelled.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("messages.update_cancelled", "&cUpdate cancelled.")));
             updateSessions.remove(uuid);
             return;
         }

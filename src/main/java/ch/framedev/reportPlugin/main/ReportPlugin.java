@@ -3,8 +3,13 @@ package ch.framedev.reportPlugin.main;
 import ch.framedev.reportPlugin.commands.*;
 import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.utils.ConfigUtils;
+
+import java.io.File;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -94,6 +99,8 @@ public final class ReportPlugin extends JavaPlugin {
         getLogger().info("Report clear update history command registered.");
         getLogger().info("Commands and events registered successfully!");
 
+        setupMessageFile();
+
         // Log plugin enable message
         getLogger().info("ReportPlugin has been enabled!");
         getLogger().info("ReportPlugin is running on Server version: " + getServer().getVersion());
@@ -155,6 +162,23 @@ public final class ReportPlugin extends JavaPlugin {
         reportClearUpdateHistoryCommand.setDatabase(database);
         reportListCommand.setDatabase(database);
         getLogger().info("Database instance updated in all command handlers.");
+    }
+
+    public FileConfiguration getMessagesConfig() {
+        String messageFileName = "messages.yml";
+        File messageFile = new File(getDataFolder(), messageFileName);
+        return YamlConfiguration.loadConfiguration(messageFile);
+    }
+
+    private void setupMessageFile() {
+        String messageFileName = "messages.yml";
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
+        File messageFile = new File(getDataFolder(), messageFileName);
+        if (!messageFile.exists()) {
+            saveResource(messageFileName, false);
+        }
     }
 
     @Override
