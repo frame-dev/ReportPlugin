@@ -50,6 +50,29 @@ public class ReportCommand implements CommandExecutor {
             sender.sendMessage("§cYou cannot report yourself.");
             return true;
         }
+
+        String reportedPlayer = args[0];
+        int maxReportsPerPlayer = plugin.getConfig().getInt("report-settings.max-reports-per-player", 3);
+        int maxReportsPerReporter = plugin.getConfig().getInt("report-settings.max-reports-per-reporter", 10);
+        long reportsAgainstPlayer = database.getAllReports().stream()
+                .filter(report -> report.getReportedPlayer() != null)
+                .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer))
+                .count();
+        long reportsByReporter = database.getAllReports().stream()
+                .filter(report -> report.getReporter() != null)
+                .filter(report -> report.getReporter().equalsIgnoreCase(player.getName()))
+                .count();
+
+        if (maxReportsPerPlayer > 0 && reportsAgainstPlayer >= maxReportsPerPlayer) {
+            sender.sendMessage("§cThis player has reached the configured report limit.");
+            return true;
+        }
+
+        if (maxReportsPerReporter > 0 && reportsByReporter >= maxReportsPerReporter) {
+            sender.sendMessage("§cYou have reached the configured report limit.");
+            return true;
+        }
+
         report(args, player);
         return true;
     }
@@ -75,10 +98,10 @@ public class ReportCommand implements CommandExecutor {
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             if (onlinePlayer.hasPermission("reportplugin.report.notify")) {
-                boolean enabledNotify = plugin.getConfig().getBoolean("discord.notify.on-create", false);
+                boolean enabledNotify = plugin.getConfig().getBoolean("notify.on-create", true);
                 if (enabledNotify) {
                     onlinePlayer.sendMessage("§cNew report: §e" + player.getName() + " §areported §e" + reportedPlayer + " §afor: §f" + reason + ".");
-                    boolean isHoverEnabled = plugin.getConfig().getBoolean("discord.notify.hoverable-teleport", false);
+                    boolean isHoverEnabled = plugin.getConfig().getBoolean("notify.hoverable-teleport", true);
                     if (isHoverEnabled) {
                         TextComponent textComponent = new TextComponent("§7[§eClick to Teleport to Report Location§7]");
                         Location location = Report.getLocationAsBukkitLocation(report.getLocation());
@@ -89,13 +112,12 @@ public class ReportCommand implements CommandExecutor {
             }
         }
 
-        if (plugin.getConfig().getBoolean("useDiscordWebhook", false)) {
-            if (ReportPlugin.getInstance().getConfig().getBoolean("discord.notify-on-report", true)) {
-                if (!sendReportToDiscord(plugin, report)) {
-                    Bukkit.getLogger().severe("Failed to send report to Discord.");
-                } else {
-                    Bukkit.getLogger().info("Report sent to Discord successfully.");
-                }
+        if (plugin.getConfig().getBoolean("useDiscordWebhook", false)
+                && plugin.getConfig().getBoolean("discord.notify.on-create", true)) {
+            if (!sendReportToDiscord(plugin, report)) {
+                Bukkit.getLogger().severe("Failed to send report to Discord.");
+            } else {
+                Bukkit.getLogger().info("Report sent to Discord successfully.");
             }
         }
     }

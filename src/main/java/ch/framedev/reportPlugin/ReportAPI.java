@@ -29,7 +29,6 @@ import java.util.Map;
 public class ReportAPI {
 
     private static ReportAPI instance;
-    private final Database database = new Database(ReportPlugin.getInstance());
 
     private ReportAPI() {
         // Private constructor to prevent instantiation
@@ -40,6 +39,15 @@ public class ReportAPI {
             instance = new ReportAPI();
         }
         return instance;
+    }
+
+    private Database getDatabaseOrThrow() {
+        ReportPlugin plugin = ReportPlugin.getInstance();
+        if (plugin == null || plugin.getDatabase() == null) {
+            throw new IllegalStateException("ReportPlugin is not enabled or the database is unavailable.");
+        }
+
+        return plugin.getDatabase();
     }
 
     public void createReport(Player reportedPlayer, String reason, String reporter, String serverName, String serverAddress) {
@@ -54,7 +62,7 @@ public class ReportAPI {
                 reportedPlayer.getWorld().getName(),
                 Report.getLocationAsString(reportedPlayer.getLocation())
         );
-        database.insertReport(report);
+        getDatabaseOrThrow().insertReport(report);
         if (ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
             if (!DiscordUtils.sendReportToDiscord(ReportPlugin.getInstance(), report)) {
                 ReportPlugin.getInstance().getLogger().warning("Failed to send report to Discord webhook for player: " + reportedPlayer.getName());
@@ -63,7 +71,7 @@ public class ReportAPI {
     }
 
     public void updateReport(Report report) {
-        database.updateReport(report);
+        getDatabaseOrThrow().updateReport(report);
         if (ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
             if (!DiscordUtils.sendReportUpdateToDiscord(report)) {
                 ReportPlugin.getInstance().getLogger().warning("Failed to send report update to Discord webhook for report ID: " + report.getReportId());
@@ -72,116 +80,117 @@ public class ReportAPI {
     }
 
     public boolean resolveReport(String reportedPlayer, String resolutionComment, boolean resolved) {
-        Report report = database.getReportByPlayer(reportedPlayer);
+        Report report = getDatabaseOrThrow().getReportByPlayer(reportedPlayer);
         if (report != null) {
             report.setResolutionComment(resolutionComment);
-            report.setResolved(true);
-            database.updateReport(report);
+            report.setResolved(resolved);
+            getDatabaseOrThrow().updateReport(report);
             if (ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
-                if (!DiscordUtils.sendReportResolvedToDiscord(report)) {
+                if (resolved && !DiscordUtils.sendReportResolvedToDiscord(report)) {
                     ReportPlugin.getInstance().getLogger().warning("Failed to send resolved report to Discord webhook for player: " + reportedPlayer);
                 }
             }
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public Report getReportById(String reportId) {
-        return database.getReportById(reportId);
+        return getDatabaseOrThrow().getReportById(reportId);
     }
 
     public boolean reportExists(String reportId) {
-        return database.reportExists(reportId);
+        return getDatabaseOrThrow().reportExists(reportId);
     }
 
     public boolean playerHasReport(String reportedPlayer) {
-        return database.playerHasReport(reportedPlayer);
+        return getDatabaseOrThrow().playerHasReport(reportedPlayer);
     }
 
     public void deleteReport(String reportId) {
-        database.deleteReport(reportId);
+        getDatabaseOrThrow().deleteReport(reportId);
     }
 
     public Report getReportByPlayer(String reportedPlayer) {
-        return database.getReportByPlayer(reportedPlayer);
+        return getDatabaseOrThrow().getReportByPlayer(reportedPlayer);
     }
 
     public Report getReportByReporter(String reporter) {
-        return database.getReportByReporter(reporter);
+        return getDatabaseOrThrow().getReportByReporter(reporter);
     }
 
     public Database getDatabase() {
-        return database;
+        return getDatabaseOrThrow();
     }
 
     public List<Report> getAllReports() {
-        return database.getAllReports();
+        return getDatabaseOrThrow().getAllReports();
     }
 
     public int countReportsForPlayer(String reportedPlayer) {
-        return database.countReportsForPlayer(reportedPlayer);
+        return getDatabaseOrThrow().countReportsForPlayer(reportedPlayer);
     }
 
     public List<Report> getAllReportsFromReportedPlayer(String reportedPlayer) {
-        return database.getAllReports().stream()
+        return getDatabaseOrThrow().getAllReports().stream()
                 .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer))
                 .toList();
     }
 
     public List<Report> getAllReportsFromReporter(String reporter) {
-        return database.getAllReports().stream()
+        return getDatabaseOrThrow().getAllReports().stream()
                 .filter(report -> report.getReporter().equalsIgnoreCase(reporter))
                 .toList();
     }
 
     public List<Report> getAllUnresolvedReports() {
-        return database.getAllReports().stream()
+        return getDatabaseOrThrow().getAllReports().stream()
                 .filter(report -> !report.isResolved())
                 .toList();
     }
 
     public List<Report> getAllResolvedReports() {
-        return database.getAllReports().stream()
+        return getDatabaseOrThrow().getAllReports().stream()
                 .filter(Report::isResolved)
                 .toList();
     }
 
     public int countAllReports() {
-        return database.getAllReports().size();
+        return getDatabaseOrThrow().getAllReports().size();
     }
 
     public int countAllUnresolvedReports() {
-        return (int) database.getAllReports().stream()
+        return (int) getDatabaseOrThrow().getAllReports().stream()
                 .filter(report -> !report.isResolved())
                 .count();
     }
 
     public int countAllResolvedReports() {
-        return (int) database.getAllReports().stream()
+        return (int) getDatabaseOrThrow().getAllReports().stream()
                 .filter(Report::isResolved)
                 .count();
     }
 
     public Map<String, Report> getUpdateHistory(String reportId) {
+        Database database = getDatabaseOrThrow();
         return database.getUpdateHistory(database.getReportById(reportId));
     }
 
     public List<Report> getAllResolvedReportsByPlayer(String reportedPlayer) {
-        return database.getAllReports().stream()
+        return getDatabaseOrThrow().getAllReports().stream()
                 .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer) && report.isResolved())
                 .toList();
     }
 
     public List<Report> getAllUnresolvedReportsByPlayer(String reportedPlayer) {
-        return database.getAllReports().stream()
+        return getDatabaseOrThrow().getAllReports().stream()
                 .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer) && !report.isResolved())
                 .toList();
     }
 
     public boolean isResolved(String reportId) {
-        Report report = database.getReportById(reportId);
+        Report report = getDatabaseOrThrow().getReportById(reportId);
         return report != null && report.isResolved();
     }
 
@@ -190,14 +199,15 @@ public class ReportAPI {
     }
 
     public void clearUpdateHistory(String reportId) {
+        Database database = getDatabaseOrThrow();
         database.clearUpdateHistory(database.getReportById(reportId));
     }
 
     public void writeUpdateHistory(Report report, String updater) {
-        database.writeUpdateHistory(report, updater);
+        getDatabaseOrThrow().writeUpdateHistory(report, updater);
     }
 
     public Map<String, Report> getUpdateHistory(Report report) {
-        return database.getUpdateHistory(report);
+        return getDatabaseOrThrow().getUpdateHistory(report);
     }
 }

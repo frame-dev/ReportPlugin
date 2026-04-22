@@ -1,232 +1,162 @@
 package ch.framedev.reportPlugin.utils;
 
-
-
-/*
- * ch.framedev.spigotTest
- * =============================================
- * This File was Created by FrameDev
- * Please do not change anything without my consent!
- * =============================================
- * This Class was created at 29.07.2025 18:04
- */
-
 import ch.framedev.reportPlugin.main.ReportPlugin;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Collections;
 
 public record ConfigUtils(FileConfiguration config) {
 
-    /**
-     * Initializes the configuration file with default values if they do not exist.
-     *
-     * @param plugin The instance of the ReportPlugin for logging and saving the config.
-     */
     public void initializeConfig(ReportPlugin plugin) {
         setupConfig();
         plugin.saveConfig();
     }
 
-    /**
-     * Sets up the configuration file with default values if they do not exist.
-     * This includes sections for Discord webhooks, database configurations,
-     * server information, reporting settings, and notification preferences.
-     */
     private void setupConfig() {
-        // Discord webhook configurations
+        setDefault("server-name", "Localhost Server");
+        setComment("server-name", "This name will be displayed in the Discord webhook and saved in the database.");
+
+        setDefault("server-address", "localhost");
+        setComment("server-address", "This address will be displayed in the Discord webhook and saved in the database.");
+
+        setDefault("bungeecord", false);
+        setComment("bungeecord", "Set to true if you are using Bungeecord or Waterfall.");
+
+        setDefault("useDiscordWebhook", false);
+        setComment("useDiscordWebhook", "Set to true to enable Discord webhook notifications for reports.");
+
+        setDefault("report-settings.max-reports-per-player", 3);
+        setDefault("report-settings.max-reports-per-reporter", 10);
+        setComment("report-settings", "Settings related to reporting limits.");
+
+        setDefault("notify.on-create", true);
+        setDefault("notify.on-update", false);
+        setDefault("notify.on-resolve", false);
+        setDefault("notify.hoverable-teleport", true);
+        setComment("notify", "Settings related to in-game staff notifications.");
+
         setupDiscordWebhookConfig();
-
-        // Database configurations
         setupDatabaseConfig();
-
-        if (!config.contains("server-name")) {
-            config.set("server-name", "Localhost Server");
-            config.setComments("server-name", Collections.singletonList("This name will be displayed in the Discord webhook and saved in the database."));
-        }
-
-        if (!config.contains("server-address")) {
-            config.set("server-address", "localhost");
-            config.setComments("server-address", Collections.singletonList("This address will be displayed in the Discord webhook and saved in the database."));
-        }
-
-        if (!config.contains("bungeecord")) {
-            config.set("bungeecord", false);
-            config.setComments("bungeecord", Collections.singletonList("Set to true if you are using Bungeecord or Waterfall."));
-        }
-
-        if (!config.contains("useDiscordWebhook")) {
-            config.set("useDiscordWebhook", false);
-            config.setComments("useDiscordWebhook", Collections.singletonList("Set to true to enable Discord webhook notifications for reports."));
-        }
-
-        if (!config.contains("report-settings")) {
-            ConfigurationSection section = config.createSection("report-settings");
-            section.set("max-reports-per-player", 3);
-            section.set("max-reports-per-reporter", 10);
-            config.set("report-settings", section);
-            config.setComments("report-settings", Collections.singletonList("Settings related to reporting limits."));
-        }
-
-        if(!config.contains("notify")) {
-            ConfigurationSection section = config.createSection("notify");
-            section.set("on-create", true);
-            section.set("hoverable-teleport", true);
-            section.set("on-update", false);
-            section.set("on-resolve", false);
-            config.set("notify", section);
-            config.setComments("notify", Collections.singletonList("Settings related to notifications."));
-        }
     }
 
-    /**
-     * Sets up the Discord webhook configuration section with default values if they do not exist.
-     */
     private void setupDiscordWebhookConfig() {
-        if (!config.contains("discord")) {
-            ConfigurationSection section = config.createSection("discord");
-            section.setComments("discord", Collections.singletonList("Make sure to set up a Discord Webhook!"));
-            config.set("discord", section);
-            ConfigurationSection createSection = config.createSection("discord.create");
-            createSection.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
-            createSection.set("username", "ReportBot");
-            createSection.set("avatar-url", "https://example.com/avatar.png");
-            createSection.set("content", "New report received!");
-            createSection.set("embed.title", "New Report");
-            createSection.set("embed.description", "**Reported Player:** %ReportedPlayer%\\n" +
-                    "**Reporter:** %Reporter%\\n" +
-                    "**Reason:** %Reason%\\n" +
-                    "**Server:** %ServerName%\\n" +
-                    "**Location:** %Location%\\n" +
-                    "**World:** %WorldName%");
-            createSection.set("embed.url", "https://example.com");
-            createSection.set("embed.footer.text", "Report ID: %ReporterID%");
-            createSection.set("embed.footer.icon-url", "https://example.com/footer-icon.png");
-            createSection.set("embed.image.url", "https://example.com/image.png");
-            createSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
-            config.set("discord.create", createSection);
+        setComment("discord", "Configure the Discord webhook integration below.");
 
-            ConfigurationSection updatedSection = config.createSection("discord.update");
-            updatedSection.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
-            updatedSection.set("username", "ReportBot");
-            updatedSection.set("avatar-url", "https://example.com/avatar.png");
-            updatedSection.set("content", "Report updated!");
-            updatedSection.set("embed.title", "Report Updated");
-            updatedSection.set("embed.description", "**Reported Player:** %ReportedPlayer%\\n" +
-                    "**Reporter:** %Reporter%\\n" +
-                    "**Reason:** %Reason%\\n" +
-                    "**Status:** %Status%\\n" +
-                    "**Additional Info:** %AdditionalInfo%\\n" +
-                    "**Resolution Comment:** %ResolutionComment%\\n" +
-                    "**Server:** %ServerName%\\n" +
-                    "**Location:** %Location%\\n" +
-                    "**World:** %WorldName%");
-            updatedSection.set("embed.url", "https://example.com");
-            updatedSection.set("embed.footer.text", "Report ID: %ReporterID%");
-            updatedSection.set("embed.footer.icon-url", "https://example.com/footer-icon.png");
-            updatedSection.set("embed.image.url", "https://example.com/image.png");
-            updatedSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
-            config.set("discord.update", updatedSection);
+        setDefault("discord.create.webhook-url", "YOUR_WEBHOOK_URL_HERE");
+        setDefault("discord.create.username", "ReportBot");
+        setDefault("discord.create.avatar-url", "https://example.com/avatar.png");
+        setDefault("discord.create.content", "New report received!");
+        setDefault("discord.create.embed.title", "New Report");
+        setDefault("discord.create.embed.description",
+                "**Reported Player:** %ReportedPlayer%\\n"
+                        + "**Reporter:** %Reporter%\\n"
+                        + "**Reason:** %Reason%\\n"
+                        + "**Server:** %ServerName%\\n"
+                        + "**Location:** %Location%\\n"
+                        + "**World:** %WorldName%");
+        setDefault("discord.create.embed.url", "https://example.com");
+        setDefault("discord.create.embed.footer.text", "Report ID: %ReporterID%");
+        setDefault("discord.create.embed.footer.icon-url", "https://example.com/footer-icon.png");
+        setDefault("discord.create.embed.image.url", "https://example.com/image.png");
+        setDefault("discord.create.embed.thumbnail.url", "https://example.com/thumbnail.png");
 
-            ConfigurationSection resolvedSection = config.createSection("discord.resolved");
-            resolvedSection.set("webhook-url", "YOUR_WEBHOOK_URL_HERE");
-            resolvedSection.set("username", "ReportBot");
-            resolvedSection.set("avatar-url", "https://example.com/avatar.png");
-            resolvedSection.set("content", "Report Solved!");
-            resolvedSection.set("embed.title", "Report Solved");
-            resolvedSection.set("embed.description", "**Reported Player:** %ReportedPlayer%\\n" +
-                    "**Reporter:** %Reporter%\\n" +
-                    "**Reason:** %Reason%\\n" +
-                    "**Status:** %Status%\\n" +
-                    "**Additional Info:** %AdditionalInfo%\\n" +
-                    "**Resolution Comment:** %ResolutionComment%\\n" +
-                    "**Server:** %ServerName%\\n" +
-                    "**Location:** %Location%\\n" +
-                    "**World:** %WorldName%");
-            resolvedSection.set("embed.url", "https://example.com");
-            resolvedSection.set("embed.footer.text", "Report ID: %ReporterID%");
-            resolvedSection.set("embed.footer.icon-url", "https://example.com/footer-icon.png");
-            resolvedSection.set("embed.image.url", "https://example.com/image.png");
-            resolvedSection.set("embed.thumbnail.url", "https://example.com/thumbnail.png");
-            config.set("discord.resolved", resolvedSection);
+        setDefault("discord.update.webhook-url", "YOUR_WEBHOOK_URL_HERE");
+        setDefault("discord.update.username", "ReportBot");
+        setDefault("discord.update.avatar-url", "https://example.com/avatar.png");
+        setDefault("discord.update.content", "Report updated!");
+        setDefault("discord.update.embed.title", "Report Updated");
+        setDefault("discord.update.embed.description",
+                "**Reported Player:** %ReportedPlayer%\\n"
+                        + "**Reporter:** %Reporter%\\n"
+                        + "**Reason:** %Reason%\\n"
+                        + "**Status:** %Status%\\n"
+                        + "**Additional Info:** %AdditionalInfo%\\n"
+                        + "**Resolution Comment:** %ResolutionComment%\\n"
+                        + "**Server:** %ServerName%\\n"
+                        + "**Location:** %Location%\\n"
+                        + "**World:** %WorldName%");
+        setDefault("discord.update.embed.url", "https://example.com");
+        setDefault("discord.update.embed.footer.text", "Report ID: %ReporterID%");
+        setDefault("discord.update.embed.footer.icon-url", "https://example.com/footer-icon.png");
+        setDefault("discord.update.embed.image.url", "https://example.com/image.png");
+        setDefault("discord.update.embed.thumbnail.url", "https://example.com/thumbnail.png");
 
-            ConfigurationSection notifySection = config.createSection("discord.notify");
-            notifySection.set("on-create", true);
-            notifySection.set("on-update", true);
-            notifySection.set("on-resolve", false);
-            notifySection.set("hoverable-teleport", true);
-            config.set("discord.notify", notifySection);
+        setDefault("discord.resolved.webhook-url", "YOUR_WEBHOOK_URL_HERE");
+        setDefault("discord.resolved.username", "ReportBot");
+        setDefault("discord.resolved.avatar-url", "https://example.com/avatar.png");
+        setDefault("discord.resolved.content", "Report Solved!");
+        setDefault("discord.resolved.embed.title", "Report Solved");
+        setDefault("discord.resolved.embed.description",
+                "**Reported Player:** %ReportedPlayer%\\n"
+                        + "**Reporter:** %Reporter%\\n"
+                        + "**Reason:** %Reason%\\n"
+                        + "**Status:** %Status%\\n"
+                        + "**Additional Info:** %AdditionalInfo%\\n"
+                        + "**Resolution Comment:** %ResolutionComment%\\n"
+                        + "**Server:** %ServerName%\\n"
+                        + "**Location:** %Location%\\n"
+                        + "**World:** %WorldName%");
+        setDefault("discord.resolved.embed.url", "https://example.com");
+        setDefault("discord.resolved.embed.footer.text", "Report ID: %ReporterID%");
+        setDefault("discord.resolved.embed.footer.icon-url", "https://example.com/footer-icon.png");
+        setDefault("discord.resolved.embed.image.url", "https://example.com/image.png");
+        setDefault("discord.resolved.embed.thumbnail.url", "https://example.com/thumbnail.png");
+
+        setDefault("discord.notify.on-create", true);
+        setDefault("discord.notify.on-update", true);
+        setDefault("discord.notify.on-resolve", false);
+        setDefault("discord.notify.hoverable-teleport", true);
+    }
+
+    private void setupDatabaseConfig() {
+        setComment("mysql", "Make sure to have a running MySQL instance.");
+        setDefault("mysql.host", "localhost");
+        setDefault("mysql.port", 3306);
+        setDefault("mysql.database", "reports");
+        setDefault("mysql.username", "yourUsername");
+        setDefault("mysql.password", "yourPassword");
+
+        setComment("postgresql", "Make sure to have a running PostgreSQL instance.");
+        setDefault("postgresql.host", "localhost");
+        setDefault("postgresql.port", 5432);
+        setDefault("postgresql.database", "reports");
+        setDefault("postgresql.username", "yourUsername");
+        setDefault("postgresql.password", "yourPassword");
+
+        setComment("sqlite", "The database file will be created in the plugin's data folder.");
+        setDefault("sqlite.file", "reports.db");
+        setDefault("sqlite.path", "database");
+        setDefault("sqlite.database", "reports.db");
+
+        setComment("h2Storage", "The database file will be created in the plugin's data folder.");
+        setDefault("h2Storage.file", "reports");
+        setDefault("h2Storage.path", "database");
+
+        setComment("mongodb", "Make sure to have a running MongoDB instance.");
+        setDefault("mongodb.host", "localhost");
+        setDefault("mongodb.port", 27017);
+        setDefault("mongodb.database", "reports");
+        setDefault("mongodb.username", "yourUsername");
+        setDefault("mongodb.password", "yourPassword");
+
+        setComment("redis", "Make sure to have a running Redis instance before enabling cache support.");
+        setDefault("redis.enabled", false);
+        setDefault("redis.host", "localhost");
+        setDefault("redis.port", 6379);
+        setDefault("redis.password", "");
+        setDefault("redis.ttl", 300);
+
+        setDefault("database", "jsonfilesystem");
+        setComment("database", "Supported values: mysql, sqlite, postgresql, h2, mongodb, jsonfilesystem, yamlfilesystem, textfilesystem");
+    }
+
+    private void setDefault(String path, Object value) {
+        if (!config.contains(path)) {
+            config.set(path, value);
         }
     }
 
-    /**
-     * Sets up the database configuration section with default values if they do not exist.
-     */
-    private void setupDatabaseConfig() {
-        if (!config.contains("mysql")) {
-            ConfigurationSection section = config.createSection("mysql");
-            section.setComments("mysql", Collections.singletonList("Make sure to have a running MySQL instance!"));
-            section.set("host", "localhost");
-            section.set("port", 3306);
-            section.set("database", "reports");
-            section.set("username", "yourUsername");
-            section.set("password", "yourPassword");
-            config.set("mysql", section);
-        }
-
-        if(!config.contains("postgresql")) {
-            ConfigurationSection section = config.createSection("postgresql");
-            section.setComments("postgresql", Collections.singletonList("Make sure to have a running PostgreSQL instance!"));
-            section.set("host", "localhost");
-            section.set("port", 5432);
-            section.set("database", "reports");
-            section.set("username", "yourUsername");
-            section.set("password", "yourPassword");
-            config.set("postgresql", section);
-        }
-
-        if (!config.contains("sqlite")) {
-            ConfigurationSection section = config.createSection("sqlite");
-            section.setComments("sqlite", Collections.singletonList("The database file will be created in the plugin's data folder."));
-            section.set("file", "reports.db");
-            section.set("path", "database");
-            config.set("sqlite", section);
-        }
-
-        if (!config.contains("h2Storage")) {
-            ConfigurationSection section = config.createSection("h2Storage");
-            section.setComments("h2Storage", Collections.singletonList("The database file will be created in the plugin's data folder."));
-            section.set("file", "reports");
-            section.set("path", "database");
-            config.set("h2Storage", section);
-        }
-
-        if (!config.contains("mongodb")) {
-            ConfigurationSection section = config.createSection("mongodb");
-            section.setComments("mongodb", Collections.singletonList("Make sure to have a running MongoDB instance!"));
-            section.set("host", "localhost");
-            section.set("port", 27017);
-            section.set("database", "spigotTestDB");
-            section.set("username", "yourUsername");
-            section.set("password", "yourPassword");
-            config.set("mongodb", section);
-        }
-
-        if (!config.contains("redis")) {
-            ConfigurationSection section = config.createSection("redis");
-            section.setComments("redis", Collections.singletonList("Make sure to have a running Redis instance!"));
-            section.set("enabled", false);
-            section.set("host", "localhost");
-            section.set("port", 6379);
-            section.set("password", "yourPassword");
-            section.set("ttl", 300);
-            config.set("redis", section);
-        }
-
-        if (!config.contains("database")) {
-            config.set("database", "jsonfilesystem");
-            config.setComments("database", Collections.singletonList("Supported values: mysql, sqlite, postgresql, h2, mongodb, jsonfilesystem, yamlfilesystem, textfilesystem"));
-        }
+    private void setComment(String path, String comment) {
+        config.setComments(path, Collections.singletonList(comment));
     }
 }

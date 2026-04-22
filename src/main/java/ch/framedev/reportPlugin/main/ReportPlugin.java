@@ -8,8 +8,11 @@ import java.io.File;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,11 +24,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ReportPlugin extends JavaPlugin {
 
+    private static final String MESSAGE_FILE_NAME = "messages.yml";
+
     /** Singleton instance */
     private static ReportPlugin instance;
 
     // Database instance
     private Database database;
+
+    private FileConfiguration messagesConfig;
 
     // Command handlers
     private ReportCommand reportCommand;
@@ -36,70 +43,30 @@ public final class ReportPlugin extends JavaPlugin {
     private ReportUpdateHistoryCommand reportUpdateHistoryCommand;
     private ReportClearUpdateHistoryCommand reportClearUpdateHistoryCommand;
     private ReportListCommand reportListCommand;
+    private ReportHelpCommand reportHelpCommand;
 
-    @SuppressWarnings("DataFlowIssue")
     @Override
     public void onEnable() {
-        // Initialize the singleton instance
         instance = this;
 
-        // Load the configuration file
-        getConfig().options().copyDefaults(true);
-        // Save the default config if it doesn't exist
-        saveDefaultConfig();
-        getLogger().info("Default configuration file created!");
+        initializeConfiguration();
 
-        // Initialize configuration utilities
-        getLogger().info("Loading configuration...");
-        ConfigUtils configUtils = new ConfigUtils(getConfig());
-        configUtils.initializeConfig(this);
-        getLogger().info("Configuration loaded successfully!");
-
-        // Initialize the database connection
-        getLogger().info("Setting up the database connection...");
-        database = new Database(this);
-        if (database.connect()) {
-            getLogger().info("Database connection established successfully!");
-        } else {
+        if (!initializeDatabase()) {
             getLogger().severe("Failed to connect to the database. Disabling plugin.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
-        getLogger().info("Registering commands and events...");
         this.reportCommand = new ReportCommand(this, database);
-        getCommand("report").setExecutor(reportCommand);
-        getLogger().info("Report command registered.");
         this.reportListCommand = new ReportListCommand(database);
-        getCommand("reports-list").setExecutor(reportListCommand);
-        getLogger().info("Reports list command registered.");
         this.reportGUI = new ReportGUI(database);
-        getCommand("report-gui").setExecutor(reportGUI);
-        getLogger().info("Report GUI command registered.");
-        getServer().getPluginManager().registerEvents(reportGUI, this);
         this.reportDataCommand = new ReportDataCommand(database);
-        getServer().getPluginManager().registerEvents(reportDataCommand, this);
-        getCommand("report-data").setExecutor(reportDataCommand);
-        getLogger().info("Report data command registered.");
         this.reportTeleportCommand = new ReportTeleportCommand(database);
-        getCommand("reporttp").setExecutor(reportTeleportCommand);
-        getCommand("reporttp").setTabCompleter(reportTeleportCommand);
-        getLogger().info("Report teleport command registered.");
         this.reportDeleteCommand = new ReportDeleteCommand(database);
-        getCommand("report-delete").setExecutor(reportDeleteCommand);
-        getCommand("report-delete").setTabCompleter(reportDeleteCommand);
-        getLogger().info("Report delete command registered.");
         this.reportUpdateHistoryCommand = new ReportUpdateHistoryCommand(database);
-        getCommand("report-updatehistory").setExecutor(reportUpdateHistoryCommand);
-        getCommand("report-updatehistory").setTabCompleter(reportUpdateHistoryCommand);
-        getLogger().info("Report update history command registered.");
         this.reportClearUpdateHistoryCommand = new ReportClearUpdateHistoryCommand(database);
-        getCommand("report-clearupdatehistory").setExecutor(reportClearUpdateHistoryCommand);
-        getCommand("report-clearupdatehistory").setTabCompleter(reportClearUpdateHistoryCommand);
-        getLogger().info("Report clear update history command registered.");
-        getLogger().info("Commands and events registered successfully!");
-
-        setupMessageFile();
+        this.reportHelpCommand = new ReportHelpCommand();
+        registerCommandsAndEvents();
 
         // Log plugin enable message
         getLogger().info("ReportPlugin has been enabled!");
@@ -110,27 +77,9 @@ public final class ReportPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("Disabling ReportPlugin...");
-        instance = null;
-        // Clear Data
-        reportGUI.clearData();
-        getLogger().info("Cleared GUI data.");
-        // Nullify references
-        this.reportCommand = null;
-        this.reportGUI = null;
-        this.reportDataCommand = null;
-        this.reportTeleportCommand = null;
-        this.reportDeleteCommand = null;
-        this.reportUpdateHistoryCommand = null;
-        this.reportClearUpdateHistoryCommand = null;
-        this.reportListCommand = null;
-        getLogger().info("Cleared command handler references.");
-        // Close database connection
-        if (database != null) {
-            database.disconnect();
-            getLogger().info("Database connection closed.");
-        }
-        database = null;
+        cleanupRuntimeState();
         getLogger().info("ReportPlugin has been disabled!");
+        instance = null;
     }
 
     /**
@@ -141,18 +90,22 @@ public final class ReportPlugin extends JavaPlugin {
         return instance;
     }
 
+    public Database getDatabase() {
+        return database;
+    }
+
     private void reloadPlugin() {
         reloadConfig();
-        getLogger().info("Configuration reloaded!");
-        ConfigUtils configUtils = new ConfigUtils(getConfig());
-        configUtils.initializeConfig(this);
-        getLogger().info("Configuration applied successfully!");
+        initializeConfiguration();
+        disconnectDatabase();
+
         database = new Database(this);
-        if (database.connect()) {
-            getLogger().info("Database connection re-established successfully!");
-        } else {
+        if (!database.connect()) {
             getLogger().severe("Failed to reconnect to the database after reload.");
+            return;
         }
+
+        getLogger().info("Database connection re-established successfully!");
         reportCommand.setDatabase(database);
         reportGUI.setDatabase(database);
         reportDataCommand.setDatabase(database);
@@ -165,19 +118,103 @@ public final class ReportPlugin extends JavaPlugin {
     }
 
     public FileConfiguration getMessagesConfig() {
-        String messageFileName = "messages.yml";
-        File messageFile = new File(getDataFolder(), messageFileName);
-        return YamlConfiguration.loadConfiguration(messageFile);
+        return messagesConfig;
+    }
+
+    private void initializeConfiguration() {
+        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
+        new ConfigUtils(getConfig()).initializeConfig(this);
+        setupMessageFile();
+        reloadMessagesConfig();
+        getLogger().info("Configuration loaded successfully!");
+    }
+
+    private boolean initializeDatabase() {
+        getLogger().info("Setting up the database connection...");
+        database = new Database(this);
+        if (!database.connect()) {
+            return false;
+        }
+
+        getLogger().info("Database connection established successfully!");
+        return true;
+    }
+
+    private void registerCommandsAndEvents() {
+        getLogger().info("Registering commands and events...");
+        registerCommand("report", reportCommand, null);
+        registerCommand("reports-list", reportListCommand, null);
+        registerCommand("report-gui", reportGUI, null);
+        registerCommand("report-data", reportDataCommand, null);
+        registerCommand("report-help", reportHelpCommand, null);
+        registerCommand("reporttp", reportTeleportCommand, reportTeleportCommand);
+        registerCommand("report-delete", reportDeleteCommand, reportDeleteCommand);
+        registerCommand("report-updatehistory", reportUpdateHistoryCommand, reportUpdateHistoryCommand);
+        registerCommand("report-clearupdatehistory", reportClearUpdateHistoryCommand, reportClearUpdateHistoryCommand);
+
+        registerListener(reportGUI);
+        registerListener(reportDataCommand);
+        getLogger().info("Commands and events registered successfully!");
+    }
+
+    private void registerCommand(String commandName, org.bukkit.command.CommandExecutor executor, TabCompleter tabCompleter) {
+        PluginCommand pluginCommand = getCommand(commandName);
+        if (pluginCommand == null) {
+            throw new IllegalStateException("Command is missing from plugin.yml: " + commandName);
+        }
+
+        pluginCommand.setExecutor(executor);
+        if (tabCompleter != null) {
+            pluginCommand.setTabCompleter(tabCompleter);
+        }
+    }
+
+    private void registerListener(Listener listener) {
+        getServer().getPluginManager().registerEvents(listener, this);
+    }
+
+    private void cleanupRuntimeState() {
+        if (reportGUI != null) {
+            reportGUI.clearData();
+            getLogger().info("Cleared GUI data.");
+        }
+
+        disconnectDatabase();
+        database = null;
+        messagesConfig = null;
+        reportCommand = null;
+        reportGUI = null;
+        reportDataCommand = null;
+        reportTeleportCommand = null;
+        reportDeleteCommand = null;
+        reportUpdateHistoryCommand = null;
+        reportClearUpdateHistoryCommand = null;
+        reportListCommand = null;
+        reportHelpCommand = null;
+    }
+
+    private void disconnectDatabase() {
+        if (database == null) {
+            return;
+        }
+
+        database.disconnect();
+        getLogger().info("Database connection closed.");
+    }
+
+    private void reloadMessagesConfig() {
+        File messageFile = new File(getDataFolder(), MESSAGE_FILE_NAME);
+        messagesConfig = YamlConfiguration.loadConfiguration(messageFile);
     }
 
     private void setupMessageFile() {
-        String messageFileName = "messages.yml";
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
         }
-        File messageFile = new File(getDataFolder(), messageFileName);
+        File messageFile = new File(getDataFolder(), MESSAGE_FILE_NAME);
         if (!messageFile.exists()) {
-            saveResource(messageFileName, false);
+            saveResource(MESSAGE_FILE_NAME, false);
         }
     }
 

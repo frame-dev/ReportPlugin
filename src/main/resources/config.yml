@@ -1,3 +1,108 @@
+server-name: Localhost Server
+server-address: localhost
+bungeecord: false
 useDiscordWebhook: false
-# mysql, sqlite, mongodb or filesystem
-database: filesystem
+
+report-settings:
+  max-reports-per-player: 3
+  max-reports-per-reporter: 10
+
+notify:
+  on-create: true
+  on-update: false
+  on-resolve: false
+  hoverable-teleport: true
+
+discord:
+  create:
+    webhook-url: YOUR_WEBHOOK_URL_HERE
+    username: ReportBot
+    avatar-url: https://example.com/avatar.png
+    content: New report received!
+    embed:
+      title: New Report
+      description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
+      url: https://example.com
+      footer:
+        text: "Report ID: %ReporterID%"
+        icon-url: https://example.com/footer-icon.png
+      image:
+        url: https://example.com/image.png
+      thumbnail:
+        url: https://example.com/thumbnail.png
+  update:
+    webhook-url: YOUR_WEBHOOK_URL_HERE
+    username: ReportBot
+    avatar-url: https://example.com/avatar.png
+    content: Report updated!
+    embed:
+      title: Report Updated
+      description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Status:** %Status%\n**Additional Info:** %AdditionalInfo%\n**Resolution Comment:** %ResolutionComment%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
+      url: https://example.com
+      footer:
+        text: "Report ID: %ReporterID%"
+        icon-url: https://example.com/footer-icon.png
+      image:
+        url: https://example.com/image.png
+      thumbnail:
+        url: https://example.com/thumbnail.png
+  resolved:
+    webhook-url: YOUR_WEBHOOK_URL_HERE
+    username: ReportBot
+    avatar-url: https://example.com/avatar.png
+    content: Report Solved!
+    embed:
+      title: Report Solved
+      description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Status:** %Status%\n**Additional Info:** %AdditionalInfo%\n**Resolution Comment:** %ResolutionComment%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
+      url: https://example.com
+      footer:
+        text: "Report ID: %ReporterID%"
+        icon-url: https://example.com/footer-icon.png
+      image:
+        url: https://example.com/image.png
+      thumbnail:
+        url: https://example.com/thumbnail.png
+  notify:
+    on-create: true
+    on-update: true
+    on-resolve: false
+    hoverable-teleport: true
+
+mysql:
+  host: localhost
+  port: 3306
+  database: reports
+  username: yourUsername
+  password: yourPassword
+
+postgresql:
+  host: localhost
+  port: 5432
+  database: reports
+  username: yourUsername
+  password: yourPassword
+
+sqlite:
+  file: reports.db
+  path: database
+  database: reports.db
+
+h2Storage:
+  file: reports
+  path: database
+
+mongodb:
+  host: localhost
+  port: 27017
+  database: reports
+  username: yourUsername
+  password: yourPassword
+
+redis:
+  enabled: false
+  host: localhost
+  port: 6379
+  password: ""
+  ttl: 300
+
+database: jsonfilesystem

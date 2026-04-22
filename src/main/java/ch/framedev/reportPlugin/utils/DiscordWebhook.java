@@ -16,7 +16,6 @@ import java.util.Set;
 /**
  * Class used to execute Discord Webhooks with low effort
  */
-@SuppressWarnings("unused")
 public class DiscordWebhook {
 
     private final String url;

@@ -21,19 +21,24 @@ commands:
     permission-message: You do not have permission to report issues.
   reports-list:
     description: A command to list all reported issues.
-    usage: /reportlist
-    permission: reportplugin.reportlist
+    usage: /reports-list
+    permission: reportplugin.list
     permission-message: You do not have permission to view reported issues.
   report-gui:
     description: A command to open the report GUI.
-    usage: /reportgui
-    permission: reportplugin.reportgui
+    usage: /report-gui [reportId]
+    permission: reportplugin.gui
     permission-message: You do not have permission to open the report GUI.
   report-data:
     description: A command to view report data.
     usage: /reportdata
     permission: reportplugin.reportdata
     permission-message: You do not have permission to view report data.
+  report-help:
+    description: Shows the available report plugin commands.
+    usage: /report-help
+    permission: reportplugin.help
+    permission-message: You do not have permission to view the help command.
   reporttp:
     description: A command to teleport to a reported player.
     usage: /reporttp <player> [reportID]
@@ -56,7 +61,7 @@ commands:
     permission-message: You do not have permission to clear report update history.
   reportplugin:
     description: A command to reload the plugin configuration.
-    usage: /reportplugin
+    usage: /reportplugin reload
     permission: reportplugin.reload
     permission-message: You do not have permission to reload the plugin.
     aliases:
