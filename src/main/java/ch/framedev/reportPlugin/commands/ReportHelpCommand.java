@@ -1,6 +1,7 @@
 package ch.framedev.reportPlugin.commands;
 
 import ch.framedev.reportPlugin.main.ReportPlugin;
+import ch.framedev.reportPlugin.utils.MessageUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,7 +24,7 @@ public class ReportHelpCommand implements CommandExecutor {
 
         List<String> helpLines = messages.getStringList("help.lines");
         if (helpLines.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "No help messages are configured.");
+            MessageUtils.send(sender, "messages.help_not_configured", "&cNo help messages are configured.");
             return true;
         }
 

@@ -1,11 +1,11 @@
 package ch.framedev.reportPlugin.commands;
 
 import ch.framedev.reportPlugin.database.Database;
+import ch.framedev.reportPlugin.utils.MessageUtils;
 import ch.framedev.reportPlugin.utils.Report;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -27,7 +27,7 @@ public class ReportListCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("reportplugin.list")) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+            MessageUtils.send(sender, "messages.no_permission", "&cYou do not have permission to use this command.");
             return true;
         }
 
@@ -36,30 +36,35 @@ public class ReportListCommand implements CommandExecutor {
                 .toList();
 
         if (reports.isEmpty()) {
-            sender.sendMessage(ChatColor.YELLOW + "There are no reports.");
+            MessageUtils.send(sender, "messages.report_list_empty", "&eThere are no reports.");
             return true;
         }
         if (reports.size() > 10) {
-            sender.sendMessage(ChatColor.YELLOW + "Use /reportgui to view reports in a GUI.");
+            MessageUtils.send(sender, "messages.report_list_use_gui", "&eUse /report-gui to view reports in a GUI.");
             return true;
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sender.sendMessage(ChatColor.GREEN + "---- Report List ----");
+        MessageUtils.send(sender, "messages.report_list_header", "&a---- Report List ----");
         for (Report report : reports) {
-            sender.sendMessage(ChatColor.AQUA + "ID: " + report.getReportId());
-            sender.sendMessage(ChatColor.GRAY + "Player: " + report.getReportedPlayer());
-            sender.sendMessage(ChatColor.GRAY + "Reporter: " + report.getReporter());
-            sender.sendMessage(ChatColor.GRAY + "Reason: " + report.getReason());
-            sender.sendMessage(ChatColor.GRAY + "Timestamp: " + sdf.format(new Date(report.getTimestamp())));
-            sender.sendMessage(ChatColor.YELLOW + "Status: " + report.getStatus().getDisplayName());
-            sender.sendMessage(ChatColor.YELLOW + "Resolution Comment: " + report.getResolutionComment());
+            MessageUtils.send(sender, "messages.report_list_id", "&bID: {reportId}", "{reportId}", report.getReportId());
+            MessageUtils.send(sender, "messages.report_list_player", "&7Player: {player}", "{player}", report.getReportedPlayer());
+            MessageUtils.send(sender, "messages.report_list_reporter", "&7Reporter: {reporter}", "{reporter}", report.getReporter());
+            MessageUtils.send(sender, "messages.report_list_reason", "&7Reason: {reason}", "{reason}", report.getReason());
+            MessageUtils.send(sender, "messages.report_list_timestamp", "&7Timestamp: {timestamp}",
+                    "{timestamp}", sdf.format(new Date(report.getTimestamp())));
+            MessageUtils.send(sender, "messages.report_list_status", "&eStatus: {status}",
+                    "{status}", report.getStatus().getDisplayName());
+            MessageUtils.send(sender, "messages.report_list_resolution", "&eResolution Comment: {resolution}",
+                    "{resolution}", report.getResolutionComment());
             if (!report.getEvidenceUrl().isEmpty()) {
-                sender.sendMessage(ChatColor.YELLOW + "Evidence: " + report.getEvidenceUrl());
+                MessageUtils.send(sender, "messages.report_list_evidence", "&eEvidence: {evidence}",
+                        "{evidence}", report.getEvidenceUrl());
             }
         }
-        sender.sendMessage(ChatColor.GREEN + "----------------------");
-        sender.sendMessage(ChatColor.GREEN + "Total reports: " + reports.size());
+        MessageUtils.send(sender, "messages.report_list_footer", "&a----------------------");
+        MessageUtils.send(sender, "messages.report_list_total", "&aTotal reports: {count}",
+                "{count}", String.valueOf(reports.size()));
         return true;
     }
 }

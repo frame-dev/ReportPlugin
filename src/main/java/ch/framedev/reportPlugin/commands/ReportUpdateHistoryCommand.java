@@ -1,8 +1,8 @@
 package ch.framedev.reportPlugin.commands;
 
 import ch.framedev.reportPlugin.database.Database;
+import ch.framedev.reportPlugin.utils.MessageUtils;
 import ch.framedev.reportPlugin.utils.Report;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,47 +31,54 @@ public class ReportUpdateHistoryCommand implements CommandExecutor, TabCompleter
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cOnly players can execute this command.");
+            MessageUtils.send(sender, "messages.only_players_update_history", "&cOnly players can execute this command.");
             return true;
         }
         if (!player.hasPermission("reportplugin.updatehistory")) {
-            player.sendMessage("§cYou do not have permission to execute this command.");
+            MessageUtils.send(player, "messages.no_permission_update_history", "&cYou do not have permission to execute this command.");
             return true;
         }
         if (args.length != 1) {
-            player.sendMessage("§cUsage: /report-updatehistory <reportId>");
+            MessageUtils.send(player, "messages.usage_report_updatehistory", "&cUsage: /report-updatehistory <reportId>");
             return true;
         }
         String reportId = args[0];
         if (!database.reportExists(reportId)) {
-            player.sendMessage("§cNo report found with ID: " + reportId);
+            MessageUtils.send(player, "messages.report_updatehistory_not_found", "&cNo report found with ID: {reportId}", "{reportId}", reportId);
             return true;
         }
-        player.sendMessage("§aUpdate history for report ID: " + reportId);
+        MessageUtils.send(player, "messages.report_updatehistory_intro", "&aUpdate history for report ID: {reportId}", "{reportId}", reportId);
         Map<String, Report> history = database.getUpdateHistory(database.getReportById(reportId));
         if (history.isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW + "No update history for this report.");
+            MessageUtils.send(player, "messages.update_history_empty", "&eNo update history for this report.");
         } else {
-            player.sendMessage(ChatColor.GREEN + "---- Update History for Report " + reportId + " ----");
+            MessageUtils.send(player, "messages.update_history_header", "&a---- Update History for Report {reportId} ----", "{reportId}", reportId);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             history.forEach((updater, rep) -> {
                 String updaterName = updater.replace("_-_", "");
-                player.sendMessage(ChatColor.YELLOW + "Updated by: " + updaterName);
-                player.sendMessage(ChatColor.YELLOW + "Reason: " + rep.getReason());
-                player.sendMessage(ChatColor.YELLOW + "Reported Player: " + rep.getReportedPlayer());
-                player.sendMessage(ChatColor.YELLOW + "Reporter: " + rep.getReporter());
-                player.sendMessage(ChatColor.YELLOW + "Status: " + rep.getStatus().getDisplayName());
-                player.sendMessage(ChatColor.YELLOW + "Staff Notes: " + (rep.getAdditionalInfo().isEmpty() ? "N/A" : rep.getAdditionalInfo()));
+                MessageUtils.send(player, "messages.update_history_updated_by", "&eUpdated by: {updater}", "{updater}", updaterName);
+                MessageUtils.send(player, "messages.update_history_reason", "&eReason: {reason}", "{reason}", rep.getReason());
+                MessageUtils.send(player, "messages.update_history_reported_player", "&eReported Player: {player}",
+                        "{player}", rep.getReportedPlayer());
+                MessageUtils.send(player, "messages.update_history_reporter", "&eReporter: {reporter}",
+                        "{reporter}", rep.getReporter());
+                MessageUtils.send(player, "messages.update_history_status", "&eStatus: {status}",
+                        "{status}", rep.getStatus().getDisplayName());
+                MessageUtils.send(player, "messages.update_history_staff_notes", "&eStaff Notes: {notes}",
+                        "{notes}", rep.getAdditionalInfo().isEmpty() ? "N/A" : rep.getAdditionalInfo());
                 if (!rep.getEvidenceUrl().isEmpty()) {
-                    player.sendMessage(ChatColor.YELLOW + "Evidence: " + rep.getEvidenceUrl());
+                    MessageUtils.send(player, "messages.update_history_evidence", "&eEvidence: {evidence}",
+                            "{evidence}", rep.getEvidenceUrl());
                 }
                 if (rep.getStatus().isClosed()) {
-                    player.sendMessage(ChatColor.YELLOW + "Resolution Comment: " + (rep.getResolutionComment().isEmpty() ? "N/A" : rep.getResolutionComment()));
+                    MessageUtils.send(player, "messages.update_history_resolution", "&eResolution Comment: {resolution}",
+                            "{resolution}", rep.getResolutionComment().isEmpty() ? "N/A" : rep.getResolutionComment());
                 }
-                player.sendMessage(ChatColor.YELLOW + "Time: " + sdf.format(new Date(rep.getTimestamp())));
-                player.sendMessage(ChatColor.GRAY + "-----------------------------");
+                MessageUtils.send(player, "messages.update_history_time", "&eTime: {time}",
+                        "{time}", sdf.format(new Date(rep.getTimestamp())));
+                MessageUtils.send(player, "messages.update_history_separator", "&7-----------------------------");
             });
-            player.sendMessage(ChatColor.GREEN + "----------------------------------------");
+            MessageUtils.send(player, "messages.update_history_footer", "&a----------------------------------------");
         }
         return true;
     }

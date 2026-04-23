@@ -1,7 +1,9 @@
 package ch.framedev.reportPlugin.commands;
 
 import ch.framedev.reportPlugin.database.Database;
+import ch.framedev.reportPlugin.utils.MessageUtils;
 import ch.framedev.reportPlugin.utils.Report;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -28,18 +30,22 @@ public class ReportClearUpdateHistoryCommand implements CommandExecutor, TabComp
             @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase("report-clearupdatehistory")) {
             if (!sender.hasPermission("reportplugin.clearupdatehistory")) {
-                sender.sendMessage("§cYou do not have permission to execute this command.");
+                MessageUtils.send(sender, "messages.no_permission", "&cYou do not have permission to use this command.");
                 return true;
             }
             if (args.length != 1) {
-                sender.sendMessage("§cUsage: /clearupdatehistory <reportId>");
+                MessageUtils.send(sender, "messages.usage_report_clearupdatehistory", "&cUsage: /report-clearupdatehistory <reportId>");
                 return true;
             }
             String reportId = args[0];
             if (database.clearUpdateHistory(database.getReportById(reportId))) {
-                sender.sendMessage("§aUpdate history for report ID " + reportId + " has been cleared.");
+                MessageUtils.send(sender, "messages.clear_update_history_success",
+                        "&aUpdate history for report ID {reportId} has been cleared.",
+                        "{reportId}", reportId);
             } else {
-                sender.sendMessage("§cNo report found with ID " + reportId + ".");
+                MessageUtils.send(sender, "messages.clear_update_history_not_found",
+                        "&cNo report found with ID {reportId}.",
+                        "{reportId}", reportId);
             }
             return true;
         }

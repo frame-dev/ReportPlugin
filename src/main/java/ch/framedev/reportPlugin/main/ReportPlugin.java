@@ -3,6 +3,7 @@ package ch.framedev.reportPlugin.main;
 import ch.framedev.reportPlugin.commands.*;
 import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.utils.ConfigUtils;
+import ch.framedev.reportPlugin.utils.MessageUtils;
 
 import java.io.File;
 
@@ -224,12 +225,16 @@ public final class ReportPlugin extends JavaPlugin {
             if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
                 if (sender.hasPermission("reportplugin.reload")) {
                     reloadPlugin();
-                    sender.sendMessage("§aReportPlugin configuration reloaded successfully.");
+                    MessageUtils.send(sender, "messages.reportplugin_reload_success",
+                            "&aReportPlugin configuration reloaded successfully.");
                 } else {
-                    sender.sendMessage("§cYou do not have permission to execute this command.");
+                    MessageUtils.send(sender, "messages.reportplugin_reload_no_permission",
+                            "&cYou do not have permission to execute this command.");
                 }
             } else {
-                sender.sendMessage("§cUsage: /" + label + " reload");
+                MessageUtils.send(sender, "messages.usage_reportplugin_reload",
+                        "&cUsage: /{label} reload",
+                        "{label}", label);
             }
             return true;
         }

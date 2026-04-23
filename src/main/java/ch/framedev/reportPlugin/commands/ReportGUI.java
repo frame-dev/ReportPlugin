@@ -43,18 +43,18 @@ import java.util.regex.Pattern;
 public class ReportGUI implements CommandExecutor, Listener {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final String SINGLE_REPORT_TITLE_PREFIX = "Report: ";
+    private static String singleReportTitlePrefix = "Report: ";
 
-    private static String guiTitle = ChatColor.RED + "Report List";
-    private static String updateTitle = ChatColor.BLUE + "Update Report";
-    private static String teleportTitle = ChatColor.LIGHT_PURPLE + "Teleport to Location";
-    private static String deleteTitle = ChatColor.DARK_RED + "Delete Report";
-    private static String kickTitle = ChatColor.DARK_RED + "Kick Player";
-    private static String banTitle = ChatColor.DARK_RED + "Ban Player";
-    private static String teleportToReporterTitle = ChatColor.LIGHT_PURPLE + "Teleport to Reporter";
-    private static String updateHistoryTitle = ChatColor.BLUE + "View Update History";
-    private static String sortTitle = ChatColor.GOLD + "Sort Reports";
-    private static String filterTitle = ChatColor.AQUA + "Filter Reports";
+    private static String guiTitle = "";
+    private static String updateTitle = "";
+    private static String teleportTitle = "";
+    private static String deleteTitle = "";
+    private static String kickTitle = "";
+    private static String banTitle = "";
+    private static String teleportToReporterTitle = "";
+    private static String updateHistoryTitle = "";
+    private static String sortTitle = "";
+    private static String filterTitle = "";
 
     private Database database;
 
@@ -198,8 +198,8 @@ public class ReportGUI implements CommandExecutor, Listener {
         String displayName = ChatColor.stripColor(meta.getDisplayName());
         UUID uuid = player.getUniqueId();
 
-        if (displayName.startsWith(SINGLE_REPORT_TITLE_PREFIX)) {
-            String reportId = displayName.substring(SINGLE_REPORT_TITLE_PREFIX.length());
+        if (displayName.startsWith(singleReportTitlePrefix)) {
+            String reportId = displayName.substring(singleReportTitlePrefix.length());
             playerSelectedReport.put(uuid, reportId);
             sendReportDetails(player, reportId, messages);
             return;
@@ -355,6 +355,7 @@ public class ReportGUI implements CommandExecutor, Listener {
     private void reloadTitles() {
         FileConfiguration messages = ReportPlugin.getInstance().getMessagesConfig();
         guiTitle = message(messages, "gui.titles.report_list", "&cReport List");
+        singleReportTitlePrefix = message(messages, "gui.titles.single_report_prefix", "Report: ");
         updateTitle = message(messages, "gui.titles.update_report", "&aUpdate Report");
         teleportTitle = message(messages, "gui.titles.teleport_title", "&6Teleport to Reported Location");
         deleteTitle = message(messages, "gui.titles.delete_report", "&4Delete Report");
@@ -377,7 +378,7 @@ public class ReportGUI implements CommandExecutor, Listener {
 
         int maxReportSlots = inventorySize - actionButtonCount;
         for (int i = 0; i < Math.min(reports.size(), maxReportSlots); i++) {
-            gui.setItem(i, createReportItem(reports.get(i), true));
+            gui.setItem(i, createReportItem(reports.get(i), true, ReportPlugin.getInstance().getMessagesConfig()));
         }
 
         int firstButtonSlot = inventorySize - actionButtonCount;
@@ -427,12 +428,13 @@ public class ReportGUI implements CommandExecutor, Listener {
     private void openSingleReportView(Player player, String reportId, FileConfiguration messages) {
         Report report = database.getReportById(reportId);
         if (report == null) {
-            player.sendMessage(ChatColor.RED + "Report with ID " + reportId + " not found.");
+            player.sendMessage(message(messages, "messages.report_gui_not_found", "&cReport with ID {reportId} not found.")
+                    .replace("{reportId}", reportId));
             return;
         }
 
-        Inventory inventory = Bukkit.createInventory(null, 9, SINGLE_REPORT_TITLE_PREFIX + reportId);
-        inventory.setItem(0, createReportItem(report, false));
+        Inventory inventory = Bukkit.createInventory(null, 9, singleReportTitlePrefix + reportId);
+        inventory.setItem(0, createReportItem(report, false, messages));
         addButton(inventory, 2, Material.BOOK, updateHistoryTitle, message(messages, "gui.lores.update_history_item", "View the update history of this report"));
         addButton(inventory, 3, Material.COMPASS, teleportToReporterTitle, message(messages, "gui.lores.teleport_to_reporter_item", "Teleport to the reporter's location"));
         addButton(inventory, 4, Material.DIAMOND_SWORD, banTitle, message(messages, "gui.lores.ban_player_item", "Ban the reported player"));
@@ -444,35 +446,36 @@ public class ReportGUI implements CommandExecutor, Listener {
         playerSelectedReport.put(player.getUniqueId(), reportId);
     }
 
-    private ItemStack createReportItem(Report report, boolean includeSelectionHint) {
+    private ItemStack createReportItem(Report report, boolean includeSelectionHint, FileConfiguration messages) {
         ItemStack reportItem = new ItemStack(Material.PAPER);
         ItemMeta meta = reportItem.getItemMeta();
         if (meta == null) {
             return reportItem;
         }
 
-        meta.setDisplayName(ChatColor.YELLOW + SINGLE_REPORT_TITLE_PREFIX + report.getReportId());
+        meta.setDisplayName(ChatColor.YELLOW + singleReportTitlePrefix + report.getReportId());
         List<String> lore = new ArrayList<>(List.of(
-                ChatColor.GRAY + "Player: " + report.getReportedPlayer(),
-                ChatColor.GRAY + "Reporter: " + report.getReporter(),
-                ChatColor.GRAY + "Reason: " + report.getReason(),
-                ChatColor.GRAY + "Time: " + formatTimestamp(report.getTimestamp()),
-                ChatColor.GRAY + "Status: " + report.getStatus().getDisplayName(),
-                ChatColor.GRAY + "Server: " + report.getServerName(),
-                ChatColor.GRAY + "Location: " + report.getLocation(),
-                ChatColor.GRAY + "World: " + report.getWorldName()
+                message(messages, "gui.report_item.player", "&7Player: {player}").replace("{player}", report.getReportedPlayer()),
+                message(messages, "gui.report_item.reporter", "&7Reporter: {reporter}").replace("{reporter}", report.getReporter()),
+                message(messages, "gui.report_item.reason", "&7Reason: {reason}").replace("{reason}", report.getReason()),
+                message(messages, "gui.report_item.time", "&7Time: {time}").replace("{time}", formatTimestamp(report.getTimestamp())),
+                message(messages, "gui.report_item.status", "&7Status: {status}").replace("{status}", report.getStatus().getDisplayName()),
+                message(messages, "gui.report_item.server", "&7Server: {server}").replace("{server}", report.getServerName()),
+                message(messages, "gui.report_item.location", "&7Location: {location}").replace("{location}", report.getLocation()),
+                message(messages, "gui.report_item.world", "&7World: {world}").replace("{world}", report.getWorldName())
         ));
         if (!report.getAdditionalInfo().isEmpty()) {
-            lore.add(ChatColor.GRAY + "Notes: " + report.getAdditionalInfo());
+            lore.add(message(messages, "gui.report_item.notes", "&7Notes: {notes}").replace("{notes}", report.getAdditionalInfo()));
         }
         if (!report.getEvidenceUrl().isEmpty()) {
-            lore.add(ChatColor.GRAY + "Evidence: " + report.getEvidenceUrl());
+            lore.add(message(messages, "gui.report_item.evidence", "&7Evidence: {evidence}").replace("{evidence}", report.getEvidenceUrl()));
         }
         if (report.getStatus().isClosed() && !report.getResolutionComment().isEmpty()) {
-            lore.add(ChatColor.GRAY + "Resolution: " + report.getResolutionComment());
+            lore.add(message(messages, "gui.report_item.resolution", "&7Resolution: {resolution}")
+                    .replace("{resolution}", report.getResolutionComment()));
         }
         if (includeSelectionHint) {
-            lore.add(ChatColor.GRAY + "Click to select this report");
+            lore.add(message(messages, "gui.report_item.selection_hint", "&7Click to select this report"));
         }
         meta.setLore(lore);
         reportItem.setItemMeta(meta);
@@ -491,7 +494,7 @@ public class ReportGUI implements CommandExecutor, Listener {
     }
 
     private boolean isTrackedInventory(String title) {
-        return title.equals(guiTitle) || title.startsWith(SINGLE_REPORT_TITLE_PREFIX);
+        return title.equals(guiTitle) || title.startsWith(singleReportTitlePrefix);
     }
 
     private void sendReportDetails(Player player, String reportId, FileConfiguration messages) {
@@ -501,20 +504,33 @@ public class ReportGUI implements CommandExecutor, Listener {
             return;
         }
 
-        player.sendMessage(ChatColor.GREEN + "---- Report Details ----");
-        player.sendMessage(ChatColor.YELLOW + "ID: " + report.getReportId());
-        player.sendMessage(ChatColor.YELLOW + "Player: " + report.getReportedPlayer());
-        player.sendMessage(ChatColor.YELLOW + "Reporter: " + report.getReporter());
-        player.sendMessage(ChatColor.YELLOW + "Reason: " + report.getReason());
-        player.sendMessage(ChatColor.YELLOW + "Time: " + formatTimestamp(report.getTimestamp()));
-        player.sendMessage(ChatColor.YELLOW + "Status: " + report.getStatus().getDisplayName());
-        player.sendMessage(ChatColor.YELLOW + "Server: " + report.getServerName() + " (" + report.getServerIp() + ")");
-        player.sendMessage(ChatColor.YELLOW + "World: " + report.getWorldName());
-        player.sendMessage(ChatColor.YELLOW + "Location: " + report.getLocation());
-        player.sendMessage(ChatColor.YELLOW + "Staff Notes: " + (report.getAdditionalInfo().isEmpty() ? "N/A" : report.getAdditionalInfo()));
-        player.sendMessage(ChatColor.YELLOW + "Evidence: " + (report.getEvidenceUrl().isEmpty() ? "N/A" : report.getEvidenceUrl()));
+        player.sendMessage(message(messages, "messages.report_details_header", "&a---- Report Details ----"));
+        player.sendMessage(message(messages, "messages.report_details_id", "&eID: {reportId}")
+                .replace("{reportId}", report.getReportId()));
+        player.sendMessage(message(messages, "messages.report_details_player", "&ePlayer: {player}")
+                .replace("{player}", report.getReportedPlayer()));
+        player.sendMessage(message(messages, "messages.report_details_reporter", "&eReporter: {reporter}")
+                .replace("{reporter}", report.getReporter()));
+        player.sendMessage(message(messages, "messages.report_details_reason", "&eReason: {reason}")
+                .replace("{reason}", report.getReason()));
+        player.sendMessage(message(messages, "messages.report_details_time", "&eTime: {time}")
+                .replace("{time}", formatTimestamp(report.getTimestamp())));
+        player.sendMessage(message(messages, "messages.report_details_status", "&eStatus: {status}")
+                .replace("{status}", report.getStatus().getDisplayName()));
+        player.sendMessage(message(messages, "messages.report_details_server", "&eServer: {server} ({ip})")
+                .replace("{server}", report.getServerName())
+                .replace("{ip}", report.getServerIp()));
+        player.sendMessage(message(messages, "messages.report_details_world", "&eWorld: {world}")
+                .replace("{world}", report.getWorldName()));
+        player.sendMessage(message(messages, "messages.report_details_location", "&eLocation: {location}")
+                .replace("{location}", report.getLocation()));
+        player.sendMessage(message(messages, "messages.report_details_staff_notes", "&eStaff Notes: {notes}")
+                .replace("{notes}", report.getAdditionalInfo().isEmpty() ? "N/A" : report.getAdditionalInfo()));
+        player.sendMessage(message(messages, "messages.report_details_evidence", "&eEvidence: {evidence}")
+                .replace("{evidence}", report.getEvidenceUrl().isEmpty() ? "N/A" : report.getEvidenceUrl()));
         if (report.getStatus().isClosed()) {
-            player.sendMessage(ChatColor.YELLOW + "Resolution: " + (report.getResolutionComment().isEmpty() ? "N/A" : report.getResolutionComment()));
+            player.sendMessage(message(messages, "messages.report_details_resolution", "&eResolution: {resolution}")
+                    .replace("{resolution}", report.getResolutionComment().isEmpty() ? "N/A" : report.getResolutionComment()));
         }
         player.sendMessage(message(messages, "messages.update_report_book", "&aTo update this report, click the 'Update Report' book in the GUI."));
     }
@@ -641,35 +657,46 @@ public class ReportGUI implements CommandExecutor, Listener {
     }
 
     private void showUpdateHistory(Player player, String reportId) {
+        FileConfiguration messages = ReportPlugin.getInstance().getMessagesConfig();
         Report report = database.getReportById(reportId);
         if (report == null) {
-            player.sendMessage(ChatColor.RED + "Report not found.");
+            player.sendMessage(message(messages, "messages.report_not_found", "&cReport not found."));
             return;
         }
 
         Map<String, Report> history = database.getUpdateHistory(report);
         if (history.isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW + "No update history for this report.");
+            player.sendMessage(message(messages, "messages.update_history_empty", "&eNo update history for this report."));
             return;
         }
 
-        player.sendMessage(ChatColor.GREEN + "---- Update History for Report " + reportId + " ----");
+        player.sendMessage(message(messages, "messages.update_history_header", "&a---- Update History for Report {reportId} ----")
+                .replace("{reportId}", reportId));
         history.forEach((updater, historyReport) -> {
             String updaterName = updater.replace("_-_", "");
-            player.sendMessage(ChatColor.YELLOW + "Updated by: " + updaterName);
-            player.sendMessage(ChatColor.YELLOW + "Reason: " + historyReport.getReason());
-            player.sendMessage(ChatColor.YELLOW + "Reported Player: " + historyReport.getReportedPlayer());
-            player.sendMessage(ChatColor.YELLOW + "Reporter: " + historyReport.getReporter());
-            player.sendMessage(ChatColor.YELLOW + "Status: " + historyReport.getStatus().getDisplayName());
-            player.sendMessage(ChatColor.YELLOW + "Staff Notes: " + (historyReport.getAdditionalInfo().isEmpty() ? "N/A" : historyReport.getAdditionalInfo()));
-            player.sendMessage(ChatColor.YELLOW + "Evidence: " + (historyReport.getEvidenceUrl().isEmpty() ? "N/A" : historyReport.getEvidenceUrl()));
+            player.sendMessage(message(messages, "messages.update_history_updated_by", "&eUpdated by: {updater}")
+                    .replace("{updater}", updaterName));
+            player.sendMessage(message(messages, "messages.update_history_reason", "&eReason: {reason}")
+                    .replace("{reason}", historyReport.getReason()));
+            player.sendMessage(message(messages, "messages.update_history_reported_player", "&eReported Player: {player}")
+                    .replace("{player}", historyReport.getReportedPlayer()));
+            player.sendMessage(message(messages, "messages.update_history_reporter", "&eReporter: {reporter}")
+                    .replace("{reporter}", historyReport.getReporter()));
+            player.sendMessage(message(messages, "messages.update_history_status", "&eStatus: {status}")
+                    .replace("{status}", historyReport.getStatus().getDisplayName()));
+            player.sendMessage(message(messages, "messages.update_history_staff_notes", "&eStaff Notes: {notes}")
+                    .replace("{notes}", historyReport.getAdditionalInfo().isEmpty() ? "N/A" : historyReport.getAdditionalInfo()));
+            player.sendMessage(message(messages, "messages.update_history_evidence", "&eEvidence: {evidence}")
+                    .replace("{evidence}", historyReport.getEvidenceUrl().isEmpty() ? "N/A" : historyReport.getEvidenceUrl()));
             if (historyReport.getStatus().isClosed()) {
-                player.sendMessage(ChatColor.YELLOW + "Resolution Comment: " + (historyReport.getResolutionComment().isEmpty() ? "N/A" : historyReport.getResolutionComment()));
+                player.sendMessage(message(messages, "messages.update_history_resolution", "&eResolution Comment: {resolution}")
+                        .replace("{resolution}", historyReport.getResolutionComment().isEmpty() ? "N/A" : historyReport.getResolutionComment()));
             }
-            player.sendMessage(ChatColor.YELLOW + "Time: " + formatTimestamp(historyReport.getTimestamp()));
-            player.sendMessage(ChatColor.GRAY + "-----------------------------");
+            player.sendMessage(message(messages, "messages.update_history_time", "&eTime: {time}")
+                    .replace("{time}", formatTimestamp(historyReport.getTimestamp())));
+            player.sendMessage(message(messages, "messages.update_history_separator", "&7-----------------------------"));
         });
-        player.sendMessage(ChatColor.GREEN + "----------------------------------------");
+        player.sendMessage(message(messages, "messages.update_history_footer", "&a----------------------------------------"));
     }
 
     private void handleKickReason(Player player, UUID uuid, String reason, FileConfiguration messages) {
@@ -688,8 +715,11 @@ public class ReportGUI implements CommandExecutor, Listener {
             return;
         }
 
-        reportedPlayer.kickPlayer(ChatColor.RED + "You have been kicked for: " + reason);
-        player.sendMessage(ChatColor.GREEN + "Player " + reportedPlayer.getName() + " has been kicked for: " + reason);
+        reportedPlayer.kickPlayer(message(messages, "messages.kicked_player_message", "&cYou have been kicked for: {reason}")
+                .replace("{reason}", reason));
+        player.sendMessage(message(messages, "messages.kick_success", "&aPlayer {player} has been kicked for: {reason}")
+                .replace("{player}", reportedPlayer.getName())
+                .replace("{reason}", reason));
         playerKickReason.remove(uuid);
         markReportAsPunished(report, player, "Kicked: " + reason);
     }
@@ -749,9 +779,10 @@ public class ReportGUI implements CommandExecutor, Listener {
     }
 
     private void applyReportUpdate(Player player, UUID uuid, UpdateSession session) {
+        FileConfiguration messages = ReportPlugin.getInstance().getMessagesConfig();
         Report report = database.getReportById(session.reportId);
         if (report == null) {
-            player.sendMessage(ChatColor.RED + "Report not found.");
+            player.sendMessage(message(messages, "messages.report_not_found", "&cReport not found."));
             updateSessions.remove(uuid);
             return;
         }
@@ -774,12 +805,12 @@ public class ReportGUI implements CommandExecutor, Listener {
 
         database.updateReport(report);
         updateSessions.remove(uuid);
-        player.sendMessage(ChatColor.GREEN + "Report updated.");
+        player.sendMessage(message(messages, "messages.report_updated", "&aReport updated."));
 
         if (database.writeUpdateHistory(report, player.getName())) {
-            player.sendMessage(ChatColor.GREEN + "Update history recorded.");
+            player.sendMessage(message(messages, "messages.update_history_recorded", "&aUpdate history recorded."));
         } else {
-            player.sendMessage(ChatColor.RED + "Failed to record update history.");
+            player.sendMessage(message(messages, "messages.update_history_record_failed", "&cFailed to record update history."));
         }
 
         notifyStaffAboutUpdate(player, report);
@@ -796,6 +827,7 @@ public class ReportGUI implements CommandExecutor, Listener {
     }
 
     private void notifyStaffAboutUpdate(Player actor, Report report) {
+        FileConfiguration messages = ReportPlugin.getInstance().getMessagesConfig();
         boolean notifyUpdate = ReportPlugin.getInstance().getConfig().getBoolean("notify.on-update", false);
         boolean notifyResolved = ReportPlugin.getInstance().getConfig().getBoolean("notify.on-resolve", false);
         boolean shouldNotify = report.getStatus().isClosed() ? notifyResolved : notifyUpdate;
@@ -804,9 +836,11 @@ public class ReportGUI implements CommandExecutor, Listener {
             return;
         }
 
-        String updateMessage = ChatColor.AQUA + "Report " + report.getReportId()
-                + " is now " + report.getStatus().getDisplayName()
-                + " by " + actor.getName() + ".";
+        String updateMessage = message(messages, "messages.staff_report_update_notification",
+                "&bReport {reportId} is now {status} by {actor}.")
+                .replace("{reportId}", report.getReportId())
+                .replace("{status}", report.getStatus().getDisplayName())
+                .replace("{actor}", actor.getName());
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             if (!onlinePlayer.hasPermission("reportplugin.report.notify")) {
@@ -814,13 +848,15 @@ public class ReportGUI implements CommandExecutor, Listener {
             }
 
             onlinePlayer.sendMessage(updateMessage);
-            TextComponent hoverMessage = new TextComponent(ChatColor.GRAY + "Click to view report details");
+            TextComponent hoverMessage = new TextComponent(message(messages, "messages.staff_click_view_report",
+                    "&7Click to view report details"));
             hoverMessage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/report-gui " + report.getReportId()));
             onlinePlayer.spigot().sendMessage(hoverMessage);
         }
     }
 
     private void notifyDiscordAboutUpdate(Player actor, Report report) {
+        FileConfiguration messages = ReportPlugin.getInstance().getMessagesConfig();
         if (!ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
             return;
         }
@@ -828,14 +864,16 @@ public class ReportGUI implements CommandExecutor, Listener {
         if (report.getStatus().isClosed()) {
             if (ReportPlugin.getInstance().getConfig().getBoolean("discord.notify.on-resolve", false)
                     && DiscordUtils.sendReportResolvedToDiscord(report)) {
-                actor.sendMessage(ChatColor.GREEN + "Discord notified about the status change.");
+                actor.sendMessage(message(messages, "messages.discord_notified_status_change",
+                        "&aDiscord notified about the status change."));
             }
             return;
         }
 
         if (ReportPlugin.getInstance().getConfig().getBoolean("discord.notify.on-update", true)
                 && DiscordUtils.sendReportUpdateToDiscord(report)) {
-            actor.sendMessage(ChatColor.GREEN + "Discord notified about the update.");
+            actor.sendMessage(message(messages, "messages.discord_notified_update",
+                    "&aDiscord notified about the update."));
         }
     }
 

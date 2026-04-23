@@ -2,6 +2,7 @@
 package ch.framedev.reportPlugin.commands;
 
 import ch.framedev.reportPlugin.database.Database;
+import ch.framedev.reportPlugin.utils.MessageUtils;
 import ch.framedev.reportPlugin.utils.Report;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -33,17 +34,16 @@ public class ReportDataCommand implements CommandExecutor, Listener {
         this.database = database;
     }
 
-    private static final String GUI_TITLE = ChatColor.AQUA + "Report Data";
     private static final int PAGE_SIZE = 45; // 5 rows for heads, 1 row for navigation
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can use this command.");
+            MessageUtils.send(sender, "messages.only_players_report_data", "&cOnly players can use this command.");
             return true;
         }
         if (!sender.hasPermission("reportplugin.reportdata")) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+            MessageUtils.send(sender, "messages.no_permission", "&cYou do not have permission to use this command.");
             return true;
         }
         openPage(player, 0);
@@ -60,8 +60,13 @@ public class ReportDataCommand implements CommandExecutor, Listener {
         List<? extends Player> online = Bukkit.getOnlinePlayers().stream().toList();
         int totalPages = (online.size() - 1) / PAGE_SIZE + 1;
         int size = 54; // 6 rows
+        String guiTitle = MessageUtils.get("gui.titles.report_data", "&bReport Data");
+        String fullTitle = MessageUtils.format("gui.titles.report_data_page", "{title} (Page {page}/{totalPages})",
+                "{title}", guiTitle,
+                "{page}", String.valueOf(page + 1),
+                "{totalPages}", String.valueOf(totalPages));
 
-        Inventory gui = Bukkit.createInventory(null, size, GUI_TITLE + " (Page " + (page + 1) + "/" + totalPages + ")");
+        Inventory gui = Bukkit.createInventory(null, size, fullTitle);
 
         int start = page * PAGE_SIZE;
         int end = Math.min(start + PAGE_SIZE, online.size());
@@ -80,13 +85,18 @@ public class ReportDataCommand implements CommandExecutor, Listener {
                         .max(Comparator.comparingLong(Report::getTimestamp))
                         .orElse(null);
                 if (lastReport == null) {
-                    lore.add("§7No reports found for this player.");
+                    lore.add(MessageUtils.get("gui.lores.report_data_no_reports", "&7No reports found for this player."));
                 } else {
-                    lore.add("§7Last Reported Reason: §6" + lastReport.getReason());
-                    lore.add("§7Last Reported By: §6" + lastReport.getReporter());
-                    lore.add("§7Last Reported At: §6" + new Date(lastReport.getTimestamp()));
-                    lore.add("§7Last Report Status: §6" + lastReport.getStatus().getDisplayName());
-                    lore.add("§7Total Reports: §6" + database.countReportsForPlayer(p.getName()));
+                    lore.add(MessageUtils.format("gui.lores.report_data_last_reason", "&7Last Reported Reason: &6{reason}",
+                            "{reason}", lastReport.getReason()));
+                    lore.add(MessageUtils.format("gui.lores.report_data_last_reporter", "&7Last Reported By: &6{reporter}",
+                            "{reporter}", lastReport.getReporter()));
+                    lore.add(MessageUtils.format("gui.lores.report_data_last_reported_at", "&7Last Reported At: &6{time}",
+                            "{time}", String.valueOf(new Date(lastReport.getTimestamp()))));
+                    lore.add(MessageUtils.format("gui.lores.report_data_last_status", "&7Last Report Status: &6{status}",
+                            "{status}", lastReport.getStatus().getDisplayName()));
+                    lore.add(MessageUtils.format("gui.lores.report_data_total_reports", "&7Total Reports: &6{count}",
+                            "{count}", String.valueOf(database.countReportsForPlayer(p.getName()))));
                 }
                 meta.setLore(lore);
                 head.setItemMeta(meta);
@@ -99,7 +109,7 @@ public class ReportDataCommand implements CommandExecutor, Listener {
             ItemStack prev = new ItemStack(Material.ARROW);
             ItemMeta prevMeta = prev.getItemMeta();
             if (prevMeta != null) {
-                prevMeta.setDisplayName(ChatColor.GREEN + "Previous Page");
+                prevMeta.setDisplayName(MessageUtils.get("gui.titles.previous_page", "&aPrevious Page"));
                 prev.setItemMeta(prevMeta);
             }
             gui.setItem(45, prev);
@@ -108,7 +118,7 @@ public class ReportDataCommand implements CommandExecutor, Listener {
             ItemStack next = new ItemStack(Material.ARROW);
             ItemMeta nextMeta = next.getItemMeta();
             if (nextMeta != null) {
-                nextMeta.setDisplayName(ChatColor.GREEN + "Next Page");
+                nextMeta.setDisplayName(MessageUtils.get("gui.titles.next_page", "&aNext Page"));
                 next.setItemMeta(nextMeta);
             }
             gui.setItem(53, next);
@@ -121,7 +131,7 @@ public class ReportDataCommand implements CommandExecutor, Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         String title = event.getView().getTitle();
-        if (!title.startsWith(GUI_TITLE)) return;
+        if (!title.startsWith(MessageUtils.get("gui.titles.report_data", "&bReport Data"))) return;
         event.setCancelled(true);
 
         ItemStack clicked = event.getCurrentItem();
@@ -135,9 +145,11 @@ public class ReportDataCommand implements CommandExecutor, Listener {
 
         // Page navigation
         int page = getPageFromTitle(title);
-        if (meta.getDisplayName().contains("Previous Page")) {
+        if (ChatColor.stripColor(meta.getDisplayName()).equalsIgnoreCase(ChatColor.stripColor(
+                MessageUtils.get("gui.titles.previous_page", "&aPrevious Page")))) {
             openPage(player, page - 1);
-        } else if (meta.getDisplayName().contains("Next Page")) {
+        } else if (ChatColor.stripColor(meta.getDisplayName()).equalsIgnoreCase(ChatColor.stripColor(
+                MessageUtils.get("gui.titles.next_page", "&aNext Page")))) {
             openPage(player, page + 1);
         }
         // You can add actions for clicking player heads here
@@ -145,13 +157,12 @@ public class ReportDataCommand implements CommandExecutor, Listener {
 
     // Helper to extract page number from title
     private int getPageFromTitle(String title) {
-        // Extract page number from title
-        int idx = title.indexOf("Page ");
-        if (idx < 0) return 0;
-        String sub = title.substring(idx + 5);
-        int slash = sub.indexOf("/");
         try {
-            return Integer.parseInt(sub.substring(0, slash)) - 1;
+            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+)/(\\d+)").matcher(title);
+            if (!matcher.find()) {
+                return 0;
+            }
+            return Integer.parseInt(matcher.group(1)) - 1;
         } catch (Exception e) {
             return 0;
         }
