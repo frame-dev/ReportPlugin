@@ -24,21 +24,22 @@ public class ReportClearUpdateHistoryCommand implements CommandExecutor, TabComp
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+            @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase("report-clearupdatehistory")) {
-            if (sender.hasPermission("reportplugin.clearupdatehistory")) {
-                if (args.length == 1) {
-                    String reportId = args[0];
-                    if (database.clearUpdateHistory(database.getReportById(reportId))) {
-                        sender.sendMessage("§aUpdate history for report ID " + reportId + " has been cleared.");
-                    } else {
-                        sender.sendMessage("§cNo report found with ID " + reportId + ".");
-                    }
-                } else {
-                    sender.sendMessage("§cUsage: /clearupdatehistory <reportId>");
-                }
-            } else {
+            if (!sender.hasPermission("reportplugin.clearupdatehistory")) {
                 sender.sendMessage("§cYou do not have permission to execute this command.");
+                return true;
+            }
+            if (args.length != 1) {
+                sender.sendMessage("§cUsage: /clearupdatehistory <reportId>");
+                return true;
+            }
+            String reportId = args[0];
+            if (database.clearUpdateHistory(database.getReportById(reportId))) {
+                sender.sendMessage("§aUpdate history for report ID " + reportId + " has been cleared.");
+            } else {
+                sender.sendMessage("§cNo report found with ID " + reportId + ".");
             }
             return true;
         }
@@ -46,7 +47,8 @@ public class ReportClearUpdateHistoryCommand implements CommandExecutor, TabComp
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
+            @NotNull String label, @NotNull String[] args) {
         if (!command.getName().equalsIgnoreCase("report-clearupdatehistory")) {
             return null;
         }

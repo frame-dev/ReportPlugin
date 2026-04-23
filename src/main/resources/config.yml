@@ -1,20 +1,39 @@
+# Basic server information stored with each report and shown in Discord messages.
 server-name: Localhost Server
 server-address: localhost
+
+# Enable this if your server runs behind BungeeCord/Waterfall/Velocity-style proxy handling.
 bungeecord: false
+
+# Master switch for all Discord webhook messages below.
 useDiscordWebhook: false
 
+# Limits for how often players can create reports.
 report-settings:
+  # Maximum number of reports that can exist for one reported player. Set to 0 to remove the limit.
   max-reports-per-player: 3
+  # Maximum number of reports one reporter can create. Set to 0 to remove the limit.
   max-reports-per-reporter: 10
+  # Cooldown in seconds before the same reporter can report the same target again.
   duplicate-window-seconds: 300
 
+# In-game staff notifications.
 notify:
+  # Notify staff with `reportplugin.report.notify` when a new report is created.
   on-create: true
+  # Notify staff when a report is edited or updated.
   on-update: false
+  # Notify staff when a report reaches a closed state such as resolved/rejected/punished.
   on-resolve: false
+  # Adds the clickable teleport hint in create notifications.
   hoverable-teleport: true
 
+# Discord webhook configuration.
+# Placeholders you can use in embed text:
+# %ReportedPlayer%, %Reporter%, %Reason%, %Status%, %AdditionalInfo%, %EvidenceUrl%,
+# %ResolutionComment%, %ServerName%, %Location%, %WorldName%, %ReporterID%
 discord:
+  # Webhook payload used when a report is first created.
   create:
     webhook-url: YOUR_WEBHOOK_URL_HERE
     username: ReportBot
@@ -23,6 +42,7 @@ discord:
     embed:
       title: New Report
       description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Status:** %Status%\n**Staff Notes:** %AdditionalInfo%\n**Evidence:** %EvidenceUrl%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
+      # Optional link attached to the embed title.
       url: https://example.com
       footer:
         text: "Report ID: %ReporterID%"
@@ -31,6 +51,8 @@ discord:
         url: https://example.com/image.png
       thumbnail:
         url: https://example.com/thumbnail.png
+
+  # Webhook payload used when staff update an existing report.
   update:
     webhook-url: YOUR_WEBHOOK_URL_HERE
     username: ReportBot
@@ -47,6 +69,8 @@ discord:
         url: https://example.com/image.png
       thumbnail:
         url: https://example.com/thumbnail.png
+
+  # Webhook payload used when a report is closed or otherwise resolved.
   resolved:
     webhook-url: YOUR_WEBHOOK_URL_HERE
     username: ReportBot
@@ -63,12 +87,16 @@ discord:
         url: https://example.com/image.png
       thumbnail:
         url: https://example.com/thumbnail.png
+
+  # Toggles which Discord events are sent when `useDiscordWebhook` is true.
   notify:
     on-create: true
     on-update: true
     on-resolve: false
+    # Present in the config template for parity with in-game notify settings.
     hoverable-teleport: true
 
+# MySQL connection settings.
 mysql:
   host: localhost
   port: 3306
@@ -76,6 +104,7 @@ mysql:
   username: yourUsername
   password: yourPassword
 
+# PostgreSQL connection settings.
 postgresql:
   host: localhost
   port: 5432
@@ -83,15 +112,21 @@ postgresql:
   username: yourUsername
   password: yourPassword
 
+# SQLite stores the database in a local file inside the plugin folder.
 sqlite:
+  # Legacy filename entry kept in the template.
   file: reports.db
+  # Relative folder path for the SQLite database file.
   path: database
+  # Actual SQLite database filename used by the plugin.
   database: reports.db
 
+# H2 local file storage settings.
 h2Storage:
   file: reports
   path: database
 
+# MongoDB connection settings.
 mongodb:
   host: localhost
   port: 27017
@@ -99,11 +134,15 @@ mongodb:
   username: yourUsername
   password: yourPassword
 
+# Optional Redis cache used by the MySQL backend.
 redis:
   enabled: false
   host: localhost
   port: 6379
   password: ""
+  # Cache TTL in seconds.
   ttl: 300
 
+# Storage backend to use.
+# Supported values: mysql, sqlite, postgresql, h2, mongodb, jsonfilesystem, yamlfilesystem, textfilesystem
 database: jsonfilesystem

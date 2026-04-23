@@ -53,7 +53,7 @@ The built jar will be created in `target/`.
 - `/report-gui [reportId]` - Open the report management GUI.
 - `/report-data` - Show report data for online players.
 - `/report-help` - Show the help page.
-- `/reporttp <player> [reportId]` - Teleport to a report location.
+- `/reporttp <player|reportId> [reportId]` - Teleport to a report location.
 - `/report-delete <reportId>` - Delete a report.
 - `/report-updatehistory <reportId>` - Show report update history.
 - `/report-clearupdatehistory <reportId>` - Clear a report's update history.

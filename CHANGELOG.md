@@ -1,3 +1,5 @@
+# Changelogs
+
 ## [0.3] - 2025-09-10
 
 - Initial commit (reset history)
@@ -54,8 +56,8 @@
 - README.md updated
 - Add Discord notification settings and improve report command functionality
 
-
 [0.4] - 2025-10-14
+
 - Add report update command and enhance report management features
 - Refactor ReportUpdateCommand to improve command handling and validation
 - Update README.md to include new /report-updatehistory and /report-clearupdatehistory commands and
@@ -69,4 +71,3 @@
 - Added YamlFileSystem class for yaml storage
 - Added txt support
 - Added TextFileSystem class for txt storage
-
