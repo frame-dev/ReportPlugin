@@ -42,7 +42,9 @@ public class YamlFileSystemHelper implements DatabaseHelper {
         fileConfig.set("reason", report.getReason());
         fileConfig.set("timestamp", report.getTimestamp());
         fileConfig.set("resolved", report.isResolved());
+        fileConfig.set("status", report.getStatus().name());
         fileConfig.set("additionalInfo", report.getAdditionalInfo());
+        fileConfig.set("evidenceUrl", report.getEvidenceUrl());
         fileConfig.set("resolutionComment", report.getResolutionComment());
         fileConfig.set("location", report.getLocation());
         fileConfig.set("serverIp", report.getServerIp());
@@ -66,7 +68,9 @@ public class YamlFileSystemHelper implements DatabaseHelper {
         String reason = fileConfig.getString("reason");
         long timestamp = fileConfig.getLong("timestamp");
         boolean resolved = fileConfig.getBoolean("resolved", false);
+        String status = fileConfig.getString("status");
         String additionalInfo = fileConfig.getString("additionalInfo");
+        String evidenceUrl = fileConfig.getString("evidenceUrl");
         String resolutionComment = fileConfig.getString("resolutionComment");
         String location = fileConfig.getString("location");
         String serverIp = fileConfig.getString("serverIp");
@@ -76,8 +80,12 @@ public class YamlFileSystemHelper implements DatabaseHelper {
 
         Report report = new Report(reportedPlayer, reason, reporter, reportId, serverName, serverIp, serverVersion, worldName, location);
         report.setTimestamp(timestamp);
-        report.setResolved(resolved);
+        report.setStatus(status);
+        if (status == null || status.isEmpty()) {
+            report.setResolved(resolved);
+        }
         report.setAdditionalInfo(additionalInfo);
+        report.setEvidenceUrl(evidenceUrl);
         report.setResolutionComment(resolutionComment);
         if( reportId == null || reportId.isEmpty()) {
             throw new IOException("Report file " + file.getName() + " is missing a valid reportId.");
@@ -274,7 +282,9 @@ public class YamlFileSystemHelper implements DatabaseHelper {
             String reason = fileConfig.getString(key + ".reason");
             long timestamp = fileConfig.getLong(key + ".timestamp");
             boolean resolved = fileConfig.getBoolean(key + ".resolved", false);
+            String status = fileConfig.getString(key + ".status");
             String additionalInfo = fileConfig.getString(key + ".additionalInfo");
+            String evidenceUrl = fileConfig.getString(key + ".evidenceUrl");
             String resolutionComment = fileConfig.getString(key + ".resolutionComment");
             String location = fileConfig.getString(key + ".location");
             String serverIp = fileConfig.getString(key + ".serverIp");
@@ -283,8 +293,12 @@ public class YamlFileSystemHelper implements DatabaseHelper {
             String serverVersion = fileConfig.getString(key + ".serverVersion");
             Report report = new Report(reportedPlayer, reason, reporter, reportId, serverName, serverIp, serverVersion, worldName, location);
             report.setTimestamp(timestamp);
-            report.setResolved(resolved);
+            report.setStatus(status);
+            if (status == null || status.isEmpty()) {
+                report.setResolved(resolved);
+            }
             report.setAdditionalInfo(additionalInfo);
+            report.setEvidenceUrl(evidenceUrl);
             report.setResolutionComment(resolutionComment);
             history.put(key, report);
         }
@@ -304,7 +318,9 @@ public class YamlFileSystemHelper implements DatabaseHelper {
             fileConfig.set(key + ".reason", report.getReason());
             fileConfig.set(key + ".timestamp", report.getTimestamp());
             fileConfig.set(key + ".resolved", report.isResolved());
+            fileConfig.set(key + ".status", report.getStatus().name());
             fileConfig.set(key + ".additionalInfo", report.getAdditionalInfo());
+            fileConfig.set(key + ".evidenceUrl", report.getEvidenceUrl());
             fileConfig.set(key + ".resolutionComment", report.getResolutionComment());
             fileConfig.set(key + ".location", report.getLocation());
             fileConfig.set(key + ".serverIp", report.getServerIp());

@@ -60,9 +60,12 @@ public class ReportUpdateHistoryCommand implements CommandExecutor, TabCompleter
                 player.sendMessage(ChatColor.YELLOW + "Reason: " + rep.getReason());
                 player.sendMessage(ChatColor.YELLOW + "Reported Player: " + rep.getReportedPlayer());
                 player.sendMessage(ChatColor.YELLOW + "Reporter: " + rep.getReporter());
-                player.sendMessage(ChatColor.YELLOW + "Additional Info: " + (rep.getAdditionalInfo().isEmpty() ? "N/A" : rep.getAdditionalInfo()));
-                player.sendMessage(ChatColor.YELLOW + "Resolved: " + (rep.isResolved() ? "Yes" : "No"));
-                if (rep.isResolved()) {
+                player.sendMessage(ChatColor.YELLOW + "Status: " + rep.getStatus().getDisplayName());
+                player.sendMessage(ChatColor.YELLOW + "Staff Notes: " + (rep.getAdditionalInfo().isEmpty() ? "N/A" : rep.getAdditionalInfo()));
+                if (!rep.getEvidenceUrl().isEmpty()) {
+                    player.sendMessage(ChatColor.YELLOW + "Evidence: " + rep.getEvidenceUrl());
+                }
+                if (rep.getStatus().isClosed()) {
                     player.sendMessage(ChatColor.YELLOW + "Resolution Comment: " + (rep.getResolutionComment().isEmpty() ? "N/A" : rep.getResolutionComment()));
                 }
                 player.sendMessage(ChatColor.YELLOW + "Time: " + sdf.format(new Date(rep.getTimestamp())));

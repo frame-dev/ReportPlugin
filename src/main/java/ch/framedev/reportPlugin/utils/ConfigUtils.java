@@ -27,6 +27,7 @@ public record ConfigUtils(FileConfiguration config) {
 
         setDefault("report-settings.max-reports-per-player", 3);
         setDefault("report-settings.max-reports-per-reporter", 10);
+        setDefault("report-settings.duplicate-window-seconds", 300);
         setComment("report-settings", "Settings related to reporting limits.");
 
         setDefault("notify.on-create", true);
@@ -51,6 +52,9 @@ public record ConfigUtils(FileConfiguration config) {
                 "**Reported Player:** %ReportedPlayer%\\n"
                         + "**Reporter:** %Reporter%\\n"
                         + "**Reason:** %Reason%\\n"
+                        + "**Status:** %Status%\\n"
+                        + "**Staff Notes:** %AdditionalInfo%\\n"
+                        + "**Evidence:** %EvidenceUrl%\\n"
                         + "**Server:** %ServerName%\\n"
                         + "**Location:** %Location%\\n"
                         + "**World:** %WorldName%");
@@ -70,7 +74,8 @@ public record ConfigUtils(FileConfiguration config) {
                         + "**Reporter:** %Reporter%\\n"
                         + "**Reason:** %Reason%\\n"
                         + "**Status:** %Status%\\n"
-                        + "**Additional Info:** %AdditionalInfo%\\n"
+                        + "**Staff Notes:** %AdditionalInfo%\\n"
+                        + "**Evidence:** %EvidenceUrl%\\n"
                         + "**Resolution Comment:** %ResolutionComment%\\n"
                         + "**Server:** %ServerName%\\n"
                         + "**Location:** %Location%\\n"
@@ -84,14 +89,15 @@ public record ConfigUtils(FileConfiguration config) {
         setDefault("discord.resolved.webhook-url", "YOUR_WEBHOOK_URL_HERE");
         setDefault("discord.resolved.username", "ReportBot");
         setDefault("discord.resolved.avatar-url", "https://example.com/avatar.png");
-        setDefault("discord.resolved.content", "Report Solved!");
-        setDefault("discord.resolved.embed.title", "Report Solved");
+        setDefault("discord.resolved.content", "Report Closed!");
+        setDefault("discord.resolved.embed.title", "Report Closed");
         setDefault("discord.resolved.embed.description",
                 "**Reported Player:** %ReportedPlayer%\\n"
                         + "**Reporter:** %Reporter%\\n"
                         + "**Reason:** %Reason%\\n"
                         + "**Status:** %Status%\\n"
-                        + "**Additional Info:** %AdditionalInfo%\\n"
+                        + "**Staff Notes:** %AdditionalInfo%\\n"
+                        + "**Evidence:** %EvidenceUrl%\\n"
                         + "**Resolution Comment:** %ResolutionComment%\\n"
                         + "**Server:** %ServerName%\\n"
                         + "**Location:** %Location%\\n"

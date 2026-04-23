@@ -7,9 +7,11 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,8 +75,27 @@ public class ReportCommand implements CommandExecutor {
             return true;
         }
 
+        long duplicateWindowSeconds = plugin.getConfig().getLong("report-settings.duplicate-window-seconds", 300L);
+        if (duplicateWindowSeconds > 0 && isDuplicateReport(player.getName(), reportedPlayer, duplicateWindowSeconds)) {
+            FileConfiguration messages = plugin.getMessagesConfig();
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    messages.getString("messages.duplicate_report_recently",
+                            "&cYou already reported this player recently. Please wait before sending the same report again.")));
+            return true;
+        }
+
         report(args, player);
         return true;
+    }
+
+    private boolean isDuplicateReport(String reporter, String reportedPlayer, long duplicateWindowSeconds) {
+        long now = System.currentTimeMillis();
+        long duplicateWindowMillis = duplicateWindowSeconds * 1000L;
+        return database.getAllReports().stream()
+                .filter(report -> report.getReporter() != null && report.getReportedPlayer() != null)
+                .anyMatch(report -> report.getReporter().equalsIgnoreCase(reporter)
+                        && report.getReportedPlayer().equalsIgnoreCase(reportedPlayer)
+                        && now - report.getTimestamp() < duplicateWindowMillis);
     }
 
     private void report(String[] args, Player player) {

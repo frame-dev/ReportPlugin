@@ -15,6 +15,7 @@ import ch.framedev.reportPlugin.database.Database;
 import ch.framedev.reportPlugin.main.ReportPlugin;
 import ch.framedev.reportPlugin.utils.DiscordUtils;
 import ch.framedev.reportPlugin.utils.Report;
+import ch.framedev.reportPlugin.utils.ReportStatus;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -83,7 +84,7 @@ public class ReportAPI {
         Report report = getDatabaseOrThrow().getReportByPlayer(reportedPlayer);
         if (report != null) {
             report.setResolutionComment(resolutionComment);
-            report.setResolved(resolved);
+            report.setStatus(resolved ? ReportStatus.RESOLVED : ReportStatus.OPEN);
             getDatabaseOrThrow().updateReport(report);
             if (ReportPlugin.getInstance().getConfig().getBoolean("useDiscordWebhook", false)) {
                 if (resolved && !DiscordUtils.sendReportResolvedToDiscord(report)) {
@@ -146,13 +147,13 @@ public class ReportAPI {
 
     public List<Report> getAllUnresolvedReports() {
         return getDatabaseOrThrow().getAllReports().stream()
-                .filter(report -> !report.isResolved())
+                .filter(report -> !report.getStatus().isClosed())
                 .toList();
     }
 
     public List<Report> getAllResolvedReports() {
         return getDatabaseOrThrow().getAllReports().stream()
-                .filter(Report::isResolved)
+                .filter(report -> report.getStatus().isClosed())
                 .toList();
     }
 
@@ -162,13 +163,13 @@ public class ReportAPI {
 
     public int countAllUnresolvedReports() {
         return (int) getDatabaseOrThrow().getAllReports().stream()
-                .filter(report -> !report.isResolved())
+                .filter(report -> !report.getStatus().isClosed())
                 .count();
     }
 
     public int countAllResolvedReports() {
         return (int) getDatabaseOrThrow().getAllReports().stream()
-                .filter(Report::isResolved)
+                .filter(report -> report.getStatus().isClosed())
                 .count();
     }
 
@@ -179,13 +180,13 @@ public class ReportAPI {
 
     public List<Report> getAllResolvedReportsByPlayer(String reportedPlayer) {
         return getDatabaseOrThrow().getAllReports().stream()
-                .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer) && report.isResolved())
+                .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer) && report.getStatus().isClosed())
                 .toList();
     }
 
     public List<Report> getAllUnresolvedReportsByPlayer(String reportedPlayer) {
         return getDatabaseOrThrow().getAllReports().stream()
-                .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer) && !report.isResolved())
+                .filter(report -> report.getReportedPlayer().equalsIgnoreCase(reportedPlayer) && !report.getStatus().isClosed())
                 .toList();
     }
 

@@ -32,7 +32,7 @@ public class ReportListCommand implements CommandExecutor {
         }
 
         List<Report> reports = database.getAllReports().stream()
-                .filter(report -> !report.isResolved())
+                .filter(report -> !report.getStatus().isClosed())
                 .toList();
 
         if (reports.isEmpty()) {
@@ -52,8 +52,11 @@ public class ReportListCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.GRAY + "Reporter: " + report.getReporter());
             sender.sendMessage(ChatColor.GRAY + "Reason: " + report.getReason());
             sender.sendMessage(ChatColor.GRAY + "Timestamp: " + sdf.format(new Date(report.getTimestamp())));
-            sender.sendMessage(ChatColor.YELLOW + "Resolved: " + (report.isResolved() ? "Yes" : "No"));
+            sender.sendMessage(ChatColor.YELLOW + "Status: " + report.getStatus().getDisplayName());
             sender.sendMessage(ChatColor.YELLOW + "Resolution Comment: " + report.getResolutionComment());
+            if (!report.getEvidenceUrl().isEmpty()) {
+                sender.sendMessage(ChatColor.YELLOW + "Evidence: " + report.getEvidenceUrl());
+            }
         }
         sender.sendMessage(ChatColor.GREEN + "----------------------");
         sender.sendMessage(ChatColor.GREEN + "Total reports: " + reports.size());

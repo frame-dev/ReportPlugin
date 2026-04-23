@@ -6,6 +6,7 @@ useDiscordWebhook: false
 report-settings:
   max-reports-per-player: 3
   max-reports-per-reporter: 10
+  duplicate-window-seconds: 300
 
 notify:
   on-create: true
@@ -21,7 +22,7 @@ discord:
     content: New report received!
     embed:
       title: New Report
-      description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
+      description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Status:** %Status%\n**Staff Notes:** %AdditionalInfo%\n**Evidence:** %EvidenceUrl%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
       url: https://example.com
       footer:
         text: "Report ID: %ReporterID%"
@@ -37,7 +38,7 @@ discord:
     content: Report updated!
     embed:
       title: Report Updated
-      description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Status:** %Status%\n**Additional Info:** %AdditionalInfo%\n**Resolution Comment:** %ResolutionComment%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
+      description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Status:** %Status%\n**Staff Notes:** %AdditionalInfo%\n**Evidence:** %EvidenceUrl%\n**Resolution Comment:** %ResolutionComment%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
       url: https://example.com
       footer:
         text: "Report ID: %ReporterID%"
@@ -50,10 +51,10 @@ discord:
     webhook-url: YOUR_WEBHOOK_URL_HERE
     username: ReportBot
     avatar-url: https://example.com/avatar.png
-    content: Report Solved!
+    content: Report Closed!
     embed:
-      title: Report Solved
-      description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Status:** %Status%\n**Additional Info:** %AdditionalInfo%\n**Resolution Comment:** %ResolutionComment%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
+      title: Report Closed
+      description: "**Reported Player:** %ReportedPlayer%\n**Reporter:** %Reporter%\n**Reason:** %Reason%\n**Status:** %Status%\n**Staff Notes:** %AdditionalInfo%\n**Evidence:** %EvidenceUrl%\n**Resolution Comment:** %ResolutionComment%\n**Server:** %ServerName%\n**Location:** %Location%\n**World:** %WorldName%"
       url: https://example.com
       footer:
         text: "Report ID: %ReporterID%"

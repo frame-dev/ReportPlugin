@@ -36,9 +36,11 @@ public class TextFileSystemHelper implements DatabaseHelper {
                 .append("location").append(report.getLocation()).append(";")
                 .append("worldName").append(report.getWorldName()).append(";")
                 .append("isResolved").append(report.isResolved()).append(";")
+                .append("status").append(report.getStatus().name()).append(";")
                 .append("timestamp").append(report.getTimestamp()).append(";")
                 .append("resolutionComment").append(report.getResolutionComment()).append(";")
-                .append("additionalInfo").append(report.getAdditionalInfo()).append(";");
+                .append("additionalInfo").append(report.getAdditionalInfo()).append(";")
+                .append("evidenceUrl").append(report.getEvidenceUrl()).append(";");
         // Write 'data' to the file at 'filePath'
         try (FileWriter writer = new FileWriter(target, false)) {
             writer.write(data.toString());
@@ -82,12 +84,16 @@ public class TextFileSystemHelper implements DatabaseHelper {
                     report.setWorldName(part.substring("worldName".length()));
                 } else if (part.startsWith("isResolved")) {
                     report.setResolved(Boolean.parseBoolean(part.substring("isResolved".length())));
+                } else if (part.startsWith("status")) {
+                    report.setStatus(part.substring("status".length()));
                 } else if (part.startsWith("timestamp")) {
                     report.setTimestamp(Long.parseLong(part.substring("timestamp".length())));
                 } else if (part.startsWith("resolutionComment")) {
                     report.setResolutionComment(part.substring("resolutionComment".length()));
                 } else if (part.startsWith("additionalInfo")) {
                     report.setAdditionalInfo(part.substring("additionalInfo".length()));
+                } else if (part.startsWith("evidenceUrl")) {
+                    report.setEvidenceUrl(part.substring("evidenceUrl".length()));
                 }
             }
             return report;

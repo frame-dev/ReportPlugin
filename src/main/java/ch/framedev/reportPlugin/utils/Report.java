@@ -45,6 +45,8 @@ public class Report {
     private String worldName;
     private String location; // Format: "world,x,y,z"
     private String additionalInfo;
+    private String status;
+    private String evidenceUrl;
 
     public Report() {
     }
@@ -78,6 +80,8 @@ public class Report {
         this.worldName = worldName;
         this.location = location;
         this.additionalInfo = "";
+        this.status = ReportStatus.OPEN.name();
+        this.evidenceUrl = "";
     }
 
     /**
@@ -140,6 +144,13 @@ public class Report {
         this.worldName = document.getString("worldName");
         this.location = document.getString("location");
         this.additionalInfo = document.getString("additionalInfo");
+        this.status = document.getString("status");
+        this.evidenceUrl = document.getString("evidenceUrl");
+        if (this.status == null || this.status.isBlank()) {
+            this.status = ReportStatus.fromResolved(this.resolved).name();
+        } else {
+            this.resolved = getStatus().isClosed();
+        }
     }
 
     public String getReportedPlayer() {
@@ -175,15 +186,16 @@ public class Report {
     }
 
     public boolean isResolved() {
-        return resolved;
+        return getStatus().isClosed();
     }
 
     public void setResolved(boolean resolved) {
         this.resolved = resolved;
+        this.status = ReportStatus.fromResolved(resolved).name();
     }
 
     public String getResolutionComment() {
-        return resolutionComment;
+        return resolutionComment == null ? "" : resolutionComment;
     }
 
     public void setResolutionComment(String resolutionComment) {
@@ -268,11 +280,36 @@ public class Report {
     }
 
     public String getAdditionalInfo() {
-        return additionalInfo;
+        return additionalInfo == null ? "" : additionalInfo;
     }
 
     public void setAdditionalInfo(String additionalInfo) {
         this.additionalInfo = additionalInfo;
+    }
+
+    public ReportStatus getStatus() {
+        ReportStatus currentStatus = ReportStatus.fromStorage(status);
+        this.status = currentStatus.name();
+        this.resolved = currentStatus.isClosed();
+        return currentStatus;
+    }
+
+    public void setStatus(ReportStatus status) {
+        ReportStatus safeStatus = status == null ? ReportStatus.OPEN : status;
+        this.status = safeStatus.name();
+        this.resolved = safeStatus.isClosed();
+    }
+
+    public void setStatus(String status) {
+        setStatus(ReportStatus.fromStorage(status));
+    }
+
+    public String getEvidenceUrl() {
+        return evidenceUrl == null ? "" : evidenceUrl;
+    }
+
+    public void setEvidenceUrl(String evidenceUrl) {
+        this.evidenceUrl = evidenceUrl;
     }
 
     @Override
@@ -282,7 +319,8 @@ public class Report {
                ", reason='" + reason + '\'' +
                ", reporter='" + reporter + '\'' +
                ", timestamp=" + timestamp +
-               ", resolved=" + resolved +
+               ", status='" + getStatus().name() + '\'' +
+               ", resolved=" + isResolved() +
                ", resolutionComment='" + resolutionComment + '\'' +
                ", reportId='" + reportId + '\'' +
                ", serverName='" + serverName + '\'' +
@@ -291,6 +329,7 @@ public class Report {
                ", worldName='" + worldName + '\'' +
                ", location='" + location + '\'' +
                ", additionalInfo='" + additionalInfo + '\'' +
+               ", evidenceUrl='" + evidenceUrl + '\'' +
                '}';
     }
 
@@ -310,15 +349,17 @@ public class Report {
         document.put("reporter", reporter);
         document.put("timestamp", timestamp);
         document.put("timeAsString", new SimpleDateFormat("HH:mm-dd.MM.yyyy").format(new Date(timestamp)));
-        document.put("resolved", resolved);
-        document.put("resolutionComment", resolutionComment);
+        document.put("resolved", isResolved());
+        document.put("status", getStatus().name());
+        document.put("resolutionComment", getResolutionComment());
         document.put("reportId", reportId);
         document.put("serverName", serverName);
         document.put("serverIp", serverIp);
         document.put("serverVersion", serverVersion);
         document.put("worldName", worldName);
         document.put("location", location);
-        document.put("additionalInfo", additionalInfo);
+        document.put("additionalInfo", getAdditionalInfo());
+        document.put("evidenceUrl", getEvidenceUrl());
         return document;
     }
 }

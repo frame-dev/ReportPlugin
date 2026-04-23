@@ -6,6 +6,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,8 +45,13 @@ public class ReportTeleportCommand implements CommandExecutor, TabCompleter {
                     .max(Comparator.comparingLong(Report::getTimestamp))
                     .orElse(null);
             if (lastReport != null) {
+                Location reportLocation = getValidReportLocation(lastReport);
+                if (reportLocation == null) {
+                    player.sendMessage("Stored report location could not be loaded.");
+                    return true;
+                }
                 player.sendMessage("Last report ID for " + reportedPlayerName + " is: " + lastReport.getReportId());
-                player.teleport(Report.getLocationAsBukkitLocation(lastReport.getLocation()));
+                player.teleport(reportLocation);
             } else {
                 player.sendMessage("No reports found for player: " + reportedPlayerName);
             }
@@ -54,12 +61,12 @@ public class ReportTeleportCommand implements CommandExecutor, TabCompleter {
             String reportId = args[1];
             Report report = database.getReportById(reportId);
             if (report != null && report.getReportedPlayer().equalsIgnoreCase(reportedPlayerName)) {
-                Player reportedPlayer = player.getServer().getPlayerExact(reportedPlayerName);
-                if (reportedPlayer != null) {
-                    player.teleport(Report.getLocationAsBukkitLocation(report.getLocation()));
-                    player.sendMessage("Teleported to " + reportedPlayerName + " for report ID: " + reportId);
+                Location reportLocation = getValidReportLocation(report);
+                if (reportLocation == null) {
+                    player.sendMessage("Stored report location could not be loaded.");
                 } else {
-                    player.sendMessage("Player " + reportedPlayerName + " is not online.");
+                    player.teleport(reportLocation);
+                    player.sendMessage("Teleported to saved report location for " + reportedPlayerName + " with report ID: " + reportId);
                 }
             } else {
                 player.sendMessage("No report found with ID: " + reportId + " for player: " + reportedPlayerName);
@@ -89,5 +96,18 @@ public class ReportTeleportCommand implements CommandExecutor, TabCompleter {
                     .toList();
         }
         return List.of();
+    }
+
+    private Location getValidReportLocation(Report report) {
+        try {
+            Location reportLocation = Report.getLocationAsBukkitLocation(report.getLocation());
+            World world = reportLocation.getWorld();
+            if (world == null) {
+                return null;
+            }
+            return reportLocation;
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
     }
 }
